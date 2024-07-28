@@ -7,9 +7,16 @@
         <div class="col-md-12">
 
             <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title">Branches</h3>
+              <div class="card-header row align-items-center">
+                <div class="col-6">
+                    
+                    <h3 class="card-title">Branches</h3>
                 </div>
+                <div class="col-6 text-right">
+                    
+                    <a class="btn btn-primary" href="{{route('branches.create')}}">Add New Branch</a>
+                </div>
+            </div>
 
                 <div class="card-body">
                     <table class="table table-bordered" id="table">
@@ -37,9 +44,49 @@
 @endsection
 
 @section('script')
+
+
+
 <script type="text/javascript">
+
+  function deleteRecord(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+          $.ajax({
+              url: '/branches/' + id,
+              type: 'DELETE',
+              data: {
+                  "_token": "{{ csrf_token() }}",
+              },
+              success: function(response) {
+                  Swal.fire(
+                      'Deleted!',
+                      'The branch has been deleted.',
+                      'success'
+                  );
+                  $('#table').DataTable().ajax.reload();
+              },
+              error: function(xhr) {
+                  Swal.fire(
+                      'Error!',
+                      'There was an error deleting the branch.',
+                      'error'
+                  );
+              }
+          });
+      }
+  });
+  }
+
   $(document).ready(function() {
-      // DataTable initialization
       var dataTable = $('#table').DataTable({
           processing: true,
           serverSide: true,
@@ -54,28 +101,6 @@
           ]
       });
 
-      // Delete event handler
-      $('#table').on('click', '.delete', function(event) {
-          event.preventDefault();
-
-          var branchId = $(this).data('id');
-          var row = $(this).closest('tr');
-
-          if (confirm("Are you sure you want to delete this branch?")) {
-              $.ajax({
-                  url: '/branches/' + branchId,
-                  type: 'GET', // Use DELETE method for deletion
-                  success: function(response) {
-                      alert('Branch deleted successfully');
-                      dataTable.row(row).remove().draw(false); // Remove row from DataTable
-                  },
-                  error: function(xhr) {
-                      console.error(xhr.responseText);
-                      alert('Failed to delete branch');
-                  }
-              });
-          }
-      });
   });
 </script>
 

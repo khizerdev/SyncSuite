@@ -112,6 +112,14 @@ Route::middleware(['auth'])->group(function () {
     Route::put('users/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
     Route::get('users/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 
+    Route::get('purchases', [App\Http\Controllers\PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('purchases/create', [App\Http\Controllers\PurchaseController::class, 'create'])->name('purchases.create');
+    Route::post('purchases', [App\Http\Controllers\PurchaseController::class, 'store'])->name('purchases.store');
+    Route::get('purchases/{id}/edit', [App\Http\Controllers\PurchaseController::class, 'edit'])->name('purchases.edit');
+    Route::put('purchases/{id}', [App\Http\Controllers\PurchaseController::class, 'update'])->name('purchases.update');
+    Route::get('purchases/{id}', [App\Http\Controllers\PurchaseController::class, 'destroy'])->name('purchases.destroy');
+    Route::get('purchases/view/{id}', [App\Http\Controllers\PurchaseController::class, 'view'])->name('purchases.view');
+
 
     Route::get('/dashboard', function () {
         return view('dashboard');
