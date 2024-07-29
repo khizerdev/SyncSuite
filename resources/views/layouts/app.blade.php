@@ -569,6 +569,12 @@
                                         <p>Purchase Order</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('purchase-receipts.index') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Purchase Receipts</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 

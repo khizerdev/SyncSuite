@@ -120,6 +120,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('purchases/{id}', [App\Http\Controllers\PurchaseController::class, 'destroy'])->name('purchases.destroy');
     Route::get('purchases/view/{id}', [App\Http\Controllers\PurchaseController::class, 'view'])->name('purchases.view');
 
+    Route::get('purchase-receipts', [App\Http\Controllers\PurchaseReceiptController::class, 'index'])->name('purchase-receipts.index');
+    Route::get('purchase-receipts/create', [App\Http\Controllers\PurchaseReceiptController::class, 'create'])->name('purchase-receipts.create');
+    Route::post('purchase-receipts', [App\Http\Controllers\PurchaseReceiptController::class, 'store'])->name('purchase-receipts.store');
+    Route::get('purchase-receipts/{id}/edit', [App\Http\Controllers\PurchaseReceiptController::class, 'edit'])->name('purchase-receipts-receipts.edit');
+    Route::put('purchase-receipts/{id}', [App\Http\Controllers\PurchaseReceiptController::class, 'update'])->name('purchase-receipts.update');
+    Route::get('purchase-receipts/{id}', [App\Http\Controllers\PurchaseReceiptController::class, 'destroy'])->name('purchase-receipts.destroy');
+    Route::get('purchase-receipts/view/{id}', [App\Http\Controllers\PurchaseReceiptController::class, 'view'])->name('purchase-receipts.view');
+
 
     Route::get('/dashboard', function () {
         return view('dashboard');
