@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\PurchaseReceipt;
 use Illuminate\Support\Facades\Gate;
 use Auth;
 use App\Purchase;
 use App\PurchaseItem;
 use App\Product;
 use App\PurchaseInvoice;
-use App\PurchaseReceipt;
 use Yajra\Datatables\Datatables;
 use Carbon\Carbon;
 
@@ -33,7 +33,7 @@ class PurchaseReceiptController extends Controller
                     })
                     ->addColumn('vendor', function($row){
                         if($row->purchase){
-                          $btn = "<a href=".route('admin.vendors.edit',$row->purchase->vendor->id).">".$row->purchase->vendor->name."</a>";
+                          $btn = "<a href=".route('vendors.edit',$row->purchase->vendor->id).">".$row->purchase->vendor->name."</a>";
                         }else{
                             $btn = '';
                         }
@@ -41,24 +41,24 @@ class PurchaseReceiptController extends Controller
                     })
                     ->addColumn('purchase', function($row){
                         if($row->purchase){
-                        $btn = "<a href=".route('admin.purchases.edit',$row->purchase_id)." >#".$row->purchase->serial_no."</a>";
+                        $btn = "<a href=".route('purchases.edit',$row->purchase_id)." >#".$row->purchase->serial_no."</a>";
                         }else{
                             $btn = '';
                         }
                         return $btn;
                     })
                     ->addColumn('action', function($row){                       
-                        $btn = "<a href=".route('admin.purchase-receipts.edit',$row->id)."><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=".route('admin.purchase-receipts.delete',$row->id)."class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=".route('admin.purchase-receipts.view',$row->id)."class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
+                        $btn = "<a href=".route('purchase-receipts.edit',$row->id)."><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=".route('purchase-receipts.delete',$row->id)."class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=".route('purchase-receipts.view',$row->id)."class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
                         return $btn;
                     })
                     ->addColumn('action', function($row){
                         
-                        $delete = "<a href=".route('admin.purchase-receipts.delete',$row->id)." class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
+                        $delete = "<a href=".route('purchase-receipts.delete',$row->id)." class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
                         
                         
-                        $edit = "<a href=".route('admin.purchase-receipts.edit',$row->id)." title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>"; 
+                        $edit = "<a href=".route('purchase-receipts.edit',$row->id)." title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>"; 
                         
-                        $view = "<a class='px-1' href=".route('admin.purchase-receipts.view',$row->id)."class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>"; 
+                        $view = "<a class='px-1' href=".route('purchase-receipts.view',$row->id)."class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>"; 
                         $btn = $edit.$delete.$view;
                         return $btn;
                     
@@ -67,7 +67,7 @@ class PurchaseReceiptController extends Controller
                     ->make(true);
         }
 
-         return view('admin.purchase-receipts.index');
+         return view('pages.purchase-receipts.index');
     }
 
 
@@ -79,7 +79,7 @@ class PurchaseReceiptController extends Controller
         $modules = PurchaseReceipt::all();
         $purchases = Purchase::all();
 
-        return view('admin.purchase-receipts.create',compact('modules','purchases'));
+        return view('purchase-receipts.create',compact('modules','purchases'));
     }
 
 
@@ -132,7 +132,7 @@ class PurchaseReceiptController extends Controller
             ]); 
         }
 
-        return redirect()->route('admin.purchase-receipts.index')->with('success','Created Successfully');
+        return redirect()->route('purchase-receipts.index')->with('success','Created Successfully');
     }
 
 
@@ -141,7 +141,7 @@ class PurchaseReceiptController extends Controller
     public function edit($id)
     {
         $receipt = PurchaseReceipt::find($id); 
-        return view('admin.purchase-receipts.edit',compact('receipt'));
+        return view('purchase-receipts.edit',compact('receipt'));
     }
 
      /**
@@ -206,7 +206,7 @@ class PurchaseReceiptController extends Controller
     {
 
         $receipt = PurchaseReceipt::find($id); 
-        return view('admin.purchase-receipts.view',compact('receipt'));
+        return view('purchase-receipts.view',compact('receipt'));
 
     }
 
@@ -221,11 +221,11 @@ class PurchaseReceiptController extends Controller
         try {
 
              $module->delete();
-             return redirect()->route('admin.purchase-receipts.index')->with('success','Deleted');
+             return redirect()->route('purchase-receipts.index')->with('success','Deleted');
 
         } catch (\Throwable $th) {
             
-            return redirect()->route('admin.purchase-receipts.index')->with('warning','Can Not Delete Becaouse The Data Used Some Where');
+            return redirect()->route('purchase-receipts.index')->with('warning','Can Not Delete Becaouse The Data Used Some Where');
         }
 
     }
