@@ -663,6 +663,31 @@
     <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @if ($message = Session::get('success'))
+              <script>
+                toastr.success(' {{$message}} ');
+              </script>
+            @endif
+
+            @if ($message = Session::get('error'))
+                <script>
+                toastr.error(' {{$message}} ');
+              </script>
+            @endif
+
+            @if ($message = Session::get('warning'))
+              <script>
+                toastr.warning(' {{$message}} ');
+              </script>
+            @endif
+            
+    
+            @if ($message = Session::get('info'))
+              <script>
+                toastr.info(' {{$message}} ');
+              </script>
+              @endif
+
     <script>
         $(document).ready(function() {
             $('#form').on('submit', function(event) {

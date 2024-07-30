@@ -50,7 +50,6 @@
 
    <script>
     $(document).ready(function(){
-        console.log()
         var table = $('.data-table').DataTable({
           processing: true,
           serverSide: true,
