@@ -131,6 +131,7 @@
                       <div class="row" > 
                           <div class="col-md-11" >
                             <select class="add-product form-control" >
+                              
                               @foreach ($products as $product)
                                 <option data-name="{{$product->name}}" value="{{$product->id}}">{{$product->name}}</option>    
                               @endforeach
@@ -214,33 +215,35 @@
 
                 let pid = $('.add-product').val();
                 let name = $(`.add-product option:selected`).attr('data-name');
-                console.log(name)
-                let dupprocut = true;
-                
-                $('.line-items').children().each(function () {
-                    
-                    let line_item_id = $(this).find('.line_item_id').val();
-                    if(line_item_id == pid ){
-                      toastr.error('Can Not Add Duplicate Product');
-                      dupprocut = false
-                    }
-                    
-                });
-             
-                if(dupprocut){
-                   index = index + 1;
-                   $('.line-items').append(`<div class="row py-1"> 
-                              <div class="col-md-6" >
-                                 <input class="line_item_id" type="hidden" name="items[${index}][id]"  value="${pid}" />
-                                 <input readonly name="items[${index}][name]" class="form-control" value="${name}" />
-                              </div>
-                              <div class="col-md-5" >
-                                  <input min="1" value="1" step=".01" required name="items[${index}][qty]" type="number"  class="form-control" />
-                              </div>
-                               <div class="col-md-1 align-self-center " >
-                                  <button type="button" class="delete_item normal-btn d-block" ><i class="fa fa-times" ></i></button>
-                              </div>
-                        </div>`);
+                if(name){
+
+                  let dupprocut = true;
+                  
+                  $('.line-items').children().each(function () {
+                      
+                      let line_item_id = $(this).find('.line_item_id').val();
+                      if(line_item_id == pid ){
+                        toastr.error('Can Not Add Duplicate Product');
+                        dupprocut = false
+                      }
+                      
+                  });
+               
+                  if(dupprocut){
+                     index = index + 1;
+                     $('.line-items').append(`<div class="row py-1"> 
+                                <div class="col-md-6" >
+                                   <input class="line_item_id" type="hidden" name="items[${index}][id]"  value="${pid}" />
+                                   <input readonly name="items[${index}][name]" class="form-control" value="${name}" />
+                                </div>
+                                <div class="col-md-5" >
+                                    <input min="1" value="1" step=".01" required name="items[${index}][qty]" type="number"  class="form-control" />
+                                </div>
+                                 <div class="col-md-1 align-self-center " >
+                                    <button type="button" class="delete_item normal-btn d-block" ><i class="fa fa-times" ></i></button>
+                                </div>
+                          </div>`);
+                  }
                 }
                 
             }).click();

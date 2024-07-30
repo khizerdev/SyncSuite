@@ -578,6 +578,12 @@
                                         <p>Purchase Receipts</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('purchase-invoice.index') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Purchase Invoice</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
