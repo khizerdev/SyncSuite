@@ -27,9 +27,9 @@
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <!-- Daterange picker -->
-    <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/daterangepicker/daterangepicker.css">
+    {{-- <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/daterangepicker/daterangepicker.css"> --}}
     <!-- summernote -->
-    <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/summernote/summernote-bs4.min.css">
+    {{-- <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/summernote/summernote-bs4.min.css"> --}}
 
     <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/toastr/toastr.min.css">
 
@@ -50,130 +50,10 @@
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            {{-- <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="index3.html" class="nav-link">Home</a>
-      </li>
-    </ul> --}}
-
+            
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
-                {{-- <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
-                    </a>
-                    <div class="navbar-search-block">
-                        <form class="form-inline">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search"
-                                    aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </li> --}}
-
-                <!-- Messages Dropdown Menu -->
-                {{-- <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>
-                        <span class="badge badge-danger navbar-badge">3</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="{{ env('ASSET_URL') }}/assets/dist/img/user1-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 mr-3 img-circle">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Brad Diesel
-                                        <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">Call me whenever you can...</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="{{ env('ASSET_URL') }}/assets/dist/img/user8-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        John Pierce
-                                        <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">I got your message bro</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="{{ env('ASSET_URL') }}/assets/dist/img/user3-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Nora Silvester
-                                        <span class="float-right text-sm text-warning"><i
-                                                class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">The subject goes here</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                    </div>
-                </li> --}}
-                <!-- Notifications Dropdown Menu -->
-                {{-- <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">15</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">15 Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-envelope mr-2"></i> 4 new messages
-                            <span class="float-right text-muted text-sm">3 mins</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-users mr-2"></i> 8 friend requests
-                            <span class="float-right text-muted text-sm">12 hours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-file mr-2"></i> 3 new reports
-                            <span class="float-right text-muted text-sm">2 days</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                    </div>
-                </li> --}}
+                
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>
@@ -211,382 +91,138 @@
                     </div>
                 </div>
 
-                <!-- SidebarSearch Form -->
-                {{-- <div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search"
-                            aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div> --}}
-
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    <ul class="nav nav-pills nav-sidebar flex-column nav-compact" data-widget="treeview" role="menu"
                         data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class with font-awesome or any other icon font library -->
+                        
+                        @php
+                         $currentRouteName = Route::currentRouteName();
+                        @endphp
                         <li class="nav-item">
-                            <a href="{{ url('/dashboard') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="{{ url('/dashboard') }}" class="nav-link {{ $currentRouteName == "dashboard" ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-circle"></i>
                                 <p>
                                     Dashboard
                                 </p>
                             </a>
                         </li>
 
-                        {{-- <li class="nav-item">
-                            <a href="{{ route('users.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    User
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('users.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('users.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @php
+                        $navItems = [
+                            [
+                                'title' => 'Branch',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'branches.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'branches.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Department',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'departments.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'departments.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Customer',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'customers.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'customers.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Vendor',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'vendors.index',
+                                'children' => [
+                                    ['title' => 'Add', 'route' => 'vendors.create'],
+                                    ['title' => 'View', 'route' => 'vendors.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Manufacturer',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'manufacturers.index',
+                                'children' => [
+                                    ['title' => 'Add', 'route' => 'manufacturers.create'],
+                                    ['title' => 'View', 'route' => 'manufacturers.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Machine',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'machines.index',
+                                'children' => [
+                                    ['title' => 'Add', 'route' => 'machines.create'],
+                                    ['title' => 'View', 'route' => 'machines.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Product',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'products.index',
+                                'children' => [
+                                    ['title' => 'Products', 'route' => 'products.index'],
+                                    ['title' => 'Product Type', 'route' => 'product-types.create'],
+                                    ['title' => 'Materials', 'route' => 'materials.index'],
+                                    ['title' => 'Particulars', 'route' => 'particulars.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Employee',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'employees.index',
+                                'children' => [
+                                    ['title' => 'Add', 'route' => 'employees.create'],
+                                    ['title' => 'View', 'route' => 'employees.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Purchases',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'purchases.index',
+                                'children' => [
+                                    ['title' => 'Purchase Order', 'route' => 'purchases.index'],
+                                    ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
+                                    ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index']
+                                ]
+                            ]
+                        ];
 
-                        <li class="nav-item">
-                            <a href="{{ route('roles.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Role
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('roles.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('roles.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        @endphp
 
-                        <li class="nav-item">
-                            <a href="{{ route('permissions.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Permission
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('permissions.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('permissions.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li> --}}
-
-                        <li class="nav-item">
-                            <a href="{{ route('branches.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Branch
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                
-                                <li class="nav-item">
-                                    <a href="{{ route('branches.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('departments.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Department
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('departments.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('customers.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Customer
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('customers.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('vendors.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Vendor
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('vendors.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('vendors.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('manufacturers.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Manufacturer
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('manufacturers.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('manufacturers.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('particulars.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Particular
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('particulars.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('particulars.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('machines.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Machine
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('machines.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('machines.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('materials.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Material
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('materials.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('materials.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('product-types.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Product Type
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('product-types.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('product-types.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('products.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Product
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('products.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('products.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('employees.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Employee
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('employees.create') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Add</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('employees.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>View</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('purchases.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Purchases
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('purchases.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Purchase Order</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('purchase-receipts.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Purchase Receipts</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ route('purchase-invoice.index') }}" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Purchase Invoice</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
+                        @foreach ($navItems as $item)
+                        @php
+                        $isActive = Str::startsWith($currentRouteName, Str::beforeLast($item['route'], '.'));
+                        @endphp                  
+                            <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
+                                <a href="{{ route($item['route']) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                                    <i class="nav-icon {{ $item['icon'] }}"></i>
+                                    <p>
+                                        {{ $item['title'] }}
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    @foreach ($item['children'] as $child)
+                                        @php
+                                        $isChildActive = $currentRouteName === $child['route'];
+                                        $isActive = $isActive || $isChildActive;
+                                        @endphp
+                                        <li class="nav-item">
+                                            <a href="{{ route($child['route']) }}" class="nav-link {{ $isChildActive ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>{{ $child['title'] }}</p>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endforeach
 
 
                     </ul>
@@ -603,14 +239,7 @@
 
         </div>
         <!-- /.content-wrapper -->
-        {{-- <footer class="main-footer">
-    <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 3.2.0
-    </div>
-  </footer> --}}
-
+        
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
             <!-- Control sidebar content goes here -->
@@ -640,12 +269,12 @@
     <script src="{{ env('ASSET_URL') }}/assets/plugins/jquery-knob/jquery.knob.min.js"></script>
     <!-- daterangepicker -->
     <script src="{{ env('ASSET_URL') }}/assets/plugins/moment/moment.min.js"></script>
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/daterangepicker/daterangepicker.js"></script>
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/daterangepicker/daterangepicker.js"></script> --}}
     <!-- Tempusdominus Bootstrap 4 -->
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js">
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"> --}}
     </script>
     <!-- Summernote -->
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/summernote/summernote-bs4.min.js"></script>
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/summernote/summernote-bs4.min.js"></script> --}}
     <!-- overlayScrollbars -->
     <script src="{{ env('ASSET_URL') }}/assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
     <!-- AdminLTE App -->

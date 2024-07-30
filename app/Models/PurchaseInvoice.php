@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 
     protected $casts = [
         'date' => 'datetime',
+        'due_date' => 'datetime',
     ];
 
     public function items()

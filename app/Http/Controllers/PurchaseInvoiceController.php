@@ -235,7 +235,7 @@ class PurchaseInvoiceController extends Controller
     {   
         
         $invoice = PurchaseInvoice::Find($id);
-        return view('admin.purchase-invoices.edit',compact('invoice'));
+        return view('pages.purchase-invoices.edit',compact('invoice'));
     }
     
       /**
@@ -243,8 +243,6 @@ class PurchaseInvoiceController extends Controller
      */
     public function update(Request $request,$id)
     {   
-        
-        
         $invoice = PurchaseInvoice::Find($id);
         $number = intval($request->serial_no);
     	$serial = str_pad(intval($request->serial_no), 3, '0', STR_PAD_LEFT);

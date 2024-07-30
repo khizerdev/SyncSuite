@@ -16,6 +16,7 @@ class PurchaseReceipt extends Model {
 
     protected $casts = [
         'date' => 'datetime',
+        'due_date' => 'datetime',
     ];
 
 
