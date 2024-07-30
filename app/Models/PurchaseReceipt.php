@@ -14,6 +14,10 @@ class PurchaseReceipt extends Model {
       'updated_at',
     ];
 
+    protected $casts = [
+        'date' => 'datetime',
+    ];
+
 
     public function purchase()
     {

@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use App\Models\PurchaseReceipt;
 use Illuminate\Support\Facades\Gate;
 use Auth;
-use App\Purchase;
-use App\PurchaseItem;
 use App\Product;
 use App\PurchaseInvoice;
 use Yajra\Datatables\Datatables;
@@ -48,12 +48,12 @@ class PurchaseReceiptController extends Controller
                         return $btn;
                     })
                     ->addColumn('action', function($row){                       
-                        $btn = "<a href=".route('purchase-receipts.edit',$row->id)."><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=".route('purchase-receipts.delete',$row->id)."class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=".route('purchase-receipts.view',$row->id)."class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
+                        $btn = "<a href=".route('purchase-receipts.edit',$row->id)."><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=".route('purchase-receipts.destroy',$row->id)."class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=".route('purchase-receipts.view',$row->id)."class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
                         return $btn;
                     })
                     ->addColumn('action', function($row){
                         
-                        $delete = "<a href=".route('purchase-receipts.delete',$row->id)." class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
+                        $delete = "<a href=".route('purchase-receipts.destroy',$row->id)." class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
                         
                         
                         $edit = "<a href=".route('purchase-receipts.edit',$row->id)." title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>"; 
@@ -79,7 +79,7 @@ class PurchaseReceiptController extends Controller
         $modules = PurchaseReceipt::all();
         $purchases = Purchase::all();
 
-        return view('purchase-receipts.create',compact('modules','purchases'));
+        return view('pages.purchase-receipts.create',compact('modules','purchases'));
     }
 
 

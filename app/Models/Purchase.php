@@ -34,7 +34,7 @@ class Purchase extends Model {
 
     public function receipt()
     {
-        return $this->hasOne('App\PurchaseReceipt','Purchase_id');
+        return $this->hasOne('App\Models\PurchaseReceipt','Purchase_id');
     }
 
 }
