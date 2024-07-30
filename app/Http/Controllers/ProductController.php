@@ -135,5 +135,11 @@ class ProductController extends Controller
             return response()->json(['message' => 'Failed to delete product', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function count()
+    {
+        $count = Product::count();
+        return response()->json(['count' => $count]);
+    }
     
 }

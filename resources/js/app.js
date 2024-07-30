@@ -1,7 +1,7 @@
-import './bootstrap';
+import "./bootstrap";
+import { createApp } from "vue";
+import InfoWidget from "./components/dashboard/InfoWidget.vue";
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+// Create a Vue app for the comments section
+const infoWidgets = createApp(InfoWidget);
+infoWidgets.mount("#widgets");
