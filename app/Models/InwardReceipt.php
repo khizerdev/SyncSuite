@@ -3,9 +3,9 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
-class PurchaseReceipt extends Model {
+class InwardReceipt extends Model {
     
-    protected $table = "purchase_receipts";
+    protected $table = "inward_receipts";
     protected $guarded = [];
     protected $dates = [
       'date',
@@ -26,7 +26,7 @@ class PurchaseReceipt extends Model {
 
     public function items()
     {
-        return $this->hasMany('App\Models\PurchaseItem','receipt_id');
+        return $this->hasMany('App\Models\InwardItem','inward_id');
     }
     
 }

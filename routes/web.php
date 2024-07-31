@@ -138,6 +138,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('purchase-invoices/vendors/invoices/{id}', [App\Http\Controllers\PurchaseInvoiceController::class, 'vendor_invoices'])->name('purchase-invoice.vendor_invoices');
     Route::post('purchase-invoices/add', [App\Http\Controllers\PurchaseInvoiceController::class, 'add'])->name('purchase-invoices.add');
 
+    Route::get('inward-receipts', [App\Http\Controllers\InwardReceiptController::class, 'index'])->name('inward-receipts.index');
+    Route::get('inward-receipts/create', [App\Http\Controllers\InwardReceiptController::class, 'create'])->name('inward-receipts.create');
+    Route::post('inward-receipts', [App\Http\Controllers\InwardReceiptController::class, 'store'])->name('inward-receipts.store');
+    Route::get('inward-receipts/{id}/edit', [App\Http\Controllers\InwardReceiptController::class, 'edit'])->name('inward-receipts.edit');
+    Route::put('inward-receipts/{id}', [App\Http\Controllers\InwardReceiptController::class, 'update'])->name('inward-receipts.update');
+    Route::get('inward-receipts/{id}', [App\Http\Controllers\InwardReceiptController::class, 'destroy'])->name('inward-receipts.destroy');
+    Route::get('inward-receipts/view/{id}', [App\Http\Controllers\InwardReceiptController::class, 'view'])->name('inward-receipts.view');
+
 
     Route::get('/dashboard', function () {
         return view('dashboard');

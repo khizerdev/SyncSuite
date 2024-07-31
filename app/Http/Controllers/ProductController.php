@@ -7,7 +7,10 @@ use DataTables;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Models\Customer;
+use App\Models\Employee;
 use App\Models\Product;
+use App\Models\Vendor;
 
 class ProductController extends Controller
 {
@@ -138,8 +141,14 @@ class ProductController extends Controller
 
     public function count()
     {
-        $count = Product::count();
-        return response()->json(['count' => $count]);
+        $data = [
+            'products' => Product::count(),
+            'vendors' => Vendor::count(),
+            'customers' => Customer::count(),
+            'employees' => Employee::count(),
+        ];
+
+        return response()->json($data);
     }
     
 }

@@ -1,7 +1,7 @@
 import "./bootstrap";
 import { createApp } from "vue";
-import InfoWidget from "./components/dashboard/InfoWidget.vue";
+import DashboardCounts from "./components/dashboard/DashboardCounts.vue";
 
 // Create a Vue app for the comments section
-const infoWidgets = createApp(InfoWidget);
-infoWidgets.mount("#widgets");
+const dashboardCounts = createApp(DashboardCounts);
+dashboardCounts.mount("#widgets");

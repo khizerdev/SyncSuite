@@ -188,7 +188,8 @@
                                 'children' => [
                                     ['title' => 'Purchase Order', 'route' => 'purchases.index'],
                                     ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
-                                    ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index']
+                                    ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
+                                    ['title' => 'Inward Receipt', 'route' => 'inward-receipts.index']
                                 ]
                             ]
                         ];
