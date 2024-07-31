@@ -197,31 +197,36 @@
 
                         @foreach ($navItems as $item)
                         @php
-                        $isActive = Str::startsWith($currentRouteName, Str::beforeLast($item['route'], '.'));
-                        @endphp                  
-                            <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
-                                <a href="{{ route($item['route']) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
-                                    <i class="nav-icon {{ $item['icon'] }}"></i>
-                                    <p>
-                                        {{ $item['title'] }}
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    @foreach ($item['children'] as $child)
-                                        @php
-                                        $isChildActive = $currentRouteName === $child['route'];
-                                        $isActive = $isActive || $isChildActive;
-                                        @endphp
-                                        <li class="nav-item">
-                                            <a href="{{ route($child['route']) }}" class="nav-link {{ $isChildActive ? 'active' : '' }}">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>{{ $child['title'] }}</p>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </li>
+                        $isActive = false;
+                        foreach ($item['children'] as $child) {
+                            if (Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'))) {
+                                $isActive = true;
+                                break;
+                            }
+                        }
+                        @endphp
+                        <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
+                            <a href="{{ route($item['route']) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                                <i class="nav-icon {{ $item['icon'] }}"></i>
+                                <p>
+                                    {{ $item['title'] }}
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @foreach ($item['children'] as $child)
+                                    @php
+                                    $isChildActive = Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'));
+                                    @endphp
+                                    <li class="nav-item">
+                                        <a href="{{ route($child['route']) }}" class="nav-link {{ $isChildActive ? 'active' : '' }}">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>{{ $child['title'] }}</p>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
                         @endforeach
 
 
