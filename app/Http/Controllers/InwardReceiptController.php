@@ -124,7 +124,7 @@ class InwardReceiptController extends Controller
 
         }
 
-        $receipt = InwardReceipt::create(['date' => $request->date, 'due_date' => $request->due_date, 'purchase_id' => $request->purchase_id, "serial_no" => $serial_no, "serial" => $last, "party_challan" => $request->party_challan, ]);
+        $receipt = InwardReceipt::create(['date' => $request->date, 'purchase_id' => $request->purchase_id, "serial_no" => $serial_no, "serial" => $last, "party_challan" => $request->party_challan, ]);
 
         foreach ($items as $key => $value)
         {
@@ -174,7 +174,6 @@ class InwardReceiptController extends Controller
         $module->serial = $number;
         $module->serial_no = $request->serial_no;
         $module->date = $request->date;
-        $module->due_date = $request->due_date;
         $module->party_challan = $request->party_challan;
         $module->save();
 

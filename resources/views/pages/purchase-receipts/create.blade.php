@@ -94,16 +94,12 @@
                   </div>
                 </div>
                 <div class="row" >
-                  <div class="col-md-2" >
+                  <div class="col-md-4" >
                       <label for="simpleinput">Date</label>
                       <input required type="datetime-local" name="date" class="form-control" />
                        @if($errors->has('date'))
 			                <div class="error text-danger">{{ $errors->first('date') }}</div>
 			            @endif
-                  </div>
-                  <div class="col-md-2" >
-                      <label for="simpleinput">Due Date</label>
-                      <input type="date" name="due_date"  class=" form-control" required/>
                   </div>
                   <div class="col-md-3" >
                       <label for="simpleinput">Vendor Name</label>

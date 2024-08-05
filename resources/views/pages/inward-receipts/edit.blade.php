@@ -97,10 +97,6 @@
                     <label for="simpleinput">Date</label>
                     <input required type="datetime-local" name="date" value="{{ $receipt->date->format('Y-m-d\TH:i:s') }}" class="form-control" />
                 </div>
-                <div class="col-md-3">
-                    <label for="simpleinput1">Due Date</label>
-                    <input type="date" name="due_date" value="{{ $receipt->due_date->format('Y-m-d') }}" class="form-control" />
-                </div> 
                 
                 <div class="col-md-3" >
                     <label>Vendor Name</label>
