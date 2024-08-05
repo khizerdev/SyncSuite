@@ -14,14 +14,14 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/fontawesome-free/css/all.min.css">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    {{-- <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> --}}
     <!-- Tempusdominus Bootstrap 4 -->
-    <link rel="stylesheet"
-        href="{{ env('ASSET_URL') }}/assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    {{-- <link rel="stylesheet"
+        href="{{ env('ASSET_URL') }}/assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css"> --}}
     <!-- iCheck -->
-    <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    {{-- <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css"> --}}
     <!-- JQVMap -->
-    <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/jqvmap/jqvmap.min.css">
+    {{-- <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/jqvmap/jqvmap.min.css"> --}}
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/dist/css/adminlte.min.css">
     <!-- overlayScrollbars -->
@@ -167,7 +167,7 @@
                                 'route' => 'products.index',
                                 'children' => [
                                     ['title' => 'Products', 'route' => 'products.index'],
-                                    ['title' => 'Product Type', 'route' => 'product-types.create'],
+                                    ['title' => 'Product Type', 'route' => 'product-types.index'],
                                     ['title' => 'Materials', 'route' => 'materials.index'],
                                     ['title' => 'Particulars', 'route' => 'particulars.index']
                                 ]
@@ -189,7 +189,15 @@
                                     ['title' => 'Purchase Order', 'route' => 'purchases.index'],
                                     ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
                                     ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
-                                    ['title' => 'Inward Receipt', 'route' => 'inward-receipts.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Inward',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'inward-receipts.index',
+                                'children' => [
+                                    ['title' => 'Inward Receipt', 'route' => 'inward-receipts.index'],
+                                    ['title' => 'Inward General', 'route' => 'inward-general.index']
                                 ]
                             ]
                         ];
@@ -265,12 +273,12 @@
     <!-- Bootstrap 4 -->
     <script src="{{ env('ASSET_URL') }}/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- ChartJS -->
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/chart.js/Chart.min.js"></script>
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/chart.js/Chart.min.js"></script> --}}
     <!-- Sparkline -->
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/sparklines/sparkline.js"></script>
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/sparklines/sparkline.js"></script> --}}
     <!-- JQVMap -->
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/jqvmap/jquery.vmap.min.js"></script>
-    <script src="{{ env('ASSET_URL') }}/assets/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/jqvmap/jquery.vmap.min.js"></script> --}}
+    {{-- <script src="{{ env('ASSET_URL') }}/assets/plugins/jqvmap/maps/jquery.vmap.usa.js"></script> --}}
     <!-- jQuery Knob Chart -->
     <script src="{{ env('ASSET_URL') }}/assets/plugins/jquery-knob/jquery.knob.min.js"></script>
     <!-- daterangepicker -->

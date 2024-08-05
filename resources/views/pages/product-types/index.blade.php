@@ -7,9 +7,16 @@
         <div class="col-md-12">
 
             <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title">Product Types</h3>
+              <div class="card-header row align-items-center">
+                <div class="col-6">
+                    
+                    <h3 class="card-title">Product Type</h3>
                 </div>
+                <div class="col-6 text-right">
+                    
+                    <a class="btn btn-primary" href="{{route('product-types.create')}}">Add New Type</a>
+                </div>
+            </div>
                 <div class="card-body">
                     <table class="table table-bordered" id="table">
                         <thead>

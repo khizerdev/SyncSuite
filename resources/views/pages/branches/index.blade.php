@@ -45,8 +45,6 @@
 
 @section('script')
 
-
-
 <script type="text/javascript">
 
   function deleteRecord(id) {
