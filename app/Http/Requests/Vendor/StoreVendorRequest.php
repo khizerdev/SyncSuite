@@ -35,7 +35,6 @@ class StoreVendorRequest extends FormRequest
             'mobile' => 'required|string|max:20',
             'strn' => 'nullable|string|max:255',
             'ntn' => 'nullable|string|max:255',
-            'date' => 'required|date',
             'balance_type' => 'required|string|max:255',
             'opening_balance' => 'required|numeric|min:0',
         ];

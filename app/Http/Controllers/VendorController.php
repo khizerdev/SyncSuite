@@ -64,7 +64,7 @@ class VendorController extends Controller
             $vendor = Vendor::create($validatedData);
 
             return response()->json([
-                'message' => 'Profile created successfully',
+                'message' => 'Created successfully',
             ], 200);
 
         } catch (ValidationException $e) {

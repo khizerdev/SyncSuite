@@ -98,12 +98,6 @@
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label for="date">Date</label>
-                                            <input type="date" id="date" name="date" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <div class="form-group">
                                             <label for="balance_type">Balance Type</label>
                                             <select id="balance_type" name="balance_type" class="form-control">
                                                 <option value="Credit">Credit</option>
