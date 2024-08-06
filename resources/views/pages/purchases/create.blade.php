@@ -133,7 +133,7 @@
                             <select class="add-product form-control" >
                               
                               @foreach ($products as $product)
-                                <option data-name="{{$product->name}}" value="{{$product->id}}">{{$product->name}}</option>    
+                                <option data-name="{{$product->name}}" value="{{$product->id}}">{{$product->name}} - {{$product->particular->name}}</option>    
                               @endforeach
                             </select>
                           </div>

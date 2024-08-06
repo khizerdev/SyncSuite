@@ -143,7 +143,7 @@
                         <div class="row py-1" > 
                               <input type="hidden" name="items[{{$key}}][id]" value="{{$item->id}}" />
                               <div class="col-md-5" >
-                                <input readonly value="{{$item->product->name}}" type="text" class="form-control" />
+                                <input readonly value="{{$item->product->name}} - {{$item->product->particular->name}}" type="text" class="form-control" />
                               </div>
                               
                               <div class="col-md-2" >

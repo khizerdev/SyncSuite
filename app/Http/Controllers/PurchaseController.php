@@ -34,11 +34,11 @@ class PurchaseController extends Controller
                 return $btn;
             })->addColumn("action", function ($row)
             {
-                $delete = "<a href=" . route("purchases.destroy", $row->id) . " class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
+                $delete = ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm" title="Delete"><i class="px-1 text-danger fas fa-window-close text-white"></i></button>';
 
-                $edit = "<a href=" . route("purchases.edit", $row->id) . " title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>";
+                $edit = "<a href=" . route('purchases.edit', $row->id) . " title='Edit' class='btn btn-primary btn-sm mr-1'> <i class='fas fa-edit text-white' aria-hidden='true'></i></a>";
 
-                $view = "<a href=" . route("purchases.view", $row->id) . " title='View'> <i class='fas fa-eye fa-2x text-warning' aria-hidden='true'></i></a>";
+                $view = "<a title='View' class='ml-1 btn btn-warning btn-sm' href=" . route('purchases.view', $row->id) . "class='px-1'><i class='fas fa-eye text-white'></i></a>";
                 $btn = $edit . $delete . $view;
                 return $btn;
             })->rawColumns(["action"])
@@ -167,20 +167,15 @@ class PurchaseController extends Controller
     }
 
     /*** Remove the specified resource from storage ***/
-    public function delete($id)
+    public function destroy($id)
     {
-        $module = Purchase::Find($id);
-        try
-        {
-            $module->delete();
-            return redirect()
-                ->route("purchases.index")
-                ->with("success", "Deleted");
-        }
-        catch(\Throwable $th)
-        {
-            return redirect()->route("purchases.index")
-                ->with("warning", "Can Not Delete Becaouse The Data Used Some Where");
+        try {
+            $purchase = Purchase::findOrFail($id);
+            $purchase->delete();
+    
+            return response()->json(['message' => 'Branch deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
         }
     }
 
