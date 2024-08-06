@@ -1,4 +1,5 @@
 import "./bootstrap";
+
 import { createApp } from "vue";
 
 import DashboardCounts from "./components/Dashboard/DashboardCounts.vue";

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Api\InwardGeneralController;
 use App\Http\Controllers\Api\ProductController as ApiProductController;
+use App\Http\Controllers\Api\ProductTypeController;
 use App\Http\Controllers\Api\ResourceController;
 
 Route::get('/products/count', [ProductController::class, 'count']);
@@ -19,3 +20,4 @@ Route::post('/inward-general/store', [InwardGeneralController::class, 'store']);
 Route::put('/inward-general/{id}', [InwardGeneralController::class, 'update']);
 
 Route::post('/products/store', [ApiProductController::class, 'store']);
+Route::post('/productsType/store', [ProductTypeController::class, 'store']);
