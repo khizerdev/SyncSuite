@@ -23,7 +23,7 @@
                 <select required class="js-example-basic-single form-control"  name="purchase_id" >
                     <option disabled >Select Purchase</option>
                     @foreach ($purchases as $item)
-                      @if($item->receipt == null)
+                      @if($item->inward == null)
                          <option @if(isset($_GET['purchase_id']) && $_GET['purchase_id'] == $item->id) {{'selected'}} @endif  value="{{$item->id}}">{{$item->serial_no}} </option>
                       @endif
                     @endforeach
@@ -105,10 +105,6 @@
                       <label for="simpleinput">Vendor Name</label>
                       <input readonly type="text" value="{{$purchase->vendor->name}}" class=" form-control" />     
                   </div>
-                  <div class="col-md-5" >
-                      <label for="simpleinput">Vendor Address</label>
-                      <input readonly type="text" value="{{$purchase->vendor->address}}"  class="form-control" />   
-                  </div>
               </div>
               </div>
             </div>
@@ -124,23 +120,26 @@
                   </div>
                 </div>
                   <div> 
-                      <div class="row" > 
-                            <div class="col-md-5" >
-                                <label for="simpleinput">Product</label>    
-                            </div>
-                            <div class="col-md-2 text-center " >
-                                <label for="simpleinput">Quantity</label>
-                            </div>
-                            <div class="col-md-2 text-center " >
-                              <label for="simpleinput">Rate</label>
-                            </div>
-                            <div class="col-md-2 text-center " >
-                              <label for="simpleinput">Total</label>
-                            </div>
-                            <div class="col-md-1 text-center " >
-                              <label for="simpleinput">Action</label>
-                            </div>
+                    <div class="row" > 
+                      <div class="col-md-4" >
+                          <label for="simpleinput">Product</label>    
                       </div>
+                      <div class="col-md-2" >
+                          <label for="simpleinput">Order Qty</label>
+                      </div>
+                      <div class="col-md-2" >
+                        <label for="simpleinput">Rcvd Qty</label>
+                    </div>
+                      <div class="col-md-1" >
+                        <label for="simpleinput">Rate</label>
+                      </div>
+                      <div class="col-md-2" >
+                        <label for="simpleinput">Total</label>
+                      </div>
+                      <div class="col-md-1 text-center " >
+                        <label for="simpleinput">Action</label>
+                      </div>
+                </div>
                   </div>    
                   <!--Item Header-->
                   
@@ -148,16 +147,20 @@
                   @if(count($purchase->items) > 0 )
                          @foreach($purchase->items as $key => $item )
                                <div class="row py-1" > 
-                                  <div class="col-md-5" >
+                                  <div class="col-md-4" >
                                     <input name="items[{{$key}}][id]" value="{{$item->product->id}}" type="text" class="d-none form-control" />
                                     <input readonly value="{{$item->product->name}} - {{$item->product->particular->name}}" type="text" class="form-control" />
                                   </div>
                                   
                                   <div class="col-md-2" >
-                                    <input name="items[{{$key}}][qty]" step=".01" value="{{$item->qty}}" type="number"  class="qty form-control" />
+                                    <input name="items[{{$key}}][qty]" step=".01" value="{{$item->qty}}" type="number"  class="form-control" />
+                                  </div>
+
+                                  <div class="col-md-2" >
+                                    <input name="items[{{$key}}][rqty]" step=".01" value="0" type="number"  class="qty form-control" />
                                   </div>
                                   
-                                  <div class="col-md-2" >
+                                  <div class="col-md-1" >
                                     <input name="items[{{$key}}][rate]" min="1" value="0" step=".01" type="number" class="price form-control" />
                                   </div>
         

@@ -60,7 +60,7 @@
                         <label for="simpleinput">Product</label>    
                     </div>
                     <div class="col-md-2 text-center " >
-                        <label for="simpleinput">Quantity</label>
+                        <label for="simpleinput">Ordererd Qty</label>
                     </div>
                 </div>
                   @if(count($purchase->items) > 0 )
@@ -105,10 +105,10 @@
                       <label for="simpleinput">Vendor Name</label>
                       <input readonly type="text" value="{{$purchase->vendor->name}}" class=" form-control" />     
                   </div>
-                  <div class="col-md-5" >
+                  {{-- <div class="col-md-5" >
                       <label for="simpleinput">Vendor Address</label>
                       <input readonly type="text" value="{{$purchase->vendor->address}}"  class="form-control" />   
-                  </div>
+                  </div> --}}
               </div>
               </div>
             </div>
@@ -125,16 +125,19 @@
                 </div>
                   <div> 
                       <div class="row" > 
-                            <div class="col-md-5" >
+                            <div class="col-md-4" >
                                 <label for="simpleinput">Product</label>    
                             </div>
-                            <div class="col-md-2 text-center " >
-                                <label for="simpleinput">Quantity</label>
+                            <div class="col-md-2" >
+                                <label for="simpleinput">Order Qty</label>
                             </div>
-                            <div class="col-md-2 text-center " >
+                            <div class="col-md-2" >
+                              <label for="simpleinput">Rcvd Qty</label>
+                          </div>
+                            <div class="col-md-1" >
                               <label for="simpleinput">Rate</label>
                             </div>
-                            <div class="col-md-2 text-center " >
+                            <div class="col-md-2" >
                               <label for="simpleinput">Total</label>
                             </div>
                             <div class="col-md-1 text-center " >
@@ -148,16 +151,20 @@
                   @if(count($purchase->items) > 0 )
                          @foreach($purchase->items as $key => $item )
                                <div class="row py-1" > 
-                                  <div class="col-md-5" >
+                                  <div class="col-md-4" >
                                     <input name="items[{{$key}}][id]" value="{{$item->product->id}}" type="text" class="d-none form-control" />
                                     <input readonly value="{{$item->product->name}} - {{$item->product->particular->name}}" type="text" class="form-control" />
                                   </div>
                                   
                                   <div class="col-md-2" >
-                                    <input name="items[{{$key}}][qty]" step=".01" value="{{$item->qty}}" type="number"  class="qty form-control" />
+                                    <input name="items[{{$key}}][qty]" step=".01" value="{{$item->qty}}" type="number"  class="form-control" readonly/>
+                                  </div>
+
+                                  <div class="col-md-2" >
+                                    <input name="items[{{$key}}][rqty]" step=".01" value="0" type="number"  class="qty form-control" required/>
                                   </div>
                                   
-                                  <div class="col-md-2" >
+                                  <div class="col-md-1" >
                                     <input name="items[{{$key}}][rate]" min="1" value="0" step=".01" type="number" class="price form-control" />
                                   </div>
         

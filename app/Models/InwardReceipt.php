@@ -26,7 +26,7 @@ class InwardReceipt extends Model {
 
     public function items()
     {
-        return $this->hasMany('App\Models\InwardItem','inward_id');
+        return $this->hasMany('App\Models\InwardItem','receipt_id');
     }
     
 }

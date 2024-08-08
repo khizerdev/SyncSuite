@@ -59,21 +59,15 @@ class PurchaseReceiptController extends Controller
                     $btn = '';
                 }
                 return $btn;
-            })->addColumn('action', function ($row)
+            })->addColumn("action", function ($row)
             {
-                $btn = "<a href=" . route('purchase-receipts.edit', $row->id) . "><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=" . route('purchase-receipts.destroy', $row->id) . "class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=" . route('purchase-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
-                return $btn;
-            })->addColumn('action', function ($row)
-            {
+                $delete = ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm" title="Delete"><i class="px-1 text-danger fas fa-window-close text-white"></i></button>';
 
-                $delete = "<a href=" . route('purchase-receipts.destroy', $row->id) . " class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
+                $edit = "<a href=" . route('purchase-receipts.edit', $row->id) . " title='Edit' class='btn btn-primary btn-sm mr-1'> <i class='fas fa-edit text-white' aria-hidden='true'></i></a>";
 
-                $edit = "<a href=" . route('purchase-receipts.edit', $row->id) . " title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>";
-
-                $view = "<a class='px-1' href=" . route('purchase-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
+                $view = "<a title='View' class='ml-1 btn btn-warning btn-sm' href=" . route('purchase-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye text-white'></i></a>";
                 $btn = $edit . $delete . $view;
                 return $btn;
-
             })->rawColumns(['action', 'purchase', 'vendor'])
                 ->make(true);
         }
@@ -132,7 +126,7 @@ class PurchaseReceiptController extends Controller
 
         foreach ($items as $key => $value)
         {
-            $purchaseItem = PurchaseItem::create(["product_id" => $value['id'], "receipt_id" => $receipt->id, "qty" => $value['qty'], "rate" => $value['rate'], "total" => $value['qty'] * $value['rate'], ]);
+            PurchaseItem::create(["product_id" => $value['id'], "receipt_id" => $receipt->id, "qty" => $value['qty'], "rqty" => $value['rqty'],  "rate" => $value['rate'], "total" => $value['rqty'] * $value['rate'], ]);
         }
 
         return redirect()->route('purchase-receipts.index')
@@ -190,8 +184,9 @@ class PurchaseReceiptController extends Controller
             {
 
                 $purchaseItem->qty = $value['qty'];
+                $purchaseItem->rqty = $value['rqty'];
                 $purchaseItem->rate = $value['price'];
-                $purchaseItem->total = $value['qty'] * $value['price'];
+                $purchaseItem->total = $value['rqty'] * $value['price'];
                 $purchaseItem->save();
                 array_push($notDeletedItem, $purchaseItem->id);
 
@@ -218,23 +213,15 @@ class PurchaseReceiptController extends Controller
      * Remove the specified resource from storage.
      * @return \Illuminate\Http\Response
      */
-    public function delete($id)
+    public function destroy($id)
     {
-        $module = PurchaseReceipt::Find($id);
-        try
-        {
-
-            $module->delete();
-            return redirect()
-                ->route('purchase-receipts.index')
-                ->with('success', 'Deleted');
-
-        }
-        catch(\Throwable $th)
-        {
-
-            return redirect()->route('purchase-receipts.index')
-                ->with('warning', 'Can Not Delete Becaouse The Data Used Some Where');
+        try {
+            $branch = PurchaseReceipt::Find($id);
+            $branch->delete();
+    
+            return response()->json(['message' => 'Deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
         }
 
     }

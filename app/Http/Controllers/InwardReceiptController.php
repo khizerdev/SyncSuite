@@ -57,16 +57,16 @@ class InwardReceiptController extends Controller
                 return $btn;
             })->addColumn('action', function ($row)
             {
-                $btn = "<a href=" . route('purchase-receipts.edit', $row->id) . "><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=" . route('purchase-receipts.destroy', $row->id) . "class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=" . route('purchase-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
+                $btn = "<a href=" . route('inward-receipts.edit', $row->id) . "><i class='mr-1 fas fa-edit fa-2x' ></i></a><a class='' href=" . route('inward-receipts.destroy', $row->id) . "class='px-1'><i class='text-danger fa-2x fas fa-window-close'></i></a><a class='px-1' href=" . route('inward-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
                 return $btn;
             })->addColumn('action', function ($row)
             {
 
-                $delete = "<a href=" . route('purchase-receipts.destroy', $row->id) . " class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
+                $delete = "<a href=" . route('inward-receipts.destroy', $row->id) . " class='px-1' title='Delete'><i class='px-1 text-danger fa-2x fas fa-window-close'></i></a>";
 
-                $edit = "<a href=" . route('purchase-receipts.edit', $row->id) . " title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>";
+                $edit = "<a href=" . route('inward-receipts.edit', $row->id) . " title='Edit'> <i class='fas fa-edit fa-2x' aria-hidden='true'></i></a>";
 
-                $view = "<a class='px-1' href=" . route('purchase-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
+                $view = "<a class='px-1' href=" . route('inward-receipts.view', $row->id) . "class='px-1'><i class='fas fa-eye fa-2x text-warning'></i></a>";
                 $btn = $edit . $delete . $view;
                 return $btn;
 
@@ -128,7 +128,7 @@ class InwardReceiptController extends Controller
 
         foreach ($items as $key => $value)
         {
-            $purchaseItem = InwardItem::create(["product_id" => $value['id'], "receipt_id" => $receipt->id, "qty" => $value['qty'], "rate" => $value['rate'], "total" => $value['qty'] * $value['rate'], ]);
+            $purchaseItem = InwardItem::create(["product_id" => $value['id'], "receipt_id" => $receipt->id, "qty" => $value['qty'],"rqty" => $value['rqty'], "rate" => $value['rate'], "total" => $value['rqty'] * $value['rate'], ]);
         }
 
         return redirect()->route('inward-receipts.index')
@@ -186,8 +186,9 @@ class InwardReceiptController extends Controller
             {
 
                 $purchaseItem->qty = $value['qty'];
+                $purchaseItem->rqty = $value['rqty'];
                 $purchaseItem->rate = $value['price'];
-                $purchaseItem->total = $value['qty'] * $value['price'];
+                $purchaseItem->total = $value['rqty'] * $value['price'];
                 $purchaseItem->save();
                 array_push($notDeletedItem, $purchaseItem->id);
 

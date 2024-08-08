@@ -92,6 +92,41 @@
                   ]
             });
   });
+
+  function deleteRecord(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+          $.ajax({
+              url: '/purchase-receipts/delete/' + id,
+              type: 'GET',
+              success: function(response) {
+                  Swal.fire(
+                      'Deleted!',
+                      'Data has been deleted.',
+                      'success'
+                  );
+                  $('.data-table').DataTable().ajax.reload();
+              },
+              error: function(xhr) {
+                  Swal.fire(
+                      'Error!',
+                      'There was an error while deleting',
+                      'error'
+                  );
+              }
+          });
+      }
+  });
+  }
+
 </script>
 
 @endsection

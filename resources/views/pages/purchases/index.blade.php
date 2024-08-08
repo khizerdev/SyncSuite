@@ -11,7 +11,7 @@
                 <div class="card-header row align-items-center">
                     <div class="col-6">
                         
-                        <h3 class="card-title">Products</h3>
+                        <h3 class="card-title">Purchase Order</h3>
                     </div>
                     <div class="col-6 text-right">
                         
