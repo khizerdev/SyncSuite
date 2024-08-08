@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\InwardGeneralController;
 use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\Api\ProductTypeController;
 use App\Http\Controllers\Api\ResourceController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\ParticularController;
 
 Route::get('/products/count', [ProductController::class, 'count']);
 Route::get('/departments', [ResourceController::class, 'getDepartments']);
@@ -21,3 +23,6 @@ Route::put('/inward-general/{id}', [InwardGeneralController::class, 'update']);
 
 Route::post('/products/store', [ApiProductController::class, 'store']);
 Route::post('/productsType/store', [ProductTypeController::class, 'store']);
+
+Route::post('/materials/store', [MaterialController::class, 'store']);
+Route::post('/particulars/store', [ParticularController::class, 'store']);

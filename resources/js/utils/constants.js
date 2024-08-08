@@ -1,1 +1,1 @@
-export const baseUrl = window.location.protocol + "//" + window.location.host + "/lace";
+export const baseUrl = window.location.protocol + "//" + window.location.host;
