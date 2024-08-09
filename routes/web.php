@@ -10,6 +10,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('switch/{currentMode}', [App\Http\Controllers\DashboardController::class, 'switch'])->name('switch');
+
     Route::get('customers', [App\Http\Controllers\CustomerController::class, 'index'])->name('customers.index');
     Route::get('customers/create', [App\Http\Controllers\CustomerController::class, 'create'])->name('customers.create');
     Route::post('customers', [App\Http\Controllers\CustomerController::class, 'store'])->name('customers.store');

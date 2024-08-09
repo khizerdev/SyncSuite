@@ -109,7 +109,7 @@
                         </li>
 
                         @php
-                        $navItems = [
+                        $erpItems = [
                             [
                                 'title' => 'Branch',
                                 'icon' => 'fas fa-circle',
@@ -170,14 +170,6 @@
                                 ]
                             ],
                             [
-                                'title' => 'Employee',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'employees.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'employees.index']
-                                ]
-                            ],
-                            [
                                 'title' => 'Purchases',
                                 'icon' => 'fas fa-circle',
                                 'route' => 'purchases.index',
@@ -198,40 +190,61 @@
                             ]
                         ];
 
+                        $hrItems = [
+                            [
+                                'title' => 'Employee',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'employees.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'employees.index']
+                                ]
+                            ],
+                        ]
+
+                        @endphp
+                        @php
+                        $currentMode = session()->get('currentMode') ?? 'erp';
+                        $navItems = [];
+
+                        if($currentMode == 'erp'){
+                            $navItems = $erpItems;
+                        } else {
+                            $navItems = $hrItems;
+                        }
                         @endphp
 
                         @foreach ($navItems as $item)
                         @php
-                        $isActive = false;
-                        foreach ($item['children'] as $child) {
-                            if (Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'))) {
-                                $isActive = true;
-                                break;
+                            $isActive = false;
+                            foreach ($item['children'] as $child) {
+                                if (Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'))) {
+                                    $isActive = true;
+                                    break;
+                                }
                             }
-                        }
-                        @endphp
-                        <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
-                            <a href="{{ route($item['route']) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
-                                <i class="nav-icon {{ $item['icon'] }}"></i>
-                                <p>
-                                    {{ $item['title'] }}
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @foreach ($item['children'] as $child)
-                                    @php
-                                    $isChildActive = Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'));
-                                    @endphp
-                                    <li class="nav-item">
-                                        <a href="{{ route($child['route']) }}" class="nav-link {{ $isChildActive ? 'active' : '' }}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>{{ $child['title'] }}</p>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </li>
+                            @endphp
+                            <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
+                                <a href="{{ route($item['route']) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                                    <i class="nav-icon {{ $item['icon'] }}"></i>
+                                    <p>
+                                        {{ $item['title'] }}
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    @foreach ($item['children'] as $child)
+                                        @php
+                                        $isChildActive = Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'));
+                                        @endphp
+                                        <li class="nav-item">
+                                            <a href="{{ route($child['route']) }}" class="nav-link {{ $isChildActive ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>{{ $child['title'] }}</p>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
                         @endforeach
 
 
