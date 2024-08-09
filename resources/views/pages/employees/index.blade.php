@@ -7,9 +7,14 @@
         <div class="col-md-12">
 
             <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title">Employees</h3>
-                </div>
+                <div class="card-header row align-items-center">
+                  <div class="col-6">
+                      <h3 class="card-title">Employees</h3>
+                  </div>
+                  <div class="col-6 text-right">
+                      <a class="btn btn-primary" href="{{ route('employees.create') }}">Add New Employee</a>
+                  </div>
+              </div>
 
                 <div class="card-body">
                     <table class="table table-bordered" id="table">
@@ -52,28 +57,6 @@
           ]
       });
 
-      // Delete event handler
-      $('#table').on('click', '.delete', function(event) {
-          event.preventDefault();
-
-          var employeeId = $(this).data('id');
-          var row = $(this).closest('tr');
-
-          if (confirm("Are you sure you want to delete this employee?")) {
-              $.ajax({
-                  url: '/employees/' + employeeId,
-                  type: 'GET', // Use DELETE method for deletion
-                  success: function(response) {
-                      alert('Employee deleted successfully');
-                      dataTable.row(row).remove().draw(false); // Remove row from DataTable
-                  },
-                  error: function(xhr) {
-                      console.error(xhr.responseText);
-                      alert('Failed to delete employee');
-                  }
-              });
-          }
-      });
   });
 </script>
 

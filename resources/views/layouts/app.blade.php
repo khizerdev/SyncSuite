@@ -139,7 +139,6 @@
                                 'icon' => 'fas fa-circle',
                                 'route' => 'vendors.index',
                                 'children' => [
-                                    ['title' => 'Add', 'route' => 'vendors.create'],
                                     ['title' => 'View', 'route' => 'vendors.index']
                                 ]
                             ],
@@ -148,7 +147,6 @@
                                 'icon' => 'fas fa-circle',
                                 'route' => 'manufacturers.index',
                                 'children' => [
-                                    ['title' => 'Add', 'route' => 'manufacturers.create'],
                                     ['title' => 'View', 'route' => 'manufacturers.index']
                                 ]
                             ],
@@ -157,7 +155,6 @@
                                 'icon' => 'fas fa-circle',
                                 'route' => 'machines.index',
                                 'children' => [
-                                    ['title' => 'Add', 'route' => 'machines.create'],
                                     ['title' => 'View', 'route' => 'machines.index']
                                 ]
                             ],
@@ -177,7 +174,6 @@
                                 'icon' => 'fas fa-circle',
                                 'route' => 'employees.index',
                                 'children' => [
-                                    ['title' => 'Add', 'route' => 'employees.create'],
                                     ['title' => 'View', 'route' => 'employees.index']
                                 ]
                             ],
@@ -371,6 +367,45 @@
                 });
             });
         });
+    </script>
+
+    <script>
+        function deleteData(id, url, type) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+              url: url + id,
+              type: type,
+              data: {
+                  "_token": "{{ csrf_token() }}",
+              },
+              success: function(response) {
+                  Swal.fire(
+                      'Deleted!',
+                      'The record has been deleted.',
+                      'success'
+                  );
+                  $('#table').DataTable().ajax.reload();
+              },
+              error: function(xhr) {
+                  Swal.fire(
+                      'Error!',
+                      'There was an error dwhile deleting',
+                      'error'
+                  );
+              }
+          })
+                }
+            });
+        }
     </script>
 
 

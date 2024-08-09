@@ -7,8 +7,13 @@
         <div class="col-md-12">
 
             <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title">Machines</h3>
+                <div class="card-header row align-items-center">
+                    <div class="col-6">
+                        <h3 class="card-title">Machines</h3>
+                    </div>
+                    <div class="col-6 text-right">
+                        <a class="btn btn-primary" href="{{ route('machines.create') }}">Add New Machine</a>
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -60,28 +65,7 @@
           ]
       });
 
-      // Delete event handler
-      $('#table').on('click', '.delete', function(event) {
-          event.preventDefault();
-
-          var machineId = $(this).data('id');
-          var row = $(this).closest('tr');
-
-          if (confirm("Are you sure you want to delete this machine?")) {
-              $.ajax({
-                  url: '/machines/' + machineId,
-                  type: 'GET', // Use DELETE method for deletion
-                  success: function(response) {
-                      alert('Machine deleted successfully');
-                      dataTable.row(row).remove().draw(false); // Remove row from DataTable
-                  },
-                  error: function(xhr) {
-                      console.error(xhr.responseText);
-                      alert('Failed to delete machine');
-                  }
-              });
-          }
-      });
+      
   });
 </script>
 

@@ -46,7 +46,7 @@ class MachineController extends Controller
                     $deleteUrl = route('machines.destroy', $row->id);
 
                     $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm">Edit</a>';
-                    $btn .= ' <a href="'.$deleteUrl.'" data-id="'.$row->id.'" class="delete btn btn-danger btn-sm">Delete</a>';
+                    $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/machines/\', \'GET\')" class="delete btn btn-danger btn-sm">Delete</button>';
                     return $btn;
                 })
                  ->rawColumns(['action'])
