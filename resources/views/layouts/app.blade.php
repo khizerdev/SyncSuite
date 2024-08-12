@@ -199,6 +199,14 @@
                                     ['title' => 'View', 'route' => 'employees.index']
                                 ]
                             ],
+                            [
+                                'title' => 'Shifts',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'shifts.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'shifts.index']
+                                ]
+                            ],
                         ]
 
                         @endphp

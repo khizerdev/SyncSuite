@@ -8,6 +8,8 @@ import InwardCreate from "./components/InwardGeneral/Create.vue";
 import InwardEdit from "./components/InwardGeneral/Edit.vue";
 
 import ProductCreate from "./components/Product/Create.vue";
+import ShiftCreate from "./components/Shift/Create.vue";
+import EditShift from "./components/Shift/Edit.vue";
 
 if (document.querySelector("#widgets")) {
   createApp(DashboardCounts).mount("#widgets");
@@ -24,4 +26,13 @@ if (document.querySelector("#edit-inward-general")) {
 
 if (document.querySelector("#create-product")) {
   createApp(ProductCreate).mount("#create-product");
+}
+
+if (document.querySelector("#create-shift")) {
+  createApp(ShiftCreate).mount("#create-shift");
+}
+
+if (document.querySelector("#edit-shift")) {
+  const editShift = JSON.parse(document.querySelector("#edit-shift").dataset.shift);
+  createApp(EditShift, { shift: editShift }).mount("#edit-shift");
 }

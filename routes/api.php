@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\InwardGeneralController;
 use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\Api\ProductTypeController;
 use App\Http\Controllers\Api\ResourceController;
+use App\Http\Controllers\Api\ShiftController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ParticularController;
 
@@ -26,3 +27,7 @@ Route::post('/productsType/store', [ProductTypeController::class, 'store']);
 
 Route::post('/materials/store', [MaterialController::class, 'store']);
 Route::post('/particulars/store', [ParticularController::class, 'store']);
+
+Route::apiResource('shifts', ShiftController::class)->only([
+    'store','update'
+]);

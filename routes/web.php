@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ShiftController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -149,8 +150,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('inward-receipts/view/{id}', [App\Http\Controllers\InwardReceiptController::class, 'view'])->name('inward-receipts.view');
 
     Route::resource('inward-general', App\Http\Controllers\InwardGeneralController::class);
-    
 
+    Route::resource('shifts', ShiftController::class)->only([
+        'index','edit','destroy'
+    ]);
+    
 
     Route::get('/dashboard', function () {
         return view('dashboard');
