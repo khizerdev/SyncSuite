@@ -34,8 +34,11 @@ class UpdateEmployeeRequest extends FormRequest
             'email' => 'required|email',
             'dob' => 'required|date',
             'shift' => 'required|string|max:255',
+            'code' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
-            'branch_id' => 'required|exists:branches,id', // Assuming branch is selected from a dropdown linked to a departments table
+            'shift_id' => 'required|exists:shifts,id',
+            'type_id' => 'required|exists:employee_types,id',
+            'branch_id' => 'required|exists:branches,id',
             'hiring_date' => 'required|date',
             'salary' => 'required|numeric',
         ];

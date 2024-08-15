@@ -24,24 +24,31 @@
                             <form id="form" action="{{ route('employees.update', $employee->id) }}" method="POST" data-method="PUT">
                                 @csrf
                                 <div class="row">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="name">Name</label>
                                             <input type="text" id="name" name="name"
                                                 value="{{ $employee->name }}" class="form-control" required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="name">Father Name</label>
-                                            <input type="text" id="father_name" name="father_name" class="form-control"
+                                            <input type="text" id="father_name" name="father_name" value="{{ $employee->father_name }}" class="form-control"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="code">Code</label>
+                                            <input type="text" id="code" name="code" value="{{ $employee->code }}" class="form-control"
                                                 required>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="name">Passport Number</label>
-                                            <input type="text" id="passport_number" name="passport_number" class="form-control"
+                                            <input type="text" id="passport_number" name="passport_number" value="{{ $employee->passport_number }}" class="form-control"
                                                 required>
                                         </div>
                                     </div>
@@ -55,42 +62,62 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="type_id">Type</label>
+                                            <select id="type_id" name="type_id" class="form-control" required>
+                                                @foreach (App\Models\EmployeeType::all() as $item)
+                                                    <option value="{{ $item->id }}" @if($employee->type_id == $item->id) selected @endif>{{ $item->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="department_id">Department</label>
                                             <select id="department_id" name="department_id"
                                                 value="{{ $employee->department_id }}" class="form-control" required>
                                                 @foreach (App\Models\Department::all() as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                    <option value="{{ $item->id }}" @if($employee->department_id == $item->id) selected @endif>{{ $item->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="reporting_manager">Reporting Manager</label>
                                             <select id="reporting_manager" name="reporting_manager" class="form-control" required>
-                                                <option value="">option1</option>
-                                                <option value="">option2</option>
-                                                <option value="">option3</option>
+                                                <option value="option1" @if($employee->reporting_manager == "option1") selected @endif>option1</option>
+                                                <option value="option2" @if($employee->reporting_manager == "option2") selected @endif>option2</option>
+                                                <option value="option3" @if($employee->reporting_manager == "option3") selected @endif>option3</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="employement_status">Employement Status</label>
                                             <select id="employement_status" name="employement_status" class="form-control" required>
-                                                <option value="">option1</option>
-                                                <option value="">option2</option>
-                                                <option value="">option3</option>h
+                                                <option value="option1" @if($employee->reporting_manager == "option1") selected @endif>option1</option>
+                                                <option value="option2" @if($employee->reporting_manager == "option2") selected @endif>option2</option>
+                                                <option value="option3" @if($employee->reporting_manager == "option3") selected @endif>option3</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="contact_number">Contact Number</label>
                                             <input type="text" id="contact_number" name="contact_number"
                                                 value="{{ $employee->contact_number }}" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="shift_id">Shift</label>
+                                            <select id="shift_id" name="shift_id" class="form-control" required>
+                                                @foreach (App\Models\Shift::all() as $item)
+                                                    <option value="{{ $item->id }}" @if($employee->shift_id == $item->id) selected @endif>{{ $item->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -183,7 +210,6 @@
                                             <!-- Display existing attachments -->
                                             <label for="existing_documents">Existing Documents</label>
                                             <ul>
-                                                @dd($employee->attachments);
                                                 @foreach ($employee->attachments as $attachment)
                                                     <li>
                                                         <a href="{{ route('attachments.download', $attachment->id) }}">

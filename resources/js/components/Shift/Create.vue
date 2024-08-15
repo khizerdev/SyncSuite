@@ -63,13 +63,7 @@ const submitForm = async () => {
         <form class="modal-content" @submit.prevent="submitForm">
           <div class="modal-header">
             <h5 class="modal-title" id="shiftModalLabel">Create Shift</h5>
-            <button
-              part="button"
-              class="close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              @click="closeModal"
-            >
+            <button type="button" class="close" @click="closeModal">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>

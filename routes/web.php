@@ -155,7 +155,6 @@ Route::middleware(['auth'])->group(function () {
         'index','edit','destroy'
     ]);
     
-
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');

@@ -25,17 +25,24 @@
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="row">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="name">Name</label>
                                             <input type="text" id="name" name="name" class="form-control"
                                                 required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="name">Father Name</label>
                                             <input type="text" id="father_name" name="father_name" class="form-control"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="name">Code</label>
+                                            <input type="text" id="code" name="code" class="form-control"
                                                 required>
                                         </div>
                                     </div>
@@ -56,7 +63,17 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="type_id">Type</label>
+                                            <select id="type_id" name="type_id" class="form-control" required>
+                                                @foreach (App\Models\EmployeeType::all() as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="department_id">Department</label>
                                             <select id="department_id" name="department_id" class="form-control" required>
@@ -66,7 +83,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="reporting_manager">Reporting Manager</label>
                                             <select id="reporting_manager" name="reporting_manager" class="form-control"
@@ -77,7 +94,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="employement_status">Employement Status</label>
                                             <select id="employement_status" name="employement_status" class="form-control"
@@ -88,11 +105,21 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="contact_number">Contact Number</label>
                                             <input type="text" id="contact_number" name="contact_number"
                                                 class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="shift_id">Shift</label>
+                                            <select id="shift_id" name="shift_id" class="form-control" required>
+                                                @foreach (App\Models\Shift::all() as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
