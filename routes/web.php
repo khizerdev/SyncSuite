@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
 
@@ -154,6 +156,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('shifts', ShiftController::class)->only([
         'index','edit','destroy'
     ]);
+
+    Route::post('/import-excel', [AttendanceController::class, 'import'])->name('import.excel');
+    Route::get('/calculate-hours/{employeeId}', [AttendanceController::class, 'calculateHours'])->name('calculate.hours');
     
     Route::get('/dashboard', function () {
         return view('dashboard');

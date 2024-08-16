@@ -21,12 +21,23 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row mb-3">
+                <div class="col-12 mb-3">
+                    <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input type="file" name="excel_file" accept=".xls,.xlsx">
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </form>
+                </div>
+                <div class="col-12">
+                    <a href="{{ route('calculate.hours', ['employeeId' => '1001']) }}" class="btn btn-primary">Calculate Working Hours</a>
+                </div>
+            </div>
+            <div class="row mb-3">
                 @php
                     $currentMode = session()->get('currentMode') ?? 'erp';
                     $modes = [
                         ['slug' => 'erp', 'title' => 'ERP', 'bgClass' => 'bg-black', 'textClass' => 'text-white', 'iconFill' => 'none', 'iconStroke' => '#ffffff'],
                         ['slug' => 'hr', 'title' => 'HR', 'bgClass' => 'bg-black', 'textClass' => 'text-white', 'iconFill' => 'none', 'iconStroke' => '#ffffff'],
-                        // Add more modes as needed
                     ];
                 @endphp
                 @foreach($modes as $mode)
