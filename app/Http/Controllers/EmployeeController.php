@@ -270,19 +270,19 @@ class EmployeeController extends Controller
                 return Carbon::parse($date->datetime)->format('Y-m-d');
             });
 
-        $dailyHours = [];
+            $dailyMinutes = [];
 
-        foreach ($attendances as $date => $entries) {
-            $totalHours = 0;
-            for ($i = 0; $i < count($entries) - 1; $i += 2) {
-                $checkIn = Carbon::parse($entries[$i]->datetime);
-                $checkOut = Carbon::parse($entries[$i + 1]->datetime);
-                $totalHours += $checkIn->diffInHours($checkOut);
+            foreach ($attendances as $date => $entries) {
+                $totalMinutes = 0;
+                for ($i = 0; $i < count($entries) - 1; $i += 2) {
+                    $checkIn = Carbon::parse($entries[$i]->datetime);
+                    $checkOut = Carbon::parse($entries[$i + 1]->datetime);
+                    $totalMinutes += $checkOut->diffInMinutes($checkIn);
+                }
+                $dailyMinutes[$date] = $totalMinutes;
             }
-            $dailyHours[$date] = $totalHours;
-        }
 
-        return view('pages.employees.attendance', compact('attendances', 'dailyHours', 'employee'));
+        return view('pages.employees.attendance', compact('attendances', 'dailyMinutes', 'employee'));
     }
 
     
