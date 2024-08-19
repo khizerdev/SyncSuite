@@ -277,7 +277,7 @@ class EmployeeController extends Controller
                 for ($i = 0; $i < count($entries) - 1; $i += 2) {
                     $checkIn = Carbon::parse($entries[$i]->datetime);
                     $checkOut = Carbon::parse($entries[$i + 1]->datetime);
-                    $totalMinutes += $checkOut->diffInMinutes($checkIn);
+                    $totalMinutes += $checkIn->diffInMinutes($checkOut);
                 }
                 $dailyMinutes[$date] = $totalMinutes;
             }
