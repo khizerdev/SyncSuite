@@ -87,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('employees/{id}', [App\Http\Controllers\EmployeeController::class, 'update'])->name('employees.update');
     Route::get('employees/{id}', [App\Http\Controllers\EmployeeController::class, 'destroy'])->name('employees.destroy');
     Route::get('attachments/{id}/download', [App\Http\Controllers\EmployeeController::class, 'download'])->name('attachments.download');
+    Route::get('employees/attd/{id}', [App\Http\Controllers\EmployeeController::class, 'attd'])->name('employees.attd');
 
 
     Route::get('branches', [App\Http\Controllers\BranchController::class, 'index'])->name('branches.index');

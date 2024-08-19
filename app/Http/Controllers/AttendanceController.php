@@ -45,7 +45,7 @@ class AttendanceController extends Controller
             $checkIn = Carbon::parse($attendances[$i]->datetime);
             $checkOut = Carbon::parse($attendances[$i + 1]->datetime);
 
-            $hoursWorked = $checkOut->diffInHours($checkIn);
+            $hoursWorked = $checkIn->diffInHours($checkOut);
             $totalWorkingHours += $hoursWorked;
 
             $date = $checkIn->format('Y-m-d');

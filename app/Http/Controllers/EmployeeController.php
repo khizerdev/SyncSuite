@@ -9,6 +9,8 @@ use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee;
 use App\Models\Attachment;
+use App\Models\Attendance;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -33,10 +35,12 @@ class EmployeeController extends Controller
              return DataTables::of($data)
                 ->addColumn('action', function($row){
                     $editUrl = route('employees.edit', $row->id);
+                    $attdUrl = route('employees.attd', $row->id);
                     $deleteUrl = route('employees.destroy', $row->id);
 
-                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm">Edit</a>';
-                    $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/employees/\', \'GET\')" class="delete btn btn-danger btn-sm">Delete</button>';
+                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
+                    $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/employees/\', \'GET\')" class="delete btn btn-danger btn-sm mr-2">Delete</button>';
+                    $btn .= '<a href="'.$attdUrl.'" class="btn btn-warning btn-sm">View Attd</a>';
                     return $btn;
                 })
                  ->rawColumns(['action'])
@@ -248,6 +252,37 @@ class EmployeeController extends Controller
         $pathToFile = storage_path('app/' . $attachment->file_path);
 
         return response()->download($pathToFile, $attachment->file_name);
+    }
+
+   
+    public function attd($employeeId)
+    {
+        $employee = Employee::findOrFail($employeeId);
+
+        // $startDate = Carbon::now()->startOfMonth();
+        // $endDate = Carbon::now()->endOfMonth();
+
+        $attendances = Attendance::where('code', $employee->code)
+            // ->whereBetween('datetime', [$startDate, $endDate])
+            ->orderBy('datetime')
+            ->get()
+            ->groupBy(function($date) {
+                return Carbon::parse($date->datetime)->format('Y-m-d');
+            });
+
+        $dailyHours = [];
+
+        foreach ($attendances as $date => $entries) {
+            $totalHours = 0;
+            for ($i = 0; $i < count($entries) - 1; $i += 2) {
+                $checkIn = Carbon::parse($entries[$i]->datetime);
+                $checkOut = Carbon::parse($entries[$i + 1]->datetime);
+                $totalHours += $checkIn->diffInHours($checkOut);
+            }
+            $dailyHours[$date] = $totalHours;
+        }
+
+        return view('pages.employees.attendance', compact('attendances', 'dailyHours', 'employee'));
     }
 
     
