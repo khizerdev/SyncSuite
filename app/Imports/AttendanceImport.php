@@ -12,7 +12,7 @@ class AttendanceImport implements ToModel, WithHeadingRow
     {
         return new Attendance([
             'code' => $row['name'],
-            'datetime' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['date'])->format('Y-m-d H:i:s'),
+            'datetime' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['datetime'])->format('Y-m-d H:i:s'),
         ]);
     }
 
@@ -25,7 +25,7 @@ class AttendanceImport implements ToModel, WithHeadingRow
     {
         return [
             'name' => $row['name'],
-            'datetime' => $row['date'],
+            'datetime' => $row['datetime'],
         ];
     }
 }
