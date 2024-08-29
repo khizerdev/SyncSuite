@@ -15,4 +15,9 @@ class Employee extends Model
     {
         return $this->morphMany(Attachment::class, 'attachable');
     }
+
+    public function timings()
+    {
+        return $this->belongsTo(Shift::class, 'shift_id');
+    }
 }

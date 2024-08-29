@@ -258,32 +258,42 @@ class EmployeeController extends Controller
     public function attd($employeeId)
     {
         $employee = Employee::findOrFail($employeeId);
+    $shift = $employee->timings;
 
-        // $startDate = Carbon::now()->startOfMonth();
-        // $endDate = Carbon::now()->endOfMonth();
+    $attendances = Attendance::where('code', $employee->code)
+        ->orderBy('datetime')
+        ->get()
+        ->groupBy(function($date) {
+            return Carbon::parse($date->datetime)->format('Y-m-d');
+        });
 
-        $attendances = Attendance::where('code', $employee->code)
-            // ->whereBetween('datetime', [$startDate, $endDate])
-            ->orderBy('datetime')
-            ->get()
-            ->groupBy(function($date) {
-                return Carbon::parse($date->datetime)->format('Y-m-d');
-            });
+    $dailyMinutes = [];
 
-            $dailyMinutes = [];
+    foreach ($attendances as $date => $entries) {
+        $shiftStart = Carbon::parse($date)->setTimeFrom(Carbon::parse($shift->start_time));
+        $shiftEnd = Carbon::parse($date)->setTimeFrom(Carbon::parse($shift->end_time));
 
-            foreach ($attendances as $date => $entries) {
-                $totalMinutes = 0;
-                for ($i = 0; $i < count($entries) - 1; $i += 2) {
-                    $checkIn = Carbon::parse($entries[$i]->datetime);
-                    $checkOut = Carbon::parse($entries[$i + 1]->datetime);
-                    $totalMinutes += $checkIn->diffInMinutes($checkOut);
-                }
-                $dailyMinutes[$date] = $totalMinutes;
+        $totalMinutes = 0;
+
+        for ($i = 0; $i < count($entries) - 1; $i += 2) {
+            $entryTimeStart = Carbon::parse($entries[$i]->datetime);
+            $entryTimeEnd = Carbon::parse($entries[$i + 1]->datetime);
+
+            // Adjust start and end times to ensure they fall within the shift
+            $startTime = $entryTimeStart->max($shiftStart);
+            $endTime = $entryTimeEnd->min($shiftEnd);
+
+            // Calculate the overlap in minutes only if the times are valid within the shift
+            if ($startTime->lt($endTime)) {
+                $totalMinutes += $startTime->diffInMinutes($endTime);
             }
+        }
 
-        return view('pages.employees.attendance', compact('attendances', 'dailyMinutes', 'employee'));
+        $dailyMinutes[$date] = $totalMinutes;
     }
+        
+            return view('pages.employees.attendance', compact('attendances', 'dailyMinutes', 'employee', 'shift'));
+}
 
     
 }
