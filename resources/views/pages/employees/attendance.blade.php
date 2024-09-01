@@ -18,7 +18,11 @@
 
               </div>
 
-              @foreach($attendances as $date => $entries)
+              @php
+              $isNightShift = Carbon\Carbon::parse($shift->start_time)->greaterThan(Carbon\Carbon::parse($shift->end_time));
+          @endphp
+          
+          @foreach($groupedAttendances as $date => $entries)
     <div class="card mb-4">
         <div class="card-header">
             <h3>{{ Carbon\Carbon::parse($date)->format('l, F j, Y') }}</h3>
@@ -34,28 +38,66 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Actual Time</th>
-                        <th>Considered Time</th>
+                        <th>Actual Check-In</th>
+                        <th>Actual Check-Out</th>
+                        <th>Calculation Check-In</th>
+                        <th>Calculation Check-Out</th>
+                        <th>Considered Check-In</th>
+                        <th>Considered Check-Out</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($entries as $entry)
                     <tr>
-                        <td>{{ Carbon\Carbon::parse($entry->datetime)->format('H:i:s') }}</td>
+                        <td>{{ $entry['original_checkin']->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $entry['original_checkout']->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $entry['calculation_checkin']->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $entry['calculation_checkout']->format('Y-m-d H:i:s') }}</td>
                         <td>
                             @php
-                                $entryTime = Carbon\Carbon::parse($entry->datetime);
-                                $shiftStart = Carbon\Carbon::parse($date)->setTimeFrom($shift->start_time);
-                                $shiftEnd = Carbon\Carbon::parse($date)->setTimeFrom($shift->end_time);
-                                $consideredTime = $entryTime->copy();
+                                $shiftStartTime = Carbon\Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
+                                $shiftEndTime = Carbon\Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
+                                
+                                $shiftStart = Carbon\Carbon::parse($date . ' ' . $shiftStartTime);
+                                $shiftEnd = Carbon\Carbon::parse($date . ' ' . $shiftEndTime);
 
-                                if ($entryTime->lt($shiftStart)) {
-                                    $consideredTime = $shiftStart;
-                                } elseif ($entryTime->gt($shiftEnd)) {
-                                    $consideredTime = $shiftEnd;
+                                if ($isNightShift) {
+                                    $shiftEnd->addDay();
                                 }
+
+                                $consideredCheckIn = $entry['calculation_checkin']->copy();
+
+                                if ($entry['calculation_checkin']->lt($shiftStart)) {
+                                    $consideredCheckIn = $shiftStart;
+                                } elseif ($entry['calculation_checkin']->gt($shiftEnd)) {
+                                    $consideredCheckIn = $shiftEnd;
+                                }
+
+                                // Convert back to original time for display
+                                if ($isNightShift) {
+                                    $consideredCheckIn->subHours(6);
+                                }
+
+                                echo $consideredCheckIn->format('Y-m-d H:i:s');
                             @endphp
-                            {{ $consideredTime->format('H:i:s') }}
+                        </td>
+                        <td>
+                            @php
+                                $consideredCheckOut = $entry['calculation_checkout']->copy();
+
+                                if ($entry['calculation_checkout']->lt($shiftStart)) {
+                                    $consideredCheckOut = $shiftStart;
+                                } elseif ($entry['calculation_checkout']->gt($shiftEnd)) {
+                                    $consideredCheckOut = $shiftEnd;
+                                }
+
+                                // Convert back to original time for display
+                                if ($isNightShift) {
+                                    $consideredCheckOut->subHours(6);
+                                }
+
+                                echo $consideredCheckOut->format('Y-m-d H:i:s');
+                            @endphp
                         </td>
                     </tr>
                     @endforeach
@@ -64,7 +106,6 @@
         </div>
     </div>
 @endforeach
-
 
         </div>
       </div>

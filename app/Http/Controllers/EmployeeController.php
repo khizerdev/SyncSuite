@@ -256,28 +256,59 @@ class EmployeeController extends Controller
 
    
     public function attd($employeeId)
-    {
-        $employee = Employee::findOrFail($employeeId);
+{
+    $employee = Employee::findOrFail($employeeId);
     $shift = $employee->timings;
 
     $attendances = Attendance::where('code', $employee->code)
         ->orderBy('datetime')
-        ->get()
-        ->groupBy(function($date) {
-            return Carbon::parse($date->datetime)->format('Y-m-d');
-        });
+        ->get();
 
     $dailyMinutes = [];
+    $groupedAttendances = [];
 
-    foreach ($attendances as $date => $entries) {
-        $shiftStart = Carbon::parse($date)->setTimeFrom(Carbon::parse($shift->start_time));
-        $shiftEnd = Carbon::parse($date)->setTimeFrom(Carbon::parse($shift->end_time));
+    $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
+
+    for ($i = 0; $i < count($attendances) - 1; $i += 2) {
+        $checkIn = Carbon::parse($attendances[$i]->datetime);
+        $checkOut = Carbon::parse($attendances[$i + 1]->datetime);
+        
+        // Use check-in date as the key date
+        $date = $checkIn->format('Y-m-d');
+
+        if ($isNightShift) {
+            // For night shifts, add 6 hours to both check-in and check-out times for calculation purposes
+            $calculationCheckIn = $checkIn->copy()->addHours(6);
+            $calculationCheckOut = $checkOut->copy()->addHours(6);
+        } else {
+            $calculationCheckIn = $checkIn;
+            $calculationCheckOut = $checkOut;
+        }
+
+        $groupedAttendances[$date][] = [
+            'original_checkin' => $checkIn,
+            'original_checkout' => $checkOut,
+            'calculation_checkin' => $calculationCheckIn,
+            'calculation_checkout' => $calculationCheckOut
+        ];
+    }
+
+    foreach ($groupedAttendances as $date => $entries) {
+        $shiftStartTime = Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
+        $shiftEndTime = Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
+
+        $shiftStart = Carbon::parse($date . ' ' . $shiftStartTime);
+        $shiftEnd = Carbon::parse($date . ' ' . $shiftEndTime);
+
+        if ($isNightShift) {
+            $shiftEnd->addDay();
+        }
 
         $totalMinutes = 0;
 
-        for ($i = 0; $i < count($entries) - 1; $i += 2) {
-            $entryTimeStart = Carbon::parse($entries[$i]->datetime);
-            $entryTimeEnd = Carbon::parse($entries[$i + 1]->datetime);
+        foreach ($entries as $entry) {
+            $entryTimeStart = $entry['calculation_checkin'];
+            $entryTimeEnd = $entry['calculation_checkout'];
 
             // Adjust start and end times to ensure they fall within the shift
             $startTime = $entryTimeStart->max($shiftStart);
@@ -292,8 +323,7 @@ class EmployeeController extends Controller
         $dailyMinutes[$date] = $totalMinutes;
     }
         
-            return view('pages.employees.attendance', compact('attendances', 'dailyMinutes', 'employee', 'shift'));
+    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift'));
 }
-
     
 }
