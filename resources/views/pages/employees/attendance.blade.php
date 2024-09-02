@@ -38,12 +38,12 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Actual Check-In</th>
-                        <th>Actual Check-Out</th>
-                        <th>Calculation Check-In</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        {{-- <th>Calculation Check-In</th>
                         <th>Calculation Check-Out</th>
                         <th>Considered Check-In</th>
-                        <th>Considered Check-Out</th>
+                        <th>Considered Check-Out</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -51,8 +51,8 @@
                     <tr>
                         <td>{{ $entry['original_checkin']->format('Y-m-d H:i:s') }}</td>
                         <td>{{ $entry['original_checkout']->format('Y-m-d H:i:s') }}</td>
-                        <td>{{ $entry['calculation_checkin']->format('Y-m-d H:i:s') }}</td>
-                        <td>{{ $entry['calculation_checkout']->format('Y-m-d H:i:s') }}</td>
+                        {{-- <td>{{ $entry['calculation_checkin']->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $entry['calculation_checkout']->format('Y-m-d H:i:s') }}</td> --}}
                         <td>
                             @php
                                 $shiftStartTime = Carbon\Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
@@ -78,7 +78,7 @@
                                     $consideredCheckIn->subHours(6);
                                 }
 
-                                echo $consideredCheckIn->format('Y-m-d H:i:s');
+                                // echo $consideredCheckIn->format('Y-m-d H:i:s');
                             @endphp
                         </td>
                         <td>
@@ -96,7 +96,7 @@
                                     $consideredCheckOut->subHours(6);
                                 }
 
-                                echo $consideredCheckOut->format('Y-m-d H:i:s');
+                                // echo $consideredCheckOut->format('Y-m-d H:i:s');
                             @endphp
                         </td>
                     </tr>
