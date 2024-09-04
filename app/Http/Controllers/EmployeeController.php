@@ -269,17 +269,36 @@ class EmployeeController extends Controller
 
     $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
 
-    for ($i = 0; $i < count($attendances) - 1; $i += 2) {
+    for ($i = 0; $i < count($attendances); $i++) {
         $checkIn = Carbon::parse($attendances[$i]->datetime);
-        $checkOut = Carbon::parse($attendances[$i + 1]->datetime);
-        
-        // Use check-in date as the key date
         $date = $checkIn->format('Y-m-d');
 
+        // Find the next check-out or check-in
+        $nextEntry = null;
+        for ($j = $i + 1; $j < count($attendances); $j++) {
+            $nextEntry = Carbon::parse($attendances[$j]->datetime);  
+            if (abs($nextEntry->diffInHours($checkIn)) <= 16) {
+                break;
+            }
+            $nextEntry = null;
+        }
+        $shiftStart = Carbon::parse($shift->start_time);
+        $shiftEnd = Carbon::parse($shift->end_time);
         if ($isNightShift) {
-            // For night shifts, add 6 hours to both check-in and check-out times for calculation purposes
+            $shiftEnd->addDay();
+        }
+        $maxCheckOut = $shiftEnd->copy()->addHours(4);
+
+        if ($nextEntry && $nextEntry <= $maxCheckOut) {
+            $checkOut = $nextEntry;
+            $i = $j;
+        } else {
+            $checkOut = null;
+        }
+
+        if ($isNightShift) {
             $calculationCheckIn = $checkIn->copy()->addHours(6);
-            $calculationCheckOut = $checkOut->copy()->addHours(6);
+            $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(6) : null;
         } else {
             $calculationCheckIn = $checkIn;
             $calculationCheckOut = $checkOut;
@@ -289,7 +308,8 @@ class EmployeeController extends Controller
             'original_checkin' => $checkIn,
             'original_checkout' => $checkOut,
             'calculation_checkin' => $calculationCheckIn,
-            'calculation_checkout' => $calculationCheckOut
+            'calculation_checkout' => $calculationCheckOut,
+            'is_incomplete' => !$checkOut
         ];
     }
 
@@ -307,16 +327,23 @@ class EmployeeController extends Controller
         $totalMinutes = 0;
 
         foreach ($entries as $entry) {
-            $entryTimeStart = $entry['calculation_checkin'];
-            $entryTimeEnd = $entry['calculation_checkout'];
+            if (!$entry['is_incomplete']) {
+                
+                $entryhour = $entryTimeStart->format('H:i:s');
 
-            // Adjust start and end times to ensure they fall within the shift
-            $startTime = $entryTimeStart->max($shiftStart);
-            $endTime = $entryTimeEnd->min($shiftEnd);
+                if (Carbon::parse($entryhour)->lessThan($shiftStartTime)) {
+                    $entryTimeStart = $entryTimeStart->copy()->setTime(Carbon::parse($shiftStartTime)->hour, Carbon::parse($shiftStartTime)->minute, Carbon::parse($shiftStartTime)->second);
+                }
+                
+                $entryTimeEnd = $entry['calculation_checkout'];
 
-            // Calculate the overlap in minutes only if the times are valid within the shift
-            if ($startTime->lt($endTime)) {
-                $totalMinutes += $startTime->diffInMinutes($endTime);
+                $startTime = $entryTimeStart->max($shiftStart);
+                $endTime = $entryTimeEnd->min($shiftEnd);
+
+                // Calculate the overlap in minutes only if the times are valid within the shift
+                if ($startTime->lt($endTime)) {
+                    $totalMinutes += $startTime->diffInMinutes($endTime);
+                }
             }
         }
 

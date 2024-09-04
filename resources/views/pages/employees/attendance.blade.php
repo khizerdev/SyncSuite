@@ -38,21 +38,34 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Check-In</th>
-                        <th>Check-Out</th>
-                        {{-- <th>Calculation Check-In</th>
+                        <th>Actual Check-In</th>
+                        <th>Actual Check-Out</th>
+                        <th>Calculation Check-In</th>
                         <th>Calculation Check-Out</th>
                         <th>Considered Check-In</th>
-                        <th>Considered Check-Out</th> --}}
+                        <th>Considered Check-Out</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($entries as $entry)
                     <tr>
                         <td>{{ $entry['original_checkin']->format('Y-m-d H:i:s') }}</td>
-                        <td>{{ $entry['original_checkout']->format('Y-m-d H:i:s') }}</td>
-                        {{-- <td>{{ $entry['calculation_checkin']->format('Y-m-d H:i:s') }}</td>
-                        <td>{{ $entry['calculation_checkout']->format('Y-m-d H:i:s') }}</td> --}}
+                        <td>
+                            @if($entry['original_checkout'])
+                                {{ $entry['original_checkout']->format('Y-m-d H:i:s') }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>{{ $entry['calculation_checkin']->format('Y-m-d H:i:s') }}</td>
+                        <td>
+                            @if($entry['calculation_checkout'])
+                                {{ $entry['calculation_checkout']->format('Y-m-d H:i:s') }}
+                            @else
+                                N/A
+                            @endif
+                        </td>
                         <td>
                             @php
                                 $shiftStartTime = Carbon\Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
@@ -78,26 +91,37 @@
                                     $consideredCheckIn->subHours(6);
                                 }
 
-                                // echo $consideredCheckIn->format('Y-m-d H:i:s');
+                                echo $consideredCheckIn->format('Y-m-d H:i:s');
                             @endphp
                         </td>
                         <td>
-                            @php
-                                $consideredCheckOut = $entry['calculation_checkout']->copy();
+                            @if(!$entry['is_incomplete'])
+                                @php
+                                    $consideredCheckOut = $entry['calculation_checkout']->copy();
 
-                                if ($entry['calculation_checkout']->lt($shiftStart)) {
-                                    $consideredCheckOut = $shiftStart;
-                                } elseif ($entry['calculation_checkout']->gt($shiftEnd)) {
-                                    $consideredCheckOut = $shiftEnd;
-                                }
+                                    if ($entry['calculation_checkout']->lt($shiftStart)) {
+                                        $consideredCheckOut = $shiftStart;
+                                    } elseif ($entry['calculation_checkout']->gt($shiftEnd)) {
+                                        $consideredCheckOut = $shiftEnd;
+                                    }
 
-                                // Convert back to original time for display
-                                if ($isNightShift) {
-                                    $consideredCheckOut->subHours(6);
-                                }
+                                    // Convert back to original time for display
+                                    if ($isNightShift) {
+                                        $consideredCheckOut->subHours(6);
+                                    }
 
-                                // echo $consideredCheckOut->format('Y-m-d H:i:s');
-                            @endphp
+                                    echo $consideredCheckOut->format('Y-m-d H:i:s');
+                                @endphp
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>
+                            @if($entry['is_incomplete'])
+                                <span class="text-danger">Incomplete (No Check-Out)</span>
+                            @else
+                                <span class="text-success">Complete</span>
+                            @endif
                         </td>
                     </tr>
                     @endforeach
