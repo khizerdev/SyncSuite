@@ -141,13 +141,6 @@
                                                 class="form-control" required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="shift">Shift</label>
-                                            <input type="text" id="shift" name="shift"
-                                                value="{{ $employee->shift }}" class="form-control" required>
-                                        </div>
-                                    </div>
 
                                     <div class="col-sm-6">
                                         <div class="form-group">

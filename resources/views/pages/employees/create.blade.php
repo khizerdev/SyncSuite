@@ -117,7 +117,7 @@
                                             <label for="shift_id">Shift</label>
                                             <select id="shift_id" name="shift_id" class="form-control" required>
                                                 @foreach (App\Models\Shift::all() as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                    <option value="{{ $item->id }}">{{ $item->name }} - {{ $item->start_time->format('H:i:s') }} - {{ $item->end_time->format('H:i:s') }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -143,13 +143,7 @@
                                                 required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="shift">Shift</label>
-                                            <input type="text" id="shift" name="shift" class="form-control"
-                                                required>
-                                        </div>
-                                    </div>
+                                    
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="hiring_date">Hiring Date</label>

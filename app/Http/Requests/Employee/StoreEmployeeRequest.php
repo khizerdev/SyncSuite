@@ -32,7 +32,6 @@ class StoreEmployeeRequest extends FormRequest
             'cnic_number' => 'required|string|max:20',
             'email' => 'required|email',
             'dob' => 'required|date',
-            'shift' => 'required|string|max:255',
             'code' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'shift_id' => 'required|exists:shifts,id',
