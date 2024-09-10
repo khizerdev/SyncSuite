@@ -5,7 +5,18 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
-
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Salary Details for August 2024</h3>
+                    <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
+                    <p>Total Working Days: {{ $workingDays }} days</p>
+                    <p>Total Expected Working Hours: {{ number_format($workingDays * 12, 2) }} hours</p>
+                    <p>Total Actual Working Hours: {{ number_format($totalHoursWorked, 2) }} hours</p>
+                    <p>Salary Per Hour: ${{ number_format($salaryPerHour, 2) }}</p>
+                    <p>Actual Salary Earned: ${{ number_format($actualSalaryEarned, 2) }}</p>
+                </div>
+            </div>
+            
             <div class="card">
                 <div class="card-header row align-items-center">
                   <div class="col-6">

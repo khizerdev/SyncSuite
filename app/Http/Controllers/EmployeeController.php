@@ -262,7 +262,7 @@ class EmployeeController extends Controller
 
     // Fetch all attendance records for the employee
     $attendances = Attendance::where('code', $employee->code)
-        ->whereMonth('datetime', 7) // Only fetch July 2024
+        ->whereMonth('datetime', 8) // Only fetch July 2024
         ->whereYear('datetime', 2024)
         ->orderBy('datetime')
         ->get();
@@ -272,16 +272,29 @@ class EmployeeController extends Controller
 
     $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
 
-    $startOfMonth = Carbon::create(2024, 7, 1);
-    $endOfMonth = Carbon::create(2024, 7, 31);
+    // Fetch holidays for the employee and convert to an array
+    $holidays = explode(',', $employee->type->holidays);
+    $holidays = array_map('trim', $holidays); // Trim any whitespace
+    // Calculate the number of working days in July 2024
+    $startDate = Carbon::create(2024, 8, 1);
+    $endDate = Carbon::create(2024, 8, 31);
+    $workingDays = 0;
 
-    // Initialize the grouped attendances for each day of July
-    while ($startOfMonth->lte($endOfMonth)) {
-        $date = $startOfMonth->format('Y-m-d');
-        $groupedAttendances[$date] = []; // Empty by default
-        $dailyMinutes[$date] = 0; // Default to 0 minutes
-        $startOfMonth->addDay();
+    while ($startDate->lte($endDate)) {
+        // Check if the day is not a holiday for the employee
+        if (!in_array($startDate->format('l'), $holidays)) {
+            $workingDays++;
+        }
+        $startDate->addDay();
     }
+
+    // Total number of hours the employee is expected to work in July
+    $hoursPerDay = 12;
+    $totalExpectedWorkingHours = $workingDays * $hoursPerDay;
+
+    // Calculate salary per hour
+    $salaryPerMonth = $employee->salary;
+    $salaryPerHour = $salaryPerMonth / $totalExpectedWorkingHours;
 
     for ($i = 0; $i < count($attendances); $i++) {
         $checkIn = Carbon::parse($attendances[$i]->datetime);
@@ -326,7 +339,7 @@ class EmployeeController extends Controller
             'is_incomplete' => !$checkOut
         ];
     }
-
+    $totalMinutesWorked = 0;
     foreach ($groupedAttendances as $date => $entries) {
         $shiftStartTime = Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
         $shiftEndTime = Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
@@ -362,9 +375,16 @@ class EmployeeController extends Controller
         }
 
         $dailyMinutes[$date] = $totalMinutes;
+        $totalMinutesWorked += $totalMinutes;
     }
+
+    // Convert total minutes worked to hours
+    $totalHoursWorked = $totalMinutesWorked / 60;
+
+    // Calculate the actual salary earned
+    $actualSalaryEarned = $totalHoursWorked * $salaryPerHour;
         
-    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift'));
+    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays','holidays'));
 }
     
 }
