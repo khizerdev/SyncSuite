@@ -20,4 +20,9 @@ class Employee extends Model
     {
         return $this->belongsTo(Shift::class, 'shift_id');
     }
+
+    public function type()
+    {
+        return $this->belongsTo(EmployeeType::class, 'type_id');
+    }
 }

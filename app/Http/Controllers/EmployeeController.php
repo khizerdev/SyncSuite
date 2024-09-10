@@ -260,7 +260,10 @@ class EmployeeController extends Controller
     $employee = Employee::findOrFail($employeeId);
     $shift = $employee->timings;
 
+    // Fetch all attendance records for the employee
     $attendances = Attendance::where('code', $employee->code)
+        ->whereMonth('datetime', 7) // Only fetch July 2024
+        ->whereYear('datetime', 2024)
         ->orderBy('datetime')
         ->get();
 
@@ -268,6 +271,17 @@ class EmployeeController extends Controller
     $groupedAttendances = [];
 
     $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
+
+    $startOfMonth = Carbon::create(2024, 7, 1);
+    $endOfMonth = Carbon::create(2024, 7, 31);
+
+    // Initialize the grouped attendances for each day of July
+    while ($startOfMonth->lte($endOfMonth)) {
+        $date = $startOfMonth->format('Y-m-d');
+        $groupedAttendances[$date] = []; // Empty by default
+        $dailyMinutes[$date] = 0; // Default to 0 minutes
+        $startOfMonth->addDay();
+    }
 
     for ($i = 0; $i < count($attendances); $i++) {
         $checkIn = Carbon::parse($attendances[$i]->datetime);
@@ -328,7 +342,7 @@ class EmployeeController extends Controller
 
         foreach ($entries as $entry) {
             if (!$entry['is_incomplete']) {
-                
+                $entryTimeStart = $entry['calculation_checkin'];
                 $entryhour = $entryTimeStart->format('H:i:s');
 
                 if (Carbon::parse($entryhour)->lessThan($shiftStartTime)) {
