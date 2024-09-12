@@ -7,15 +7,18 @@
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h3>Salary Details for August 2024</h3>
+                    <h3>Salary Details for July 2024</h3>
                     <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
                     <p>Total Working Days: {{ $workingDays }} days</p>
                     <p>Total Expected Working Hours: {{ number_format($workingDays * 12, 2) }} hours</p>
                     <p>Total Actual Working Hours: {{ number_format($totalHoursWorked, 2) }} hours</p>
-                    <p>Salary Per Hour: ${{ number_format($salaryPerHour, 2) }}</p>
-                    <p>Actual Salary Earned: ${{ number_format($actualSalaryEarned, 2) }}</p>
+                    <p>Total Holiday Hours Worked: {{ number_format($totalHolidayHoursWorked, 2) }} hours</p>
+                    <p>Salary Per Hour: PKR {{ number_format($salaryPerHour, 2) }}</p>
+                    <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
+                    <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned, 2) }}</p>
                 </div>
             </div>
+            
             
             <div class="card">
                 <div class="card-header row align-items-center">
@@ -144,9 +147,9 @@ $weekends = explode("," , $employee->type->holidays);
                             </td>
                             <td>
                                 @if($entry['is_incomplete'])
-                                    <span class="text-danger">Incomplete (No Check-Out)</span>
+                                    <span class="text-danger">Miss Scan</span>
                                 @else
-                                    <span class="text-success">Complete</span>
+                                    <span class="text-success">Present</span>
                                 @endif
                             </td>
                         </tr>

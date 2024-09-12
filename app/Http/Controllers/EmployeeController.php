@@ -260,10 +260,12 @@ class EmployeeController extends Controller
     $employee = Employee::findOrFail($employeeId);
     $shift = $employee->timings;
 
-    // Fetch all attendance records for the employee
+    // Fetch holidays and holiday ratio for the employee
+    $holidays = explode(',', $employee->type->holidays);
+    $holidays = array_map('trim', $holidays); // Trim any whitespace
+    $holidayRatio = $employee->type->holiday_ratio ?? 1; // Default to 1 if not set
+
     $attendances = Attendance::where('code', $employee->code)
-        ->whereMonth('datetime', 8) // Only fetch July 2024
-        ->whereYear('datetime', 2024)
         ->orderBy('datetime')
         ->get();
 
@@ -272,15 +274,15 @@ class EmployeeController extends Controller
 
     $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
 
-    // Fetch holidays for the employee and convert to an array
-    $holidays = explode(',', $employee->type->holidays);
-    $holidays = array_map('trim', $holidays); // Trim any whitespace
     // Calculate the number of working days in July 2024
     $startDate = Carbon::create(2024, 8, 1);
     $endDate = Carbon::create(2024, 8, 31);
     $workingDays = 0;
 
     while ($startDate->lte($endDate)) {
+        $date = $startDate->format('Y-m-d');
+        $groupedAttendances[$date] = []; // Empty by default
+        $dailyMinutes[$date] = 0; // Default to 0 minutes
         // Check if the day is not a holiday for the employee
         if (!in_array($startDate->format('l'), $holidays)) {
             $workingDays++;
@@ -339,7 +341,10 @@ class EmployeeController extends Controller
             'is_incomplete' => !$checkOut
         ];
     }
+
     $totalMinutesWorked = 0;
+    $totalHolidayMinutesWorked = 0;
+
     foreach ($groupedAttendances as $date => $entries) {
         $shiftStartTime = Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
         $shiftEndTime = Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
@@ -356,20 +361,20 @@ class EmployeeController extends Controller
         foreach ($entries as $entry) {
             if (!$entry['is_incomplete']) {
                 $entryTimeStart = $entry['calculation_checkin'];
-                $entryhour = $entryTimeStart->format('H:i:s');
-
-                if (Carbon::parse($entryhour)->lessThan($shiftStartTime)) {
-                    $entryTimeStart = $entryTimeStart->copy()->setTime(Carbon::parse($shiftStartTime)->hour, Carbon::parse($shiftStartTime)->minute, Carbon::parse($shiftStartTime)->second);
-                }
-                
                 $entryTimeEnd = $entry['calculation_checkout'];
 
                 $startTime = $entryTimeStart->max($shiftStart);
                 $endTime = $entryTimeEnd->min($shiftEnd);
 
-                // Calculate the overlap in minutes only if the times are valid within the shift
                 if ($startTime->lt($endTime)) {
-                    $totalMinutes += $startTime->diffInMinutes($endTime);
+                    $minutesWorked = $startTime->diffInMinutes($endTime);
+                    $totalMinutes += $minutesWorked;
+
+                    // Check if the date is a holiday
+                    $dayOfWeek = Carbon::parse($date)->format('l');
+                    if (in_array($dayOfWeek, $holidays)) {
+                        $totalHolidayMinutesWorked += $minutesWorked;
+                    }
                 }
             }
         }
@@ -380,11 +385,13 @@ class EmployeeController extends Controller
 
     // Convert total minutes worked to hours
     $totalHoursWorked = $totalMinutesWorked / 60;
+    $totalHolidayHoursWorked = $totalHolidayMinutesWorked / 60;
 
-    // Calculate the actual salary earned
-    $actualSalaryEarned = $totalHoursWorked * $salaryPerHour;
-        
-    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays','holidays'));
+    $regularHoursWorked = $totalHoursWorked - $totalHolidayHoursWorked;
+    $actualSalaryEarned = ($regularHoursWorked * $salaryPerHour) + ($totalHolidayHoursWorked * $salaryPerHour * $holidayRatio);
+
+    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays', 'totalHolidayHoursWorked', 'holidayRatio','holidays'));
 }
+
     
 }
