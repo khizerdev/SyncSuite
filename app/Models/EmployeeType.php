@@ -8,4 +8,6 @@ class EmployeeType extends Model
 {
     protected $table = 'employee_types';
 
+    protected $guarded = [];
+
 }

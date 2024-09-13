@@ -207,6 +207,14 @@
                                     ['title' => 'View', 'route' => 'shifts.index']
                                 ]
                             ],
+                            [
+                                'title' => 'Employee Types',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'employee-types.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'employee-types.index']
+                                ]
+                            ],
                         ]
 
                         @endphp

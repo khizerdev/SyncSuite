@@ -160,6 +160,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/import-excel', [AttendanceController::class, 'import'])->name('import.excel');
     Route::get('/calculate-hours/{employeeId}', [AttendanceController::class, 'calculateHours'])->name('calculate.hours');
+
+    Route::resource('employee-types', App\Http\Controllers\EmployeeTypeController::class);
     
     Route::get('/dashboard', function () {
         return view('dashboard');
