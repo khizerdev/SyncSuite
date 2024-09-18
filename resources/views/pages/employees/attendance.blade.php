@@ -1,171 +1,151 @@
 @extends('layouts.app')
 
 @section('content')
-  <section class="content-header">
+<section class="content-header">
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3>Salary Details for July 2024</h3>
-                    <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
-                    <p>Total Working Days: {{ $workingDays }} days</p>
-                    <p>Total Expected Working Hours: {{ number_format($workingDays * 12, 2) }} hours</p>
-                    <p>Total Actual Working Hours: {{ number_format($totalHoursWorked, 2) }} hours</p>
-                    <p>Total Holiday Hours Worked: {{ number_format($totalHolidayHoursWorked, 2) }} hours</p>
-                    <p>Salary Per Hour: PKR {{ number_format($salaryPerHour, 2) }}</p>
-                    <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
-                    <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned, 2) }}</p>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Salary Details for July 2024</h3>
+                        <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
+                        <p>Total Working Days: {{ $workingDays }} days</p>
+                        <p>Total Expected Working Hours: {{ number_format($workingDays * 12, 2) }} hours</p>
+                        <p>Total Actual Working Hours: {{ number_format($totalHoursWorked, 2) }} hours</p>
+                        <p>Total Holiday Hours Worked: {{ number_format($totalHolidayHoursWorked, 2) }} hours</p>
+                        <p>Salary Per Hour: PKR {{ number_format($salaryPerHour, 2) }}</p>
+                        <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
+                        <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned, 2) }}</p>
+                    </div>
                 </div>
-            </div>
-            
-            
-            <div class="card">
-                <div class="card-header row align-items-center">
-                  <div class="col-6">
-                    <h2 class="mb-4">Daily Attendance for Employee: {{ $employee->name }}</h2>
-                    <p>Shift: {{ $shift->name }} ({{ $shift->start_time->format('H:i') }} to {{ $shift->end_time->format('H:i') }})</p>
-                  </div>
-                  <div class="col-6 text-right">
-                  </div>
-              </div>
 
-              </div>
 
-              @php
-$isNightShift = Carbon\Carbon::parse($shift->start_time)->greaterThan(Carbon\Carbon::parse($shift->end_time));
-$weekends = explode("," , $employee->type->holidays);
-@endphp
+                <div class="card">
+                    <div class="card-header row align-items-center">
+                        <div class="col-6">
+                            <h2 class="mb-4">Daily Attendance for Employee: {{ $employee->name }}</h2>
+                            <p>Shift: {{ $shift->name }} ({{ $shift->start_time->format('H:i') }} to {{
+                                $shift->end_time->format('H:i') }})</p>
+                        </div>
+                        <div class="col-6 text-right">
+                        </div>
+                    </div>
 
-@foreach($groupedAttendances as $date => $entries)
-    @php
-        $dayName = Carbon\Carbon::parse($date)->format('l');
-        $isWeekend = in_array($dayName, $weekends);
-        $totalMinutes = $dailyMinutes[$date];
-    @endphp
+                </div>
 
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3>{{ Carbon\Carbon::parse($date)->format('l, F j, Y') }}</h3>
-            <h4>
-                @if($isWeekend)
-                    Holiday ({{ $dayName }})
-                @elseif(empty($entries))
-                    Absent
-                @else
-                    Total Time Within Shift: 
-                    @php
-                        $hours = floor($totalMinutes / 60);
-                        $minutes = $totalMinutes % 60;
-                        echo sprintf('%02d:%02d', $hours, $minutes);
-                    @endphp
-                @endif
-            </h4>
-        </div>
-        @if(!empty($entries))
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Actual Check-In</th>
-                            <th>Actual Check-Out</th>
-                            <th>Calculation Check-In</th>
-                            <th>Calculation Check-Out</th>
-                            <th>Considered Check-In</th>
-                            <th>Considered Check-Out</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($entries as $entry)
-                        <tr>
-                            <td>{{ $entry['original_checkin']->format('Y-m-d H:i:s') }}</td>
-                            <td>
-                                @if($entry['original_checkout'])
-                                    {{ $entry['original_checkout']->format('Y-m-d H:i:s') }}
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td>{{ $entry['calculation_checkin']->format('Y-m-d H:i:s') }}</td>
-                            <td>
-                                @if($entry['calculation_checkout'])
-                                    {{ $entry['calculation_checkout']->format('Y-m-d H:i:s') }}
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $shiftStartTime = Carbon\Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
-                                    $shiftEndTime = Carbon\Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
-                                    
-                                    $shiftStart = Carbon\Carbon::parse($date . ' ' . $shiftStartTime);
-                                    $shiftEnd = Carbon\Carbon::parse($date . ' ' . $shiftEndTime);
+                @php
+                $isNightShift =
+                Carbon\Carbon::parse($shift->start_time)->greaterThan(Carbon\Carbon::parse($shift->end_time));
+                $weekends = explode("," , $employee->type->holidays);
+                @endphp
 
-                                    if ($isNightShift) {
-                                        $shiftEnd->addDay();
-                                    }
-
-                                    $consideredCheckIn = $entry['calculation_checkin']->copy();
-
-                                    if ($entry['calculation_checkin']->lt($shiftStart)) {
-                                        $consideredCheckIn = $shiftStart;
-                                    } elseif ($entry['calculation_checkin']->gt($shiftEnd)) {
-                                        $consideredCheckIn = $shiftEnd;
-                                    }
-
-                                    // Convert back to original time for display
-                                    if ($isNightShift) {
-                                        $consideredCheckIn->subHours(6);
-                                    }
-
-                                    echo $consideredCheckIn->format('Y-m-d H:i:s');
-                                @endphp
-                            </td>
-                            <td>
-                                @if(!$entry['is_incomplete'])
+                <!-- Attendance Table -->
+                <div class="container mt-5">
+                    <!-- Combined Attendance and Salary Table -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3>Attendance and Salary Details for July 2024</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time In</th>
+                                        <th>Time Out</th>
+                                        <th>Total Working Hours</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     @php
-                                        $consideredCheckOut = $entry['calculation_checkout']->copy();
+                                    $totalHoursWorked = 0;
+                                    $totalHolidayHoursWorked = 0;
+                                    $salaryPerHour = $employee->salary / (12 * 6); // Assuming 12 hours per day, 6 days a week
+                                    $holidayRatio = $employee->holiday_ratio;
+                                    $holidays = explode(',', $employee->holidays);
+                                    $workingDays = Carbon\Carbon::parse('2024-07-01')->daysInMonth;
 
-                                        if ($entry['calculation_checkout']->lt($shiftStart)) {
-                                            $consideredCheckOut = $shiftStart;
-                                        } elseif ($entry['calculation_checkout']->gt($shiftEnd)) {
-                                            $consideredCheckOut = $shiftEnd;
-                                        }
+                                    foreach ($groupedAttendances as $date => $entries) {
+                                    $dailyMinutes = 0;
+                                    $holidayPay = 0;
+                                    $isHoliday = in_array(Carbon\Carbon::parse($date)->format('l'), $holidays);
+                                    $entryCount = count($entries);
 
-                                        // Convert back to original time for display
-                                        if ($isNightShift) {
-                                            $consideredCheckOut->subHours(6);
-                                        }
+                                    foreach ($entries as $entry) {
+                                    if (!$entry['is_incomplete']) {
+                                    $entryStart = $entry['calculation_checkin'];
+                                    $entryEnd = $entry['calculation_checkout'];
 
-                                        echo $consideredCheckOut->format('Y-m-d H:i:s');
+                                    $dailyMinutes += $entryStart->diffInMinutes($entryEnd);
+                                    }
+                                    }
+
+                                    $totalHoursWorked += $dailyMinutes / 60;
+                                    $holidayHoursWorked = $isHoliday ? ($dailyMinutes / 60) * $holidayRatio : 0;
+                                    $totalHolidayHoursWorked += $holidayHoursWorked;
+
+                                    $actualSalaryEarned = ($dailyMinutes / 60 * $salaryPerHour) + $holidayHoursWorked *
+                                    $salaryPerHour;
+                                    $status = $entryCount ? ($entryCount == 1 ? 'Incomplete' : 'Complete') : 'Absent';
+
+                                    $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes / 60), $dailyMinutes % 60);
+                                    $holidayPay = number_format($holidayHoursWorked * $salaryPerHour, 2);
                                     @endphp
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td>
-                                @if($entry['is_incomplete'])
-                                    <span class="text-danger">Miss Scan</span>
-                                @else
-                                    <span class="text-success">Present</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                    <tr>
+                                        <td>{{ Carbon\Carbon::parse($date)->format('l, F j, Y') }}</td>
+                                        <td>
+                                            @if(isset($entries[0]['original_checkin']))
+                                            {{ $entries[0]['original_checkin']->format('Y-m-d H:i:s') }}
+                                            @else
+                                            N/A
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($entries[0]['original_checkout']))
+                                            {{ $entries[0]['original_checkout']->format('Y-m-d H:i:s') }}
+                                            @else
+                                            N/A
+                                            @endif
+                                        </td>
+
+
+                                        <td>{{ $dailyHours }}</td>
+                                        <td>
+                                            @if(empty($entries))
+                                            <span class="text-danger">Absent</span>
+                                            @elseif(empty($entries) && !$entries[0]['is_incomplete'])
+                                            <span class="text-success">Present</span>
+                                            @elseif(!empty($entries) && !$entries[0]['is_incomplete'])
+                                            <span class="text-success">Present</span>
+                                            @elseif(empty($entries) && !$entries[0]['is_incomplete'])
+                                            <span class="text-danger">Absent</span>
+                                            @elseif(!empty($entries) && $entries[0]['is_incomplete'])
+                                            <span class="text-danger">Misscan</span>
+                                            @endif
+                                        </td>
+
+                                    </tr>
+                                    @php
+                                    }
+
+                                    $actualSalaryEarned = ($totalHoursWorked * $salaryPerHour) +
+                                    $totalHolidayHoursWorked * $salaryPerHour;
+                                    @endphp
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        @endif
-    </div>
-@endforeach
 
 
         </div>
-      </div>
+    </div>
 
     </div>
-  </section>
+</section>
 
 @endsection

@@ -387,7 +387,7 @@ class EmployeeController extends Controller
     $totalHoursWorked = $totalMinutesWorked / 60;
     $totalHolidayHoursWorked = $totalHolidayMinutesWorked / 60;
 
-    $regularHoursWorked = $totalHoursWorked - $totalHolidayHoursWorked;
+    $regularHoursWorked = $totalHoursWorked;
     $actualSalaryEarned = ($regularHoursWorked * $salaryPerHour) + ($totalHolidayHoursWorked * $salaryPerHour * $holidayRatio);
 
     return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays', 'totalHolidayHoursWorked', 'holidayRatio','holidays'));
