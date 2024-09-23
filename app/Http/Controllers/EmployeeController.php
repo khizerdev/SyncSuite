@@ -260,10 +260,10 @@ class EmployeeController extends Controller
     $employee = Employee::findOrFail($employeeId);
     $shift = $employee->timings;
 
-    // Fetch holidays and holiday ratio for the employee
     $holidays = explode(',', $employee->type->holidays);
     $holidays = array_map('trim', $holidays); // Trim any whitespace
     $holidayRatio = $employee->type->holiday_ratio ?? 1; // Default to 1 if not set
+    $overTimeRatio = $employee->type->overtime_ratio ?? 1; // Default to 1 if not set
 
     $attendances = Attendance::where('code', $employee->code)
         ->orderBy('datetime')
@@ -273,6 +273,7 @@ class EmployeeController extends Controller
     $groupedAttendances = [];
 
     $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
+    $totalOvertimeMinutes = 0;
 
     // Calculate the number of working days in July 2024
     $startDate = Carbon::create(2024, 8, 1);
@@ -357,6 +358,7 @@ class EmployeeController extends Controller
         }
 
         $totalMinutes = 0;
+        $overtimeMinutes = 0;
 
         foreach ($entries as $entry) {
             if (!$entry['is_incomplete']) {
@@ -375,12 +377,19 @@ class EmployeeController extends Controller
                     if (in_array($dayOfWeek, $holidays)) {
                         $totalHolidayMinutesWorked += $minutesWorked;
                     }
+
+                    $workedMinutes = $entryTimeStart->diffInMinutes($entryTimeEnd);
+                    // Calculate overtime if worked minutes exceed standard 12 hours
+                    if ($workedMinutes > 720) { // 12 hours * 60 minutes
+                        $overtimeMinutes += $workedMinutes - 720; // Overtime is the extra minutes
+                    }
                 }
             }
         }
 
         $dailyMinutes[$date] = $totalMinutes;
         $totalMinutesWorked += $totalMinutes;
+        $totalOvertimeMinutes += $overtimeMinutes;
     }
 
     // Convert total minutes worked to hours
@@ -388,9 +397,11 @@ class EmployeeController extends Controller
     $totalHolidayHoursWorked = $totalHolidayMinutesWorked / 60;
 
     $regularHoursWorked = $totalHoursWorked;
-    $actualSalaryEarned = ($regularHoursWorked * $salaryPerHour) + ($totalHolidayHoursWorked * $salaryPerHour * $holidayRatio);
+    $overtimeAmount = number_format((number_format($totalOvertimeMinutes, 2) / 60)*($overTimeRatio*$salaryPerHour) , 2);
+    $actualSalaryEarned = ($regularHoursWorked * $salaryPerHour) + ($totalHolidayHoursWorked * $salaryPerHour * $holidayRatio) + $overtimeAmount;
 
-    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays', 'totalHolidayHoursWorked', 'holidayRatio','holidays'));
+
+    return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays', 'totalHolidayHoursWorked', 'holidayRatio','holidays','totalOvertimeMinutes','overTimeRatio'));
 }
 
     

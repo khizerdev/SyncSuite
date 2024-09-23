@@ -7,7 +7,7 @@
             <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h3>Salary Details for July 2024</h3>
+                        <h3>Salary Details for August 2024</h3>
                         <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
                         <p>Total Working Days: {{ $workingDays }} days</p>
                         <p>Total Expected Working Hours: {{ number_format($workingDays * 12, 2) }} hours</p>
@@ -15,6 +15,9 @@
                         <p>Total Holiday Hours Worked: {{ number_format($totalHolidayHoursWorked, 2) }} hours</p>
                         <p>Salary Per Hour: PKR {{ number_format($salaryPerHour, 2) }}</p>
                         <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
+                        <p>Overtime Pay Ratio: {{ $overTimeRatio }}x</p>
+                        <p>Total Overtime Hours Worked: {{ number_format($totalOvertimeMinutes, 2) / 60 }} hours</p>
+                        <p>Total Overtime Pay: PKR {{ number_format((number_format($totalOvertimeMinutes, 2) / 60)*($overTimeRatio*$salaryPerHour) , 2) }}</p>
                         <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned, 2) }}</p>
                     </div>
                 </div>
