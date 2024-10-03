@@ -262,8 +262,8 @@ class EmployeeController extends Controller
 
     $holidays = explode(',', $employee->type->holidays);
     $holidays = array_map('trim', $holidays); // Trim any whitespace
-    $holidayRatio = $employee->type->holiday_ratio ?? 1; // Default to 1 if not set
-    $overTimeRatio = $employee->type->overtime_ratio ?? 1; // Default to 1 if not set
+    $holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1; // Default to 1 if not set
+    $overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;  // Default to 1 if not set
 
     $attendances = Attendance::where('code', $employee->code)
         ->orderBy('datetime')

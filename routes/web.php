@@ -162,6 +162,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/calculate-hours/{employeeId}', [AttendanceController::class, 'calculateHours'])->name('calculate.hours');
 
     Route::resource('employee-types', App\Http\Controllers\EmployeeTypeController::class);
+
+    Route::resource('loans', App\Http\Controllers\LoanController::class);
     
     Route::get('/dashboard', function () {
         return view('dashboard');

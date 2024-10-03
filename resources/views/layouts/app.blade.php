@@ -215,6 +215,14 @@
                                     ['title' => 'View', 'route' => 'employee-types.index']
                                 ]
                             ],
+                            [
+                                'title' => 'Loan',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'loans.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'loans.index']
+                                ]
+                            ],
                         ]
 
                         @endphp
