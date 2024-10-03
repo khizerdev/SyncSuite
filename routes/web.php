@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ShiftController;
 use App\Models\Attendance;
@@ -164,6 +165,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('employee-types', App\Http\Controllers\EmployeeTypeController::class);
 
     Route::resource('loans', App\Http\Controllers\LoanController::class);
+    Route::resource('advance-salaries', AdvanceSalaryController::class);
     
     Route::get('/dashboard', function () {
         return view('dashboard');

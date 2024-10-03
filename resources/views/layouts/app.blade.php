@@ -223,6 +223,14 @@
                                     ['title' => 'View', 'route' => 'loans.index']
                                 ]
                             ],
+                            [
+                                'title' => 'Advance',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'advance-salaries.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'advance-salaries.index']
+                                ]
+                            ],
                         ]
 
                         @endphp
