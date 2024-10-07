@@ -7,18 +7,29 @@
             <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
+                    <div class="row">
+                    <div class="col-md-6">
                         <h3>Salary Details for August 2024</h3>
                         <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
                         <p>Total Working Days: {{ $workingDays }} days</p>
-                        <p>Total Expected Working Hours: {{ number_format($workingDays * 12, 2) }} hours</p>
+                        <p>Total Expected Working Hours: {{ $totalExpectedWorkingDays }} hours</p>
                         <p>No of hours worked: {{ number_format($totalHoursWorked, 2) }} hours</p>
                         <p>Total Holiday Hours Worked: {{ number_format($totalHolidayHoursWorked, 2) }} hours</p>
                         <p>Salary Per Hour: PKR {{ number_format($salaryPerHour, 2) }}</p>
                         <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
                         <p>Overtime Pay Ratio: {{ $overTimeRatio }}x</p>
-                        <p>Total Overtime Hours Worked: {{ number_format($totalOvertimeMinutes, 2) / 60 }} hours</p>
-                        <p>Total Overtime Pay: PKR {{ number_format((number_format($totalOvertimeMinutes, 2) / 60)*($overTimeRatio*$salaryPerHour) , 2) }}</p>
-                        <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned, 2) }}</p>
+                        <p>Total Overtime Hours Worked: {{ $totalOverTimeHoursWorked }} hours</p>
+                        <p>Total Overtime Pay: PKR {{ $totalOvertimePay }}</p>
+                        
+                        <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned - $salary->advance_deducted, 2) }}</p>
+                    </div>
+                    <div class="col-md-6 text-right">
+                    <button type="button" class="btn btn-primary d-print-none"   
+                    onclick="window.print();">Print</button>
+
+                        
+                    </div>
+                    </div>
                     </div>
                 </div>
 
@@ -30,8 +41,6 @@
                             <p>Shift: {{ $shift->name }} ({{ $shift->start_time->format('H:i') }} to {{
                                 $shift->end_time->format('H:i') }})</p>
                         </div>
-                        <div class="col-6 text-right">
-                        </div>
                     </div>
 
                 </div>
@@ -42,12 +51,10 @@
                 $weekends = explode("," , $employee->type->holidays);
                 @endphp
 
-                <!-- Attendance Table -->
-                <div class="container mt-5">
                     <!-- Combined Attendance and Salary Table -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>Attendance and Salary Details for July 2024</h3>
+                            <h3>Attendance Details for August 2024</h3>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
@@ -140,7 +147,6 @@
                             </table>
                         </div>
                     </div>
-                </div>
 
             </div>
 

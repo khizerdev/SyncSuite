@@ -25,4 +25,15 @@ class Employee extends Model
     {
         return $this->belongsTo(EmployeeType::class, 'type_id');
     }
+
+    public function salaries()
+    {
+        return $this->hasMany(Salary::class);
+    }
+
+    public function advanceSalaries()
+    {
+        return $this->hasMany(AdvanceSalary::class);
+
+    }
 }
