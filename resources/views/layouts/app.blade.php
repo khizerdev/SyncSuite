@@ -231,6 +231,14 @@
                                     ['title' => 'View', 'route' => 'advance-salaries.index']
                                 ]
                             ],
+                            [
+                                'title' => 'Leaves',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'leaves.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'leaves.index']
+                                ]
+                            ],
                         ]
 
                         @endphp

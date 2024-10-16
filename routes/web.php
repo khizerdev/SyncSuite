@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ShiftController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
@@ -166,6 +167,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('loans', App\Http\Controllers\LoanController::class);
     Route::resource('advance-salaries', AdvanceSalaryController::class);
+    Route::resource('leaves', LeaveController::class);
     
     Route::get('/dashboard', function () {
         return view('dashboard');
