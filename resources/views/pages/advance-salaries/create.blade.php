@@ -28,21 +28,13 @@
                                     <select name="employee_id" id="employee_id" class="form-control" required>
                                     <option value="">Select Employee</option>
                                         @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}" data-salary="{{ $employee->salary }}">{{ $employee->name }}</option>
+                                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="amount">Amount</label>
-                                    <input type="number" name="amount" id="amount" class="form-control" step="0.01" readonly required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="months">Months</label>
-                                    <select name="months" id="months" class="form-control" required>
-                                        @for ($i = 1; $i <= 12; $i++)
-                                            <option value="{{ $i }}">{{ $i }}</option>
-                                        @endfor
-                                    </select>
+                                    <input type="number" name="amount" id="amount" class="form-control" readonly required>
                                 </div>
                                 <div class="form-group">
                                     <label for="notes">Notes</label>
@@ -61,23 +53,26 @@
 
 @section('script')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const employeeSelect = document.getElementById('employee_id');
-        const monthsSelect = document.getElementById('months');
-        const amountInput = document.getElementById('amount');
-
-        function updateAmount() {
-            const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
-            const salary = selectedOption ? parseFloat(selectedOption.dataset.salary) : 0;
-            const months = parseInt(monthsSelect.value);
-            const amount = salary * months;
-            amountInput.value = amount.toFixed(2);
-        }
-
-        employeeSelect.addEventListener('change', updateAmount);
-        monthsSelect.addEventListener('change', updateAmount);
-
-        
+    $(document).ready(function() {
+        $('#employee_id').change(function() {
+            var employeeId = $(this).val();
+            
+            if (employeeId) {
+                $.ajax({
+                    url: `/employees/calculate-salary-for-advance/${employeeId}`,
+                    type: 'GET',
+                    success: function(response) {
+                        $('#amount').val(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching salary:', error);
+                    }
+                });
+            } else {
+                // Clear the amount field if no employee is selected
+                $('#amount').val('');
+            }
+        });
     });
 </script>
 @endsection

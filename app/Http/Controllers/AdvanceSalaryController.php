@@ -42,7 +42,6 @@ class AdvanceSalaryController extends Controller
         $validatedData = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'amount' => 'required|numeric|min:0',
-            'months' => 'required|integer|min:1|max:12',
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -62,7 +61,6 @@ class AdvanceSalaryController extends Controller
         $validatedData = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'amount' => 'required|numeric|min:0',
-            'months' => 'required|integer|min:1|max:12',
             'notes' => 'nullable|string|max:1000',
         ]);
 

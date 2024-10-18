@@ -9,7 +9,7 @@
                     <div class="card-header">
                     <div class="row">
                     <div class="col-md-6">
-                        <h3>Salary Details for August 2024</h3>
+                        <h3>Salary Details for October 2024</h3>
                         <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
                         <p>Total Working Days: {{ $workingDays }} days</p>
                         <p>Total Expected Working Hours: {{ $totalExpectedWorkingDays }} hours</p>
@@ -20,8 +20,9 @@
                         <p>Overtime Pay Ratio: {{ $overTimeRatio }}x</p>
                         <p>Total Overtime Hours Worked: {{ $totalOverTimeHoursWorked }} hours</p>
                         <p>Total Overtime Pay: PKR {{ $totalOvertimePay }}</p>
-                        
-                        <p>Actual Salary Earned: PKR {{ number_format($actualSalaryEarned - $salary->advance_deducted, 2) }}</p>
+                        <p>Salary Got: {{number_format($actualSalaryEarned, 0)}}</p>
+                        <p>Advance amount: {{number_format($salary->advance_deducted, 0)}}</p>
+                        <p>Salary Earned: PKR {{ number_format(max($actualSalaryEarned - $salary->advance_deducted, 0), 2) }}</p>
                     </div>
                     <div class="col-md-6 text-right">
                     <button type="button" class="btn btn-primary d-print-none"   

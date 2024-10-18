@@ -38,6 +38,50 @@
     </div>
   </section>
 
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Payroll Information</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <form id="attdForm" action="{{ url('employees/payroll') }}" method="GET">
+
+          <div class="form-group mb-2">
+              <input type="text" class="form-control" id="employeeName" readonly>
+          </div>
+
+          <div class="form-group mb-2">
+              <label for="year" class="sr-only">Select Year:</label>
+              <select class="form-control" name="year" id="year" required>
+                  <option value="" disabled selected>Select Year</option>
+                  @foreach (range(date('Y') - 5, date('Y')) as $y)
+                      <option value="{{ $y }}">{{ $y }}</option>
+                  @endforeach
+              </select>
+          </div>
+
+          <div class="form-group mb-2">
+              <label for="month" class="sr-only">Select Month:</label>
+              <select class="form-control" name="month" id="month" required>
+                  <option value="" disabled selected>Select Month</option>
+                  @foreach (range(1, 12) as $m)
+                      <option value="{{ sprintf('%02d', $m) }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                  @endforeach
+              </select>
+          </div>
+          
+          <button type="submit" class="btn btn-primary mb-2">View Slip</button>
+      </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @section('script')
@@ -56,6 +100,14 @@
               { data: 'action', name: 'action', orderable: false, searchable: false }
           ]
       });
+
+      // Handle button click event
+        $('#table').on('click', '.btn-show-employee', function() {
+            var employeeName = $(this).data('employee-name');
+            $('#employeeName').val(employeeName);
+            var employeeId = $(this).data('employee-id');
+            $('#attdForm').attr('action', `{{ url('employees/payroll') }}/${employeeId}`);
+        });
 
   });
 </script>

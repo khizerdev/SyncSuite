@@ -25,7 +25,7 @@
                                 <th>#</th>
                                 <th>Employee Name</th>
                                 <th>Amount</th>
-                                <th>Months</th>
+                                {{-- <th>Months</th> --}}
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -91,7 +91,6 @@
               { data: 'id', name: 'id' },
               { data: 'employee_name', name: 'employee' },
               { data: 'amount', name: 'amount' },
-              { data: 'months', name: 'months' },
               { data: 'action', name: 'action', orderable: false, searchable: false }
           ]
       });
