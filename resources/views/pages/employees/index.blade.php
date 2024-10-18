@@ -85,6 +85,7 @@
 @endsection
 
 @section('script')
+
 <script type="text/javascript">
   $(document).ready(function() {
       // DataTable initialization
@@ -110,6 +111,26 @@
         });
 
   });
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#year').change(function() {
+        var selectedYear = $(this).val();
+        var currentMonth = new Date().getMonth() + 1;
+
+        $('#month option').each(function() {
+            var monthValue = parseInt($(this).val());
+            if (selectedYear == new Date().getFullYear() && monthValue > currentMonth) {
+                $(this).prop('disabled', true);
+            } else {
+                $(this).prop('disabled', false);
+            }
+        });
+    });
+
+    $('#year').trigger('change');
+});
 </script>
 
 @endsection
