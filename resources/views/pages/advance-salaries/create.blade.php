@@ -33,8 +33,12 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label for="earnings">Earnings</label>
+                                    <input type="number" name="earnings" id="earnings" class="form-control" readonly required>
+                                </div>
+                                <div class="form-group">
                                     <label for="amount">Amount</label>
-                                    <input type="number" name="amount" id="amount" class="form-control" readonly required>
+                                    <input type="number" name="amount" id="amount" class="form-control" max="0" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="notes">Notes</label>
@@ -56,21 +60,29 @@
     $(document).ready(function() {
         $('#employee_id').change(function() {
             var employeeId = $(this).val();
-            
+
             if (employeeId) {
                 $.ajax({
                     url: `/employees/calculate-salary-for-advance/${employeeId}`,
                     type: 'GET',
                     success: function(response) {
-                        $('#amount').val(response);
+                        $('#earnings').val(response);
+                        $('#amount').attr('max', response);
                     },
                     error: function(xhr, status, error) {
-                        console.error('Error fetching salary:', error);
+                        console.error(error);
                     }
                 });
             } else {
-                // Clear the amount field if no employee is selected
-                $('#amount').val('');
+                $('#earnings').val('');
+                $('#amount').attr('max', 0);
+            }
+        });
+
+        $('#amount').on('input', function() {
+            var maxSalary = parseFloat($('#earnings').val());
+            if ($(this).val() > maxSalary) {
+                $(this).val(maxSalary);
             }
         });
     });

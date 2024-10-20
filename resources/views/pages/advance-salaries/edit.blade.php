@@ -21,37 +21,40 @@
                             <h3 class="card-title">Edit Advance Salary</h3>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('advance-salaries.update', $advanceSalary) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <div class="form-group">
-            <label for="employee_id">Employee</label>
-            <select name="employee_id" id="employee_id" class="form-control" required>
-                @foreach ($employees as $employee)
-                    <option value="{{ $employee->id }}" data-salary="{{ $employee->salary }}" {{ $advanceSalary->employee_id == $employee->id ? 'selected' : '' }}>
-                        {{ $employee->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="amount">Amount</label>
-            <input type="number" name="amount" id="amount" class="form-control" step="0.01" value="{{ $advanceSalary->amount }}" readonly required>
-        </div>
-        <div class="form-group">
-            <label for="months">Months</label>
-            <select name="months" id="months" class="form-control" required>
-                @for ($i = 1; $i <= 12; $i++)
-                    <option value="{{ $i }}" {{ $advanceSalary->months == $i ? 'selected' : '' }}>{{ $i }}</option>
-                @endfor
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea name="notes" id="notes" class="form-control" rows="3">{{ $advanceSalary->notes }}</textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
+                            <form action="{{ route('advance-salaries.update', $advanceSalary->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="form-group">
+                                    <label for="employee_id">Employee</label>
+                                    <select name="employee_id" id="employee_id" class="form-control" required>
+                                        <option value="">Select Employee</option>
+                                        @foreach ($employees as $employee)
+                                            <option value="{{ $employee->id }}" {{ $advanceSalary->employee_id == $employee->id ? 'selected' : '' }}>
+                                                {{ $employee->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="earnings">Earnings</label>
+                                    <input type="number" name="earnings" id="earnings" class="form-control" value="" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="amount">Amount</label>
+                                    <input type="number" name="amount" id="amount" class="form-control" value="{{ $advanceSalary->amount }}" max="{{ $advanceSalary->amount }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes">Notes</label>
+                                    <textarea name="notes" id="notes" class="form-control" rows="3">{{ $advanceSalary->notes }}</textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+
                         </div>
                     </div>
                 </div>
@@ -63,25 +66,40 @@
     
 
 @section('script')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const employeeSelect = document.getElementById('employee_id');
-        const monthsSelect = document.getElementById('months');
-        const amountInput = document.getElementById('amount');
+    <script>
+        $(document).ready(function() {
+            // When the employee is changed
+            $('#employee_id').change(function() {
+                var employeeId = $(this).val();
 
-        function updateAmount() {
-            const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
-            const salary = selectedOption ? parseFloat(selectedOption.dataset.salary) : 0;
-            const months = parseInt(monthsSelect.value);
-            const amount = salary * months;
-            amountInput.value = amount.toFixed(2);
-        }
+                if (employeeId) {
+                    $.ajax({
+                        url: `/employees/calculate-salary-for-advance/${employeeId}`,
+                        type: 'GET',
+                        success: function(response) {
+                            $('#earnings').val(response);
 
-        employeeSelect.addEventListener('change', updateAmount);
-        monthsSelect.addEventListener('change', updateAmount);
+                            // Update max value for the amount field
+                            $('#amount').attr('max', response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching earnings:', error);
+                        }
+                    });
+                } else {
+                    // Clear earnings field and reset max value for the amount field
+                    $('#earnings').val('');
+                    $('#amount').attr('max', 0);
+                }
+            });
 
-        // Initial calculation
-        updateAmount();
-    });
-</script>
+            // Ensure the amount doesn't exceed the earnings value
+            $('#amount').on('input', function() {
+                var maxAmount = parseFloat($('#earnings').val());
+                if ($(this).val() > maxAmount) {
+                    $(this).val(maxAmount);
+                }
+            });
+        });
+    </script>
 @endsection
