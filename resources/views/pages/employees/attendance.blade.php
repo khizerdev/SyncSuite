@@ -22,7 +22,8 @@
                         <p>Total Overtime Pay: PKR {{ $totalOvertimePay }}</p>
                         <p>Salary Got: {{number_format($actualSalaryEarned, 0)}}</p>
                         <p>Advance amount: {{number_format($salary->advance_deducted, 0)}}</p>
-                        <p>Salary Earned: PKR {{ number_format(max($actualSalaryEarned - $salary->advance_deducted, 0), 2) }}</p>
+                        <p>Loan amount: {{number_format($salary->loan_deducted, 0)}}</p>
+                        <p>Salary Earned: PKR {{ number_format(max($actualSalaryEarned - $salary->advance_deducted - $salary->loan_deducted, 0), 2) }}</p>
                     </div>
                     <div class="col-md-6 text-right">
                     <button type="button" class="btn btn-primary d-print-none"   

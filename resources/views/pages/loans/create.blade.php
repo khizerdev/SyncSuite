@@ -29,7 +29,7 @@
         </div>
         <div class="mb-3">
             <label for="employee_id" class="form-label">Employee</label>
-            <select class="form-select" id="employee_id" name="employee_id" required>
+            <select class="form-control" id="employee_id" name="employee_id" required>
                 <option value="">Select an employee</option>
                 @foreach($employees as $employee)
                     <option value="{{ $employee->id }}" data-salary="{{ $employee->salary }}">{{ $employee->name }}</option>

@@ -11,6 +11,7 @@ use App\Models\AdvanceSalary;
 use App\Models\Employee;
 use App\Models\Attachment;
 use App\Models\Attendance;
+use App\Models\Loan;
 use App\Models\Salary;
 use Carbon\Carbon;
 
@@ -424,6 +425,23 @@ class EmployeeController extends Controller
             ->orderBy('created_at', 'desc')
             ->first();
 
+            $activeLoan = Loan::where('employee_id', $employee->id)
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+            $loanInstallmentAmount = 0;
+
+            // Calculate loan installment if there's an active loan
+            if($activeLoan) {
+                $loanInstallmentAmount = $activeLoan->amount / $activeLoan->months;
+                $activeLoan->balance = $activeLoan->balance+$loanInstallmentAmount;
+                if($activeLoan->amount == ($activeLoan->balance+$loanInstallmentAmount)){
+                    $activeLoan->status == 'paid';
+                }
+                $activeLoan->save();
+            }
+
             $salary = null;
             if($advance){
                 $salary = Salary::create([
@@ -441,6 +459,7 @@ class EmployeeController extends Controller
                     'overtime_hours' => $overTimeRatio,
                     'holidays' => $employee->type->holidays,
                     'advance_deducted' => $advance->amount,
+                    'loan_deducted' => $loanInstallmentAmount
                 ]);
                 $advance->is_paid = 1;
                 $advance->save();
@@ -460,6 +479,7 @@ class EmployeeController extends Controller
                     'overtime_hours' => $overTimeRatio,
                     'holidays' => $employee->type->holidays,
                     'advance_deducted' => 0,
+                    'loan_deducted' => $loanInstallmentAmount
                 ]);
             }
 
