@@ -432,8 +432,9 @@ class EmployeeController extends Controller
 
             $loanInstallmentAmount = 0;
 
+
             // Calculate loan installment if there's an active loan
-            if($activeLoan) {
+            if($activeLoan && $request->include_loan == "1") {
                 $loanInstallmentAmount = $activeLoan->amount / $activeLoan->months;
                 $activeLoan->balance = $activeLoan->balance+$loanInstallmentAmount;
                 if($activeLoan->amount == ($activeLoan->balance+$loanInstallmentAmount)){

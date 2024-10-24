@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LoanController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ShiftController;
 use App\Models\Attendance;
@@ -92,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('attachments/{id}/download', [App\Http\Controllers\EmployeeController::class, 'download'])->name('attachments.download');
     Route::get('employees/payroll/{id}', [App\Http\Controllers\EmployeeController::class, 'attd'])->name('employees.attd');
     Route::get('employees/calculate-salary-for-advance/{id}', [App\Http\Controllers\EmployeeController::class, 'calculateSalaryForAdvance'])->name('employees.calculate.salary.for.advance');
+
     
 
     Route::get('branches', [App\Http\Controllers\BranchController::class, 'index'])->name('branches.index');
@@ -168,6 +170,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('employee-types', App\Http\Controllers\EmployeeTypeController::class);
 
     Route::resource('loans', App\Http\Controllers\LoanController::class);
+    Route::get('/get-employee-loan', [LoanController::class, 'getEmployeeLoan'])->name('loan.employee');
     Route::resource('advance-salaries', AdvanceSalaryController::class);
     Route::resource('leaves', LeaveController::class);
     Route::resource('salaries', SalaryController::class);

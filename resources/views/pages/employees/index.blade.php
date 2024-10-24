@@ -73,8 +73,12 @@
                   @endforeach
               </select>
           </div>
+
+          <div class="form-group mb-2" id="payrollForm">
+              
+          </div>
           
-          <button type="submit" class="btn btn-primary mb-2">View Slip</button>
+          <button type="submit" class="btn btn-primary mb-2">Generate Slip</button>
       </form>
 
       </div>
@@ -104,10 +108,39 @@
 
       // Handle button click event
         $('#table').on('click', '.btn-show-employee', function() {
+            var employeeId = $(this).data('employee-id');
             var employeeName = $(this).data('employee-name');
             $('#employeeName').val(employeeName);
             var employeeId = $(this).data('employee-id');
             $('#attdForm').attr('action', `{{ url('employees/payroll') }}/${employeeId}`);
+
+            $('#loanField').remove();
+            $('#loanCheckbox').remove();
+
+            $.ajax({
+              url: '/get-employee-loan', // Route to fetch loan details
+              method: 'GET',
+              data: { employee_id: employeeId },
+              success: function(response) {
+                  if (response.status === 'success') {
+                      // If loan exists, append the loan field to the form
+                      var loanFieldHtml = `
+                        <div class="form-group" id="loanField">
+                            <label>Loan Balance:</label>
+                            <input type="text" name="loan_balance" id="loanBalance" class="form-control" readonly value="${response.loan_balance}">
+                        </div>
+                        <div class="form-check" id="loanCheckbox">
+                            <input class="form-check-input" name="include_loan" type="checkbox" value="1" id="defaultCheck1">
+                            <label class="form-check-label" for="defaultCheck1">
+                              Include Loan
+                            </label>
+                        </div>`;
+                      
+                      // Append loan field before the submit button
+                      $('#payrollForm').append(loanFieldHtml);
+                  } 
+              }
+          });
         });
 
   });

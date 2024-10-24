@@ -84,4 +84,26 @@ class LoanController extends Controller
             return response()->json(['message' => 'Failed to delete Loan', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function getEmployeeLoan(Request $request)
+    {
+        $employeeId = $request->input('employee_id');
+
+        $activeLoan = Loan::where('employee_id', $employeeId)
+                ->where('status', 'active')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+        if ($activeLoan) {
+            return response()->json([
+                'status' => 'success',
+                'loan_balance' =>  ($activeLoan->amount - $activeLoan->balance) / $activeLoan->months,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'no_loan',
+            ]);
+        }
+    }
+
 }
