@@ -117,8 +117,10 @@
             $('#loanField').remove();
             $('#loanCheckbox').remove();
 
+            var apiUrl = "{{ url('/get-employee-loan') }}"; 
+
             $.ajax({
-              url: '/get-employee-loan', // Route to fetch loan details
+            url: apiUrl,
               method: 'GET',
               data: { employee_id: employeeId },
               success: function(response) {

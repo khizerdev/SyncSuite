@@ -61,9 +61,11 @@
         $('#employee_id').change(function() {
             var employeeId = $(this).val();
 
+             var apiUrl = `{{ url('/employees/calculate-salary-for-advance') }}/${employeeId}`;
+
             if (employeeId) {
                 $.ajax({
-                    url: `/employees/calculate-salary-for-advance/${employeeId}`,
+                    url: apiUrl,
                     type: 'GET',
                     success: function(response) {
                         $('#earnings').val(response);
