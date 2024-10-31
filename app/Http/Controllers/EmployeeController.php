@@ -269,6 +269,8 @@ class EmployeeController extends Controller
         );
         
         $month = $months[$request->month - 1];
+
+        // dd($request->all());
         
         $salary = Salary::where('employee_id' , $employeeId)->where('month', $month)
         ->where('year', $request->year)->first();
@@ -282,9 +284,7 @@ class EmployeeController extends Controller
             $holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1; // Default to 1 if not set
             $overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;  // Default to 1 if not set
         
-            $attendances = Attendance::where('code', $employee->code)
-                ->orderBy('datetime')
-                ->get();
+           
         
             $dailyMinutes = [];
             $groupedAttendances = [];
@@ -293,8 +293,13 @@ class EmployeeController extends Controller
             $totalOvertimeMinutes = 0;
         
             // Calculate the number of working days in July 2024
-            $startDate = Carbon::create(2024, 10, 1);
-            $endDate = Carbon::create(2024, 10, 31);
+            $startDate = Carbon::create($request->year, $request->month, 1);
+            $endDate = Carbon::create($request->year, $request->month, $startDate->daysInMonth);
+            $attendances = Attendance::where('code', $employee->code)
+            ->whereBetween('datetime', [$startDate, $endDate])
+            ->orderBy('datetime')
+            ->get();
+            // dd($endDate);
             $workingDays = 0;
         
             while ($startDate->lte($endDate)) {
@@ -447,8 +452,8 @@ class EmployeeController extends Controller
             if($advance){
                 $salary = Salary::create([
                     'employee_id' => $employee->id,
-                    'month' => 'August',
-                    'year' => '2024',
+                    'month' => $month,
+                    'year' => $request->year,
                     'current_salary' => $employee->salary,
                     'expected_hours' => $totalExpectedWorkingDays,
                     'normal_hours' => $totalHoursWorked,
@@ -467,8 +472,8 @@ class EmployeeController extends Controller
             } else {
                 $salary = Salary::create([
                     'employee_id' => $employee->id,
-                    'month' => 'August',
-                    'year' => '2024',
+                    'month' => $month,
+                    'year' => $request->year,
                     'current_salary' => $employee->salary,
                     'expected_hours' => $totalExpectedWorkingDays,
                     'normal_hours' => $totalHoursWorked,
@@ -494,9 +499,9 @@ class EmployeeController extends Controller
             $holidayRatio = $salary->holiday_pay_ratio;
             $overTimeRatio = $salary->overtime_pay_ratio;
         
-            $attendances = Attendance::where('code', $employee->code)
-                ->orderBy('datetime')
-                ->get();
+            // $attendances = Attendance::where('code', $employee->code)
+            //     ->orderBy('datetime')
+            //     ->get();
         
             $dailyMinutes = [];
             $groupedAttendances = [];
@@ -505,8 +510,12 @@ class EmployeeController extends Controller
             $totalOvertimeMinutes = 0;
         
             // Calculate the number of working days in July 2024
-            $startDate = Carbon::create(2024, 10, 1);
-            $endDate = Carbon::create(2024, 10, 31);
+            $startDate = Carbon::create($request->year, $request->month, 1);
+            $endDate = Carbon::create($request->year, $request->month, $startDate->daysInMonth);
+            $attendances = Attendance::where('code', $employee->code)
+            ->whereBetween('datetime', [$startDate, $endDate])
+            ->orderBy('datetime')
+            ->get();
             $workingDays = 0;
         
             while ($startDate->lte($endDate)) {

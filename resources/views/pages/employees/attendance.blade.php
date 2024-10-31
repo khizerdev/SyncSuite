@@ -9,7 +9,7 @@
                     <div class="card-header">
                     <div class="row">
                     <div class="col-md-6">
-                        <h3>Salary Details for October 2024</h3>
+                        <h3>Salary Details for {{$salary->month}} 2024</h3>
                         <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
                         <p>Total Working Days: {{ $workingDays }} days</p>
                         <p>Total Expected Working Hours: {{ $totalExpectedWorkingDays }} hours</p>
@@ -56,7 +56,7 @@
                     <!-- Combined Attendance and Salary Table -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3>Attendance Details for August 2024</h3>
+                            <h3>Attendance Details for {{$salary->month}} 2024</h3>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
