@@ -20,7 +20,7 @@
     
     <section class="content">
         <div class="container-fluid">
-            {{-- <div class="row mb-3">
+            <div class="row mb-3">
                 <div class="col-12 mb-3">
                     <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -28,10 +28,10 @@
                         <button type="submit" class="btn btn-primary">Import</button>
                     </form>
                 </div>
-                <div class="col-12">
+                {{-- <div class="col-12">
                     <a href="{{ route('calculate.hours', ['employeeId' => '1001']) }}" class="btn btn-primary">Calculate Working Hours</a>
-                </div>
-            </div> --}}
+                </div> --}}
+            </div>
             <div class="row mb-3">
                 @php
                     $currentMode = session()->get('currentMode') ?? 'erp';
