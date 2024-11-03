@@ -119,14 +119,6 @@
                                 ]
                             ],
                             [
-                                'title' => 'Department',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'departments.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'departments.index']
-                                ]
-                            ],
-                            [
                                 'title' => 'Customer',
                                 'icon' => 'fas fa-circle',
                                 'route' => 'customers.index',
@@ -197,6 +189,14 @@
                                 'route' => 'employees.index',
                                 'children' => [
                                     ['title' => 'View', 'route' => 'employees.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Department',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'departments.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'departments.index']
                                 ]
                             ],
                             [
