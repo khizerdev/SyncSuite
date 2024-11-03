@@ -50,7 +50,7 @@
                                         <div class="form-group">
                                             <label for="name">Passport Number</label>
                                             <input type="text" id="passport_number" name="passport_number"
-                                                class="form-control" required>
+                                                class="form-control" >
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -140,7 +140,7 @@
                                         <div class="form-group">
                                             <label for="dob">Date of Birth</label>
                                             <input type="date" id="dob" name="dob" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
                                     

@@ -49,7 +49,7 @@
                                         <div class="form-group">
                                             <label for="name">Passport Number</label>
                                             <input type="text" id="passport_number" name="passport_number" value="{{ $employee->passport_number }}" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -138,7 +138,7 @@
                                         <div class="form-group">
                                             <label for="dob">Date of Birth</label>
                                             <input type="date" id="dob" name="dob" value="{{ $employee->dob }}"
-                                                class="form-control" required>
+                                                class="form-control" >
                                         </div>
                                     </div>
 

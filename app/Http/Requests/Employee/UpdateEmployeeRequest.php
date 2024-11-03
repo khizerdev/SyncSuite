@@ -26,13 +26,11 @@ class UpdateEmployeeRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
-            'passport_number' => 'required|string|max:255',
             'reporting_manager' => 'required|string|max:255',
             'employement_status' => 'required|string|max:255',
             'contact_number' => 'required|string|max:20',
             'cnic_number' => 'required|string|max:20',
             'email' => 'required|email',
-            'dob' => 'required|date',
             'code' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'shift_id' => 'required|exists:shifts,id',
