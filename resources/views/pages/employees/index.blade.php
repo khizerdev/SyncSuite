@@ -17,13 +17,24 @@
               </div>
 
                 <div class="card-body">
+
+                    <div class="form-group col-3">
+                        <label for="department-filter">Filter by Department:</label>
+                        <select id="department-filter" class="form-control">
+                            <option value="">All Departments</option>
+                            @foreach(App\Models\Department::all() as $department)
+                                <option value="{{ $department->id }}">{{ $department->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <table class="table table-bordered" id="table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>#</th>
                                 <th>Name</th>
-                                <th>Email</th>
+                                <th>Code</th>
                                 <th>Contact</th>
+                                <th>Department</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -39,52 +50,52 @@
   </section>
 
   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Payroll Information</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <form id="attdForm" action="{{ url('employees/payroll') }}" method="GET">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Payroll Information</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        <form id="attdForm" action="{{ url('employees/payroll') }}" method="GET">
 
-          <div class="form-group mb-2">
-              <input type="text" class="form-control" id="employeeName" readonly>
-          </div>
+            <div class="form-group mb-2">
+                <input type="text" class="form-control" id="employeeName" readonly>
+            </div>
 
-          <div class="form-group mb-2">
-              <label for="year" class="sr-only">Select Year:</label>
-              <select class="form-control" name="year" id="year" required>
-                  <option value="" disabled selected>Select Year</option>
-                  @foreach (range(date('Y') - 5, date('Y')) as $y)
-                      <option value="{{ $y }}">{{ $y }}</option>
-                  @endforeach
-              </select>
-          </div>
+            <div class="form-group mb-2">
+                <label for="year" class="sr-only">Select Year:</label>
+                <select class="form-control" name="year" id="year" required>
+                    <option value="" disabled selected>Select Year</option>
+                    @foreach (range(date('Y') - 5, date('Y')) as $y)
+                        <option value="{{ $y }}">{{ $y }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-          <div class="form-group mb-2">
-              <label for="month" class="sr-only">Select Month:</label>
-              <select class="form-control" name="month" id="month" required>
-                  <option value="" disabled selected>Select Month</option>
-                  @foreach (range(1, 12) as $m)
-                      <option value="{{ sprintf('%02d', $m) }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
-                  @endforeach
-              </select>
-          </div>
+            <div class="form-group mb-2">
+                <label for="month" class="sr-only">Select Month:</label>
+                <select class="form-control" name="month" id="month" required>
+                    <option value="" disabled selected>Select Month</option>
+                    @foreach (range(1, 12) as $m)
+                        <option value="{{ sprintf('%02d', $m) }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-          <div class="form-group mb-2" id="payrollForm">
-              
-          </div>
-          
-          <button type="submit" class="btn btn-primary mb-2">Generate Slip</button>
-      </form>
+            <div class="form-group mb-2" id="payrollForm">
+                
+            </div>
+            
+            <button type="submit" class="btn btn-primary mb-2">Generate Slip</button>
+        </form>
 
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 @endsection
 
@@ -96,54 +107,69 @@
       var dataTable = $('#table').DataTable({
           processing: true,
           serverSide: true,
-          ajax: "{{ route('employees.index') }}",
+          ajax: {
+              url: "{{ route('employees.index') }}",
+              data: function(d) {
+                  d.department_id = $('#department-filter').val();
+              }
+          },
           columns: [
               { data: 'id', name: 'id' },
               { data: 'name', name: 'name' },
               { data: 'email', name: 'email' },
               { data: 'contact_number', name: 'contact_number' },
+              { 
+                  data: 'department_name', 
+                  name: 'department_name',
+                  orderable: true,
+                  searchable: true
+              },
               { data: 'action', name: 'action', orderable: false, searchable: false }
           ]
       });
 
-      // Handle button click event
-        $('#table').on('click', '.btn-show-employee', function() {
-            var employeeId = $(this).data('employee-id');
-            var employeeName = $(this).data('employee-name');
-            $('#employeeName').val(employeeName);
-            var employeeId = $(this).data('employee-id');
-            $('#attdForm').attr('action', `{{ url('employees/payroll') }}/${employeeId}`);
+      $('#table').on('click', '.btn-show-employee', function() {
+          var employeeId = $(this).data('employee-id');
+          var employeeName = $(this).data('employee-name');
+          $('#employeeName').val(employeeName);
+          var employeeId = $(this).data('employee-id');
+          $('#attdForm').attr('action', `{{ url('employees/payroll') }}/${employeeId}`);
 
-            $('#loanField').remove();
-            $('#loanCheckbox').remove();
+          $('#loanField').remove();
+          $('#loanCheckbox').remove();
 
-            var apiUrl = "{{ url('/get-employee-loan') }}"; 
+          var apiUrl = "{{ url('/get-employee-loan') }}"; 
 
-            $.ajax({
-            url: apiUrl,
-              method: 'GET',
-              data: { employee_id: employeeId },
-              success: function(response) {
-                  if (response.status === 'success') {
-                      // If loan exists, append the loan field to the form
-                      var loanFieldHtml = `
-                        <div class="form-group" id="loanField">
-                            <label>Loan Balance:</label>
-                            <input type="text" name="loan_balance" id="loanBalance" class="form-control" readonly value="${response.loan_balance}">
-                        </div>
-                        <div class="form-check" id="loanCheckbox">
-                            <input class="form-check-input" name="include_loan" type="checkbox" value="1" id="defaultCheck1">
-                            <label class="form-check-label" for="defaultCheck1">
-                              Include Loan
-                            </label>
-                        </div>`;
-                      
-                      // Append loan field before the submit button
-                      $('#payrollForm').append(loanFieldHtml);
-                  } 
-              }
-          });
+          $.ajax({
+          url: apiUrl,
+            method: 'GET',
+            data: { employee_id: employeeId },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // If loan exists, append the loan field to the form
+                    var loanFieldHtml = `
+                      <div class="form-group" id="loanField">
+                          <label>Loan Balance:</label>
+                          <input type="text" name="loan_balance" id="loanBalance" class="form-control" readonly value="${response.loan_balance}">
+                      </div>
+                      <div class="form-check" id="loanCheckbox">
+                          <input class="form-check-input" name="include_loan" type="checkbox" value="1" id="defaultCheck1">
+                          <label class="form-check-label" for="defaultCheck1">
+                            Include Loan
+                          </label>
+                      </div>`;
+                    
+                    // Append loan field before the submit button
+                    $('#payrollForm').append(loanFieldHtml);
+                } 
+            }
         });
+      });
+
+      $('#department-filter').on('change', function() {
+          dataTable.draw();
+      });
+
 
   });
 </script>

@@ -34,8 +34,18 @@ class EmployeeController extends Controller
      public function index(Request $request)
      {
          if ($request->ajax()) {
-             $data = Employee::latest()->get();
+            $query = Employee::with('department');
+        
+            if ($request->has('department_id') && !empty($request->department_id)) {
+                $query->where('department_id', $request->department_id);
+            }
+    
+            $data = $query->latest()->get();
+
              return DataTables::of($data)
+                ->addColumn('department_name', function ($data) {
+                    return $data->department_id ? $data->department->name : 'N/A';
+                })
                 ->addColumn('action', function($row){
                     $editUrl = route('employees.edit', $row->id);
                     $attdUrl = route('employees.attd', $row->id);
