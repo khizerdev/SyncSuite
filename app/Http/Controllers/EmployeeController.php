@@ -39,12 +39,19 @@ class EmployeeController extends Controller
             if ($request->has('department_id') && !empty($request->department_id)) {
                 $query->where('department_id', $request->department_id);
             }
+
+            if ($request->has('type_id') && !empty($request->type_id)) {
+                $query->where('type_id', $request->type_id);
+            }
     
             $data = $query->latest()->get();
 
              return DataTables::of($data)
                 ->addColumn('department_name', function ($data) {
                     return $data->department_id ? $data->department->name : 'N/A';
+                })
+                ->addColumn('type_name', function ($data) {
+                    return $data->type->id ? $data->type->name : 'N/A';
                 })
                 ->addColumn('action', function($row){
                     $editUrl = route('employees.edit', $row->id);

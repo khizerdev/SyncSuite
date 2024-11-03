@@ -18,7 +18,8 @@
 
                 <div class="card-body">
 
-                    <div class="form-group col-3">
+                    <div class="row mb-2">
+                        <div class="col-2">
                         <label for="department-filter">Filter by Department:</label>
                         <select id="department-filter" class="form-control">
                             <option value="">All Departments</option>
@@ -26,7 +27,19 @@
                                 <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
                         </select>
+                        </div>
+                        <div class="col-2">
+                        <label for="type-filter">Filter by Type:</label>
+                        <select id="type-filter" class="form-control">
+                            <option value="">All Types</option>
+                            @foreach(App\Models\EmployeeType::all() as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                        </div>
+                        
                     </div>
+
                     <table class="table table-bordered" id="table">
                         <thead>
                             <tr>
@@ -35,6 +48,7 @@
                                 <th>Code</th>
                                 <th>Contact</th>
                                 <th>Department</th>
+                                <th>Type</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -111,16 +125,23 @@
               url: "{{ route('employees.index') }}",
               data: function(d) {
                   d.department_id = $('#department-filter').val();
+                  d.type_id = $('#type-filter').val();
               }
           },
           columns: [
               { data: 'id', name: 'id' },
               { data: 'name', name: 'name' },
-              { data: 'email', name: 'email' },
+              { data: 'code', name: 'code' },
               { data: 'contact_number', name: 'contact_number' },
               { 
                   data: 'department_name', 
                   name: 'department_name',
+                  orderable: true,
+                  searchable: true
+              },
+              { 
+                  data: 'type_name', 
+                  name: 'type_name',
                   orderable: true,
                   searchable: true
               },
@@ -167,6 +188,10 @@
       });
 
       $('#department-filter').on('change', function() {
+          dataTable.draw();
+      });
+
+      $('#type-filter').on('change', function() {
           dataTable.draw();
       });
 
