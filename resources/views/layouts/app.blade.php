@@ -192,6 +192,14 @@
                                 ]
                             ],
                             [
+                                'title' => 'Attendance',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'attendance.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'attendance.index']
+                                ]
+                            ],
+                            [
                                 'title' => 'Department',
                                 'icon' => 'fas fa-circle',
                                 'route' => 'departments.index',
@@ -247,9 +255,13 @@
                         $navItems = [];
 
                         if($currentMode == 'erp'){
-                            $navItems = $erpItems;
+                            if(Auth::check() && Auth::user()->email === 'test@example.com'){
+                                $navItems = $erpItems;
+                            }
                         } else {
-                            $navItems = $hrItems;
+                            if(Auth::check() && Auth::user()->email === 'hr@gmail.com'){
+                                $navItems = $hrItems;
+                            }
                         }
                         @endphp
 
