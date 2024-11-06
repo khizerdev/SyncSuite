@@ -174,6 +174,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('advance-salaries', AdvanceSalaryController::class);
     Route::resource('leaves', LeaveController::class);
     Route::resource('salaries', SalaryController::class);
+
+    Route::view('attendance','pages.attendance.index')->name('attendance.index');
+    Route::get('attendance/employee', [AttendanceController::class, 'viewAttendance'])->name('attendance.view');
     
     Route::get('/dashboard', function () {
         return view('dashboard');
