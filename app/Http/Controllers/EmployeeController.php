@@ -169,7 +169,6 @@ class EmployeeController extends Controller
     {
         try {
             $employee = Employee::findOrFail($id);
-
             $validatedData = $request->validated();
 
             $employee->update($validatedData);
@@ -237,19 +236,13 @@ class EmployeeController extends Controller
             }
 
 
-            return response()->json([
-                'message' => 'Employee updated successfully',
-            ], 200);
+            return redirect()->route('employees.index')->with('success', 'Updated successfully.');
         } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
+            dd($e);
+            return redirect()->route('employees.index')->with('error', 'Validation failed');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update employee',
-                'error' => $e->getMessage(),
-            ], 500);
+            dd($e);
+            return redirect()->route('employees.index')->with('error', 'ailed to update employee');
         }
     }
 
@@ -298,10 +291,9 @@ class EmployeeController extends Controller
         
             $holidays = explode(',', $employee->type->holidays);
             $holidays = array_map('trim', $holidays);
-            $holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1; // Default to 1 if not set
-            $overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;  // Default to 1 if not set
+            $holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1;
+            $overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;
         
-           
         
             $dailyMinutes = [];
             $groupedAttendances = [];
@@ -309,14 +301,14 @@ class EmployeeController extends Controller
             $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
             $totalOvertimeMinutes = 0;
         
-            // Calculate the number of working days in July 2024
+            // Calculate the number of working days in current month 2024
             $startDate = Carbon::create($request->year, $request->month, 1);
             $endDate = Carbon::create($request->year, $request->month, $startDate->daysInMonth);
             $attendances = Attendance::where('code', $employee->code)
             ->whereBetween('datetime', [$startDate, $endDate])
             ->orderBy('datetime')
             ->get();
-            // dd($endDate);
+
             $workingDays = 0;
         
             while ($startDate->lte($endDate)) {
