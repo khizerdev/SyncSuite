@@ -448,7 +448,6 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
-                return;
                 if (result.isConfirmed) {
                     $.ajax({
               url: baseUrl + url + id,
