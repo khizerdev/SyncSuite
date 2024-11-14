@@ -435,6 +435,7 @@
     </script>
 
     <script>
+        const baseUrl = "{{env('APP_URL')}}"
         function deleteData(id, url, type) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -447,7 +448,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-              url: url + id,
+              url: baseUrl + url + id,
               type: type,
               data: {
                   "_token": "{{ csrf_token() }}",
