@@ -109,7 +109,7 @@
                                         <div class="form-group">
                                             <label for="contact_number">Contact Number</label>
                                             <input type="text" id="contact_number" name="contact_number"
-                                                value="{{ $employee->contact_number }}" class="form-control" required>
+                                                value="{{ $employee->contact_number }}" class="form-control" >
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -133,7 +133,7 @@
                                         <div class="form-group">
                                             <label for="email">Email</label>
                                             <input type="email" id="email" name="email"
-                                                value="{{ $employee->email }}" class="form-control" required>
+                                                value="{{ $employee->email }}" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">

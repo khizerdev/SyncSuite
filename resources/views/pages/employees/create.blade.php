@@ -109,7 +109,7 @@
                                         <div class="form-group">
                                             <label for="contact_number">Contact Number</label>
                                             <input type="text" id="contact_number" name="contact_number"
-                                                class="form-control" required>
+                                                class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -132,8 +132,7 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="email">Email</label>
-                                            <input type="email" id="email" name="email" class="form-control"
-                                                required>
+                                            <input type="email" id="email" name="email" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">

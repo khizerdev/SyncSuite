@@ -88,7 +88,7 @@ class EmployeeController extends Controller
 
             $validatedData = $request->validated();
 
-            $employee = Employee::create($validatedData);
+            $employee = Employee::create($request->all());
 
             // Handle Profile Picture
             if ($request->hasFile('profile_picture')) {
@@ -167,15 +167,17 @@ class EmployeeController extends Controller
      */
     public function update(UpdateEmployeeRequest $request, $id)
     {
+        $request->request->remove('profile_picture');
+        $request->request->remove('resume');
+        $request->request->remove('documents');
         try {
             $employee = Employee::findOrFail($id);
             $validatedData = $request->validated();
 
-            $employee->update($validatedData);
+            $employee->update($request->all());
 
             // Handle Profile Picture
             if ($request->hasFile('profile_picture')) {
-                // Delete the old profile picture if exists
                 $oldProfilePicture = $employee->attachments()->where('file_type', 'like', 'image%')->first();
                 if ($oldProfilePicture) {
                     Storage::delete($oldProfilePicture->file_path);
@@ -238,7 +240,6 @@ class EmployeeController extends Controller
 
             return redirect()->route('employees.index')->with('success', 'Updated successfully.');
         } catch (ValidationException $e) {
-            dd($e);
             return redirect()->route('employees.index')->with('error', 'Validation failed');
         } catch (\Exception $e) {
             dd($e);
