@@ -54,6 +54,12 @@
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-block btn-danger">Logout</button>
+                    </form>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>

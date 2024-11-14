@@ -25,35 +25,35 @@
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="row">
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="name">Name</label>
                                             <input type="text" id="name" name="name" class="form-control"
                                                 required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="name">Father Name</label>
                                             <input type="text" id="father_name" name="father_name" class="form-control"
                                                 >
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="name">Code</label>
                                             <input type="text" id="code" name="code" class="form-control"
                                                 required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="name">Passport Number</label>
                                             <input type="text" id="passport_number" name="passport_number"
                                                 class="form-control" >
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="branch_id">Branch</label>
                                             <select id="branch_id" name="branch_id" class="form-control" required>
@@ -63,7 +63,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="type_id">Type</label>
                                             <select id="type_id" name="type_id" class="form-control" required>
@@ -73,7 +73,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="department_id">Department</label>
                                             <select id="department_id" name="department_id" class="form-control" required>
@@ -83,7 +83,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="reporting_manager">Reporting Manager</label>
                                             <select id="reporting_manager" name="reporting_manager" class="form-control"
@@ -94,7 +94,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="employement_status">Employement Status</label>
                                             <select id="employement_status" name="employement_status" class="form-control"
@@ -105,14 +105,14 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="contact_number">Contact Number</label>
                                             <input type="text" id="contact_number" name="contact_number"
                                                 class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="shift_id">Shift</label>
                                             <select id="shift_id" name="shift_id" class="form-control" required>
@@ -122,20 +122,20 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="cnic_number">CNIC Number</label>
                                             <input type="text" id="cnic_number" name="cnic_number" class="form-control"
                                                 required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="email">Email</label>
                                             <input type="email" id="email" name="email" class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="dob">Date of Birth</label>
                                             <input type="date" id="dob" name="dob" class="form-control"
@@ -143,14 +143,14 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="hiring_date">Hiring Date</label>
                                             <input type="date" id="hiring_date" name="hiring_date"
                                                 class="form-control" required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="salary">Salary</label>
                                             <input type="number" id="salary" name="salary" class="form-control"
