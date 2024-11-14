@@ -25,7 +25,6 @@ class UpdateEmployeeRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'father_name' => 'required|string|max:255',
             'reporting_manager' => 'required|string|max:255',
             'employement_status' => 'required|string|max:255',
             'cnic_number' => 'required|string|max:20',

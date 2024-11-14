@@ -37,7 +37,7 @@
                                         <div class="form-group">
                                             <label for="name">Father Name</label>
                                             <input type="text" id="father_name" name="father_name" value="{{ $employee->father_name }}" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
