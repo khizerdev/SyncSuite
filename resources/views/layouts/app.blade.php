@@ -437,6 +437,8 @@
     <script>
         const baseUrl = "{{env('APP_URL')}}"
         function deleteData(id, url, type) {
+            console.log(baseUrl + url + id)
+            
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -446,6 +448,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
+                return;
                 if (result.isConfirmed) {
                     $.ajax({
               url: baseUrl + url + id,
