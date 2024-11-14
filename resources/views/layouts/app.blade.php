@@ -261,11 +261,11 @@
                         $navItems = [];
 
                         if($currentMode == 'erp'){
-                            (Auth::check() && Auth::user()->email === 'test@example.com'){
+                            if(Auth::check() && Auth::user()->email === 'test@example.com'){
                                 $navItems = $erpItems;
                             }
                         } else {
-                            (Auth::check() && Auth::user()->email === 'hr@gmail.com'){
+                            if(Auth::check() && Auth::user()->email === 'hr@gmail.com'){
                                 $navItems = $hrItems;
                             }
                         }
