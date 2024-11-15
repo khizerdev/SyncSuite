@@ -486,9 +486,11 @@
                   $('#table').DataTable().ajax.reload();
               },
               error: function(xhr) {
+                console.log()
+                    const message = xhr.responseJSON.error ? xhr.responseJSON.error : 'There was an error while deleting'
                   Swal.fire(
                       'Error!',
-                      'There was an error dwhile deleting',
+                      message,
                       'error'
                   );
               }

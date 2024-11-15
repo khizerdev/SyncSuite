@@ -108,11 +108,22 @@ class EmployeeTypeController extends Controller
     public function destroy($id)
     {
         try {
-            $branch = EmployeeType::findOrFail($id);
-            $branch->delete();
-    
+            $employeeType = EmployeeType::findOrFail($id);
+
+
+
+            if ($employeeType->employees()->exists()) {
+                return response()->json([
+                    'message' => 'Failed to delete',
+                    'error' => 'Cannot delete Employee Type because it is associated with existing employees.'
+                ], 400);
+            }
+
+            $employeeType->delete();
+
             return response()->json(['message' => 'Deleted successfully'], 200);
         } catch (\Exception $e) {
+            dd($e);
             return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
         }
     }

@@ -10,4 +10,9 @@ class EmployeeType extends Model
 
     protected $guarded = [];
 
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'type_id');
+    }
+
 }
