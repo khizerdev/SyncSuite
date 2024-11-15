@@ -21,8 +21,8 @@ class EmployeeTypeController extends Controller
                     $editUrl = route('employee-types.edit', $row->id);
                     $deleteUrl = route('employee-types.destroy', $row->id);
 
-                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm">Edit</a>';
-                    $btn .= ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm">Delete</button>';
+                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
+                    $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/employee-types/\', \'DELETE\')" class="delete btn btn-danger btn-sm mr-2"><i class="fas fa-trash"></i></button>';
                     return $btn;
                 })
                  ->rawColumns(['action'])
@@ -72,38 +72,33 @@ class EmployeeTypeController extends Controller
      */
     public function edit($id)
     {
-        $branch = Branch::findOrFail($id);
+        $branch = EmployeeType::findOrFail($id);
         return view('pages.branches.edit',compact('branch'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBranchRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        try {
-            $branch = Branch::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'holidays' => 'required|array',
+            'holiday_ratio' => 'nullable|numeric|min:0',
+            'overtime' => 'required|in:yes,no',
+            'overtime_ratio' => 'nullable|numeric|min:0',
+        ]);
 
-            $validatedData = $request->validated();
+        $employeeType = EmployeeType::findOrFail($id);
+        $employeeType->update([
+            'name' => $request->name,
+            'holidays' => implode(',', $request->holidays),
+            'holiday_ratio' => $request->holiday_ratio,
+            'overtime' => $request->overtime,
+            'overtime_ratio' => $request->overtime_ratio,
+        ]);
 
-            $branch->update($validatedData);
-
-
-            return response()->json([
-                'message' => 'Branch updated successfully',
-            ], 200);
-            
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update branch',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return redirect()->route('employee-types.index')->with('success', 'Employee type updated successfully.');
     }
 
     /**
