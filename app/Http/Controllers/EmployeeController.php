@@ -62,7 +62,7 @@ class EmployeeController extends Controller
                     $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/employees/\', \'GET\')" class="delete btn btn-danger btn-sm mr-2"><i class="fas fa-trash"></i></button>';
                     
                     // $btn .= '<a href="'.$attdUrl.'" class="btn btn-warning btn-sm">Payroll Information</a>';
-                    $btn .= '<button data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-warning btn-show-employee" data-employee-id="' . $row->id . '" data-employee-name="' . $row->name . '">Payroll Information</button>';
+                    // $btn .= '<button data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-warning btn-show-employee" data-employee-id="' . $row->id . '" data-employee-name="' . $row->name . '">Payroll Information</button>';
                     return $btn;
                 })
                  ->rawColumns(['action'])
