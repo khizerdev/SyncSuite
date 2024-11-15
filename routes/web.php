@@ -4,6 +4,7 @@ use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\LoanExceptionController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ShiftController;
 use App\Models\Attendance;
@@ -177,6 +178,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('attendance','pages.attendance.index')->name('attendance.index');
     Route::get('attendance/employee', [AttendanceController::class, 'viewAttendance'])->name('attendance.view');
+
+    Route::get('/loan-exceptions', [LoanExceptionController::class, 'index'])->name('loan-exception.index');
+    Route::put('/loan-exceptions/bulk-update', [LoanExceptionController::class, 'bulkUpdate'])->name('loan-exception.bulk-update');
+
+    Route::get('/generate-salary', [SalaryController::class, 'generateSalary'])->name('generate-salary');
+    Route::post('/generate-salary/process', [SalaryController::class, 'processSalaryGeneration'])->name('generate-salary.process');
     
     Route::get('/dashboard', function () {
         return view('dashboard');

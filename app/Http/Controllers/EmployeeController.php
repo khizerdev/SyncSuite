@@ -281,11 +281,9 @@ class EmployeeController extends Controller
         
         $month = $months[$request->month - 1];
 
-        // dd($request->all());
-        
         $salary = Salary::where('employee_id' , $employeeId)->where('month', $month)
         ->where('year', $request->year)->first();
-
+        
         if(!$salary){
             $employee = Employee::findOrFail($employeeId);
             $shift = $employee->timings;
@@ -446,7 +444,6 @@ class EmployeeController extends Controller
             ->first();
 
             $loanInstallmentAmount = 0;
-
 
             // Calculate loan installment if there's an active loan
             if($activeLoan && $request->include_loan == "1") {

@@ -6,12 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
+use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Salary;
 use App\Models\Shift;
+use App\Services\SalaryService;
+use Exception;
 use Yajra\DataTables\Facades\DataTables;
 
 class SalaryController extends Controller
 {
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -47,6 +52,47 @@ class SalaryController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function generateSalary()
+    {
+        $departments = Department::all();
+        return view('pages.salary.generate-salary', compact('departments'));
+    }
+
+    public function processSalaryGeneration(Request $request)
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        $unresolvedExceptions = Employee::with(['loans'])
+            ->whereHas('loans', function ($query) {
+                $query->whereColumn('paid', '<', 'amount');
+            })
+            ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
+                $query->where('month', $currentMonth)
+                    ->where('year', $currentYear);
+            })
+            ->get();
+
+        if ($unresolvedExceptions->isNotEmpty()) {
+            return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan exceptions for some employees that need to be clarified.');
+        }
+
+        $departmentId = $request->input('department_id');
+
+        $employees = Employee::where('department_id', $departmentId)->get();
+
+        foreach ($employees as $employee) {
+            try {
+                $salaryService = new SalaryService();
+                $salaryService->calculateSalary($employee->id);
+            } catch (Exception $e){
+                dd($e);
+            }
+        }
+
+        return redirect()->route('generate-salary')->with('success', 'Salaries generated successfully.');
     }
     
 }

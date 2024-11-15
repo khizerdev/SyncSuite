@@ -41,4 +41,16 @@ class Employee extends Model
         return $this->hasMany(AdvanceSalary::class);
 
     }
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+
+    }
+
+    public function loanExceptions()
+    {
+        return $this->hasMany(LoanException::class);
+
+    }
 }

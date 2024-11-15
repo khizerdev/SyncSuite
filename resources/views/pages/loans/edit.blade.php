@@ -21,14 +21,14 @@
                             <h3 class="card-title">Edit Loan</h3>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('loans.update', $loan) }}" method="POST">
+                            <form action="{{ route('loans.update', $loan) }}" method="POST" class="row">
                                 @csrf
                                 @method('PUT')
-                                <div class="mb-3">
+                                <div class="mb-3 col-3">
                                     <label for="amount" class="form-label">Amount</label>
                                     <input type="number" class="form-control" id="amount" name="amount" required step="0.01" min="0" value="{{ old('amount', $loan->amount) }}">
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3 col-3">
                                     <label for="employee_id" class="form-label">Employee</label>
                                     <select class="form-control" id="employee_id" name="employee_id" required>
                                         <option value="">Select an employee</option>
@@ -39,15 +39,15 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3 col-3">
                                     <label for="salary" class="form-label">Salary</label>
                                     <input type="number" class="form-control" id="salary" name="salary" required step="0.01" min="0" readonly value="{{ old('salary', $loan->salary) }}">
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3 col-3">
                                     <label for="months" class="form-label">Number of Months</label>
                                     <input type="number" class="form-control" id="months" name="months" required min="1" value="{{ old('months', $loan->months) }}">
                                 </div>
-                                <button type="submit" class="btn btn-primary">Update Loan</button>
+                                <button type="submit" class="btn btn-primary mr-2">Update Loan</button>
                                 <a href="{{ route('loans.index') }}" class="btn btn-secondary">Cancel</a>
                             </form>
                                                 </div>
