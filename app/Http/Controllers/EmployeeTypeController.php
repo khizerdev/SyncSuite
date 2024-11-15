@@ -72,8 +72,8 @@ class EmployeeTypeController extends Controller
      */
     public function edit($id)
     {
-        $branch = EmployeeType::findOrFail($id);
-        return view('pages.branches.edit',compact('branch'));
+        $employeeType = EmployeeType::findOrFail($id);
+        return view('pages.employee-types.edit',compact('employeeType'));
     }
 
     /**
@@ -85,9 +85,10 @@ class EmployeeTypeController extends Controller
             'name' => 'required|string|max:255',
             'holidays' => 'required|array',
             'holiday_ratio' => 'nullable|numeric|min:0',
-            'overtime' => 'required|in:yes,no',
+            'overtime' => 'required',
             'overtime_ratio' => 'nullable|numeric|min:0',
         ]);
+
 
         $employeeType = EmployeeType::findOrFail($id);
         $employeeType->update([

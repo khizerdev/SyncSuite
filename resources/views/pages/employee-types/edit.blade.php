@@ -67,11 +67,11 @@
                         <div class="mb-3">
                             <label class="form-label">Overtime</label>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="overtime" id="overtime_yes" value="yes" {{ old('overtime', $employeeType->overtime) == 'yes' ? 'checked' : '' }}>
+                                <input class="form-check-input" type="radio" name="overtime" id="overtime_yes" value="1" {{ $employeeType->overtime == "1" ? 'checked' : '' }}>
                                 <label class="form-check-label" for="overtime_yes">Yes</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="overtime" id="overtime_no" value="no" {{ old('overtime', $employeeType->overtime) == 'no' ? 'checked' : '' }}>
+                                <input class="form-check-input" type="radio" name="overtime" id="overtime_no" value="0" {{ $employeeType->overtime == "0" ? 'checked' : '' }}>
                                 <label class="form-check-label" for="overtime_no">No</label>
                             </div>
                         </div>
