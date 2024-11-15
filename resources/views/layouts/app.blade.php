@@ -253,6 +253,22 @@
                                     ['title' => 'View', 'route' => 'leaves.index']
                                 ]
                             ],
+                            [
+                                'title' => 'Loan Exceptions',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'loan-exception.index',
+                                'children' => [
+                                    ['title' => 'View', 'route' => 'loan-exception.index']
+                                ]
+                            ],
+                            [
+                                'title' => 'Generate Salary',
+                                'icon' => 'fas fa-circle',
+                                'route' => 'generate-salary',
+                                'children' => [
+                                    ['title' => 'Create', 'route' => 'generate-salary']
+                                ]
+                            ],
                         ]
 
                         @endphp
