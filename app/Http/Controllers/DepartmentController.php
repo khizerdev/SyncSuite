@@ -129,6 +129,14 @@ class DepartmentController extends Controller
     {
         try {
             $department = Department::findOrFail($id);
+
+            if ($department->employees()->exists()) {
+                return response()->json([
+                    'message' => 'Failed to delete',
+                    'error' => 'Cannot delete Department because it is associated with existing employees.'
+                ], 400);
+            }
+
             $department->delete();
     
             return response()->json(['message' => 'Department deleted successfully'], 200);

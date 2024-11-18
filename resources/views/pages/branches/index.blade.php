@@ -48,6 +48,7 @@
 <script type="text/javascript">
 
   function deleteRecord(id) {
+    const baseUrl = "{{env('APP_URL')}}"
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -59,8 +60,8 @@
     }).then((result) => {
       if (result.isConfirmed) {
           $.ajax({
-              url: '/branches/' + id,
-              type: 'DELETE',
+              url: baseUrl + '/branches/' + id,
+              type: 'GET',
               data: {
                   "_token": "{{ csrf_token() }}",
               },
@@ -73,9 +74,10 @@
                   $('#table').DataTable().ajax.reload();
               },
               error: function(xhr) {
+                  const message = xhr.responseJSON.error ? xhr.responseJSON.error : 'There was an error while deleting'
                   Swal.fire(
                       'Error!',
-                      'There was an error deleting the branch.',
+                      message,
                       'error'
                   );
               }

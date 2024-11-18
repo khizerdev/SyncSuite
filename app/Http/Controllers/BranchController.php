@@ -129,6 +129,14 @@ class BranchController extends Controller
     {
         try {
             $branch = Branch::findOrFail($id);
+
+            if ($branch->employees()->exists()) {
+                return response()->json([
+                    'message' => 'Failed to delete',
+                    'error' => 'Cannot delete Branch because it is associated with existing employees.'
+                ], 400);
+            }
+
             $branch->delete();
     
             return response()->json(['message' => 'Branch deleted successfully'], 200);

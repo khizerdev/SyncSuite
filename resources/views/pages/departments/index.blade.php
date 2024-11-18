@@ -45,6 +45,7 @@
 <script type="text/javascript">
 
   function deleteRecord(id) {
+    const baseUrl = "{{env('APP_URL')}}"
       Swal.fire({
           title: 'Are you sure?',
           text: "You won't be able to revert this!",
@@ -56,14 +57,23 @@
       }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: '/departments/' + id,
+                url: baseUrl + '/departments/' + id,
                 type: 'GET',
                 success: function(response) {
-                    alert('Department deleted successfully');
+                    Swal.fire(
+                      'Deleted!',
+                      'The department has been deleted.',
+                      'success'
+                  );
                     $('#table').DataTable().ajax.reload();
                 },
                 error: function(xhr) {
-                    console.error(xhr.responseText);
+                    const message = xhr.responseJSON.error ? xhr.responseJSON.error : 'There was an error while deleting'
+                    Swal.fire(
+                        'Error!',
+                        message,
+                        'error'
+                    );
                 }
             });
         }

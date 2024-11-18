@@ -11,4 +11,9 @@ class Branch extends Model
 
     protected $fillable = ['name', 'email', 'contact_number', 'address'];
 
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+
 }
