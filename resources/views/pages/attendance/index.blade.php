@@ -14,7 +14,7 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label for="employee_id">Employee</label>
-                        <select id="employee_id" name="employee_id" class="form-control" required>
+                        <select id="employee_id" name="employee_id" class="form-control js-example-basic-multiple" required>
                             @foreach (App\Models\Employee::all(['id','name']) as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @endforeach
@@ -81,7 +81,16 @@
 @section('script')
 
 <script>
+
 $(document).ready(function() {
+    $('.js-example-basic-multiple').select2({
+        width: 'resolve', // need to override the changed default
+        theme: 'bootstrap4',
+    });
+});
+
+$(document).ready(function() {
+
     // Function to get days in month
     function getDaysInMonth(year, month) {
         return new Date(year, month, 0).getDate();
