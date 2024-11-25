@@ -103,7 +103,7 @@
                 
             </div>
             
-            <button type="submit" class="btn btn-primary mb-2">Generate Slip</button>
+            <button type="submit" class="btn btn-primary mb-2">View Salary</button>
         </form>
 
         </div>
