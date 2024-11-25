@@ -439,7 +439,6 @@ class EmployeeController extends Controller
             $totalOverTimeHoursWorked = number_format($salary->overtime_pay_ratio, 2) / 60;
             $totalOvertimePay = number_format((number_format($totalOvertimeMinutes, 2) / 60)*($overTimeRatio*$salary->salary_per_hour) , 2);
         
-            dd($groupedAttendances);
             return view('pages.employees.attendance', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift', 'actualSalaryEarned', 'totalHoursWorked', 'salaryPerHour', 'workingDays', 'totalHolidayHoursWorked', 'holidayRatio','holidays','totalOvertimeMinutes','overTimeRatio','totalExpectedWorkingDays','totalOverTimeHoursWorked','totalOvertimePay','salary'));
     }
 
