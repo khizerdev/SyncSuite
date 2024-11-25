@@ -13,20 +13,98 @@ use App\Models\Branch;
 use App\Models\Employee;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class AttendanceController extends Controller
 {
+    private function extractInsertStatements(string $sql): array
+    {
+        preg_match_all('/INSERT INTO `attendances` .*?VALUES(.*?);/si', $sql, $matches);
+
+        return $matches[0] ?? [];
+    }
+
+    private function parseSqlData(string $sql): array
+    {
+        $data = [];
+
+        // Match the `VALUES` section of the INSERT statement
+        preg_match_all('/\(([^)]+)\)/', $sql, $matches);
+
+        if (!empty($matches[1])) {
+            foreach ($matches[1] as $row) {
+                // Split row into individual values
+                $values = str_getcsv($row, ',', "'");
+
+                $data[] = [
+                    'id' => (int) $values[0],
+                    'code' => trim($values[1], "'"),
+                    'datetime' => $values[2],
+                    'created_at' => $values[3],
+                    'updated_at' => $values[4],
+                ];
+            }
+        }
+
+        return $data;
+    }
+
     public function import(Request $request)
     {
-        $request->validate([
-            'excel_file' => 'required'
-        ]);
+        
 
         $file = $request->file('excel_file');
+        $filePath = $file->getRealPath();
 
-        Excel::import(new AttendanceImport, $file);
+        try {
+            $sqlContents = File::get($filePath);
+        
+            // Split SQL file into individual statements
+            $sqlStatements = array_filter(explode(';', $sqlContents));
+        
+            // Filter for attendance-related SQL statements
+            $attendanceStatements = array_filter($sqlStatements, function($statement) {
+                return stripos($statement, 'INSERT INTO `attendances` (`id`, `code`, `datetime`, `created_at`, `updated_at`) VALUES') !== false;
+            });
+            $insertStatements = $this->extractInsertStatements($sqlContents);
+        
+            // Filter to include only today's records
+            $today = now()->format('Y-m-d');
 
-        return redirect()->back()->with('success', 'Attendance data imported successfully');
+        $today = Carbon::now()->format('Y-m-d');
+        
+        foreach ($insertStatements as $statement) {
+            $rows = $this->parseSqlData($statement);
+            $filteredRows = array_filter($rows, function ($row) use ($today) {
+                return strpos($row['datetime'], $today) === 0; 
+            });
+            $filteredRows = array_map(function($row) {
+                unset($row['id']);
+                return $row;
+            }, $filteredRows);
+            try {
+                DB::table('attendances')->insert($filteredRows);
+            } catch (\Exception $e) {
+                return back()->with('error', 'There was an error');
+            }
+        }
+        
+            return back()->with('success', 'Success');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error' . $e->getMessage());
+        }
+        
+
+        // $request->validate([
+        //     'excel_file' => 'required'
+        // ]);
+
+        // $file = $request->file('excel_file');
+
+        // Excel::import(new AttendanceImport, $file);
+
+        // return redirect()->back()->with('success', 'Attendance data imported successfully');
     }
 
     public function calculateHours($employeeId)

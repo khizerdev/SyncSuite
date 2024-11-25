@@ -70,7 +70,7 @@
                 <div class="col-12 mb-3">
                     <form action="{{ route('import.excel') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <input type="file" name="excel_file" accept=".xls,.xlsx">
+                        <input type="file" name="excel_file" accept=".sql">
                         <button type="submit" class="btn btn-primary">Import</button>
                     </form>
                 </div>
