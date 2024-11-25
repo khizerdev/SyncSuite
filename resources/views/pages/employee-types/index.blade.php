@@ -85,6 +85,7 @@
                         <option value="Tuesday">Tuesday</option>
                         <option value="Wednesday">Wednesday</option>
                         <option value="Thursday">Thursday</option>
+                        <option value="No Holiday">No Holiday</option>
                     </select>
                 </div>
 

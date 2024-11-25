@@ -56,6 +56,7 @@
                                 <option value="Tuesday" {{ in_array('Tuesday', $selectedHolidays) ? 'selected' : '' }}>Tuesday</option>
                                 <option value="Wednesday" {{ in_array('Wednesday', $selectedHolidays) ? 'selected' : '' }}>Wednesday</option>
                                 <option value="Thursday" {{ in_array('Thursday', $selectedHolidays) ? 'selected' : '' }}>Thursday</option>
+                                <option value="No Holiday" {{ in_array('No Holiday', $selectedHolidays) ? 'selected' : '' }}>No Holiday</option>
                             </select>
                         </div>
 

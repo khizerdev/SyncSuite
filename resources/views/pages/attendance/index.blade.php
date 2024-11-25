@@ -64,7 +64,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                <button type="submit" class="btn btn-primary w-100">
                     Submit
                 </button>
               </form>
