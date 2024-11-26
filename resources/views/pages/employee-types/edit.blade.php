@@ -3,13 +3,14 @@
 @section('css')
 
 {{-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2-bootstrap.min.css" integrity="sha512-eNfdYTp1nlHTSXvQD4vfpGnJdEibiBbCmaXHQyizI93wUnbCZTlrs1bUhD7pVnFtKRChncH5lpodpXrLpEdPfQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<!-- Or for RTL support -->
+<link rel="stylesheet" href="https://select2.github.io/select2-bootstrap-theme/css/select2-bootstrap.css">
+ 
 <style>
-  .select2-container{
-    width:100% !important
-  }
+ 
 </style>
 
 @endsection
@@ -37,27 +38,31 @@
                     <form id="employe-type-form" action="{{ route('employee-types.update', $employeeType->id) }}" method="POST" data-method="PUT">
                         @csrf
                         @method('PUT')
-                        
-                        <div class="mb-3">
-                            <label for="title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $employeeType->name) }}" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="holidays" class="form-label">Holidays</label>
-                            <select multiple class="holidays js-example-basic-single" id="holidays" name="holidays[]" required>
-                                @php
-                                    $selectedHolidays = old('holidays', explode(',', $employeeType->holidays));
-                                @endphp
-                                <option value="Friday" {{ in_array('Friday', $selectedHolidays) ? 'selected' : '' }}>Friday</option>
-                                <option value="Saturday" {{ in_array('Saturday', $selectedHolidays) ? 'selected' : '' }}>Saturday</option>
-                                <option value="Sunday" {{ in_array('Sunday', $selectedHolidays) ? 'selected' : '' }}>Sunday</option>
-                                <option value="Monday" {{ in_array('Monday', $selectedHolidays) ? 'selected' : '' }}>Monday</option>
-                                <option value="Tuesday" {{ in_array('Tuesday', $selectedHolidays) ? 'selected' : '' }}>Tuesday</option>
-                                <option value="Wednesday" {{ in_array('Wednesday', $selectedHolidays) ? 'selected' : '' }}>Wednesday</option>
-                                <option value="Thursday" {{ in_array('Thursday', $selectedHolidays) ? 'selected' : '' }}>Thursday</option>
-                                <option value="No Holiday" {{ in_array('No Holiday', $selectedHolidays) ? 'selected' : '' }}>No Holiday</option>
-                            </select>
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $employeeType->name) }}" required>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="holidays" class="form-label">Holidays</label>
+                                <select multiple class="holidays form-control form-select js-example-basic-single" id="holidays" name="holidays[]" required>
+                                    @php
+                                        $selectedHolidays = old('holidays', explode(',', $employeeType->holidays));
+                                    @endphp
+                                    <option value="Friday" {{ in_array('Friday', $selectedHolidays) ? 'selected' : '' }}>Friday</option>
+                                    <option value="Saturday" {{ in_array('Saturday', $selectedHolidays) ? 'selected' : '' }}>Saturday</option>
+                                    <option value="Sunday" {{ in_array('Sunday', $selectedHolidays) ? 'selected' : '' }}>Sunday</option>
+                                    <option value="Monday" {{ in_array('Monday', $selectedHolidays) ? 'selected' : '' }}>Monday</option>
+                                    <option value="Tuesday" {{ in_array('Tuesday', $selectedHolidays) ? 'selected' : '' }}>Tuesday</option>
+                                    <option value="Wednesday" {{ in_array('Wednesday', $selectedHolidays) ? 'selected' : '' }}>Wednesday</option>
+                                    <option value="Thursday" {{ in_array('Thursday', $selectedHolidays) ? 'selected' : '' }}>Thursday</option>
+                                    <option value="No Holiday" {{ in_array('No Holiday', $selectedHolidays) ? 'selected' : '' }}>No Holiday</option>
+                                </select>
+                            </div>
+                          </div>
                         </div>
 
                         <div class="mb-3">
@@ -107,8 +112,7 @@
   // In your Javascript (external .js resource or <script> tag)
 $(document).ready(function() {
     $('.holidays').select2({
-      dropdownParent: $('#exampleModal'),
-      multiple: true
+      theme: 'bootstrap'
 });
 });
 </script>
