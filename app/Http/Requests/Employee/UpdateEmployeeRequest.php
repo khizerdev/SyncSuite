@@ -25,15 +25,12 @@ class UpdateEmployeeRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'reporting_manager' => 'required|string|max:255',
             'employement_status' => 'required|string|max:255',
-            'cnic_number' => 'required|string|max:20',
             'code' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'shift_id' => 'required|exists:shifts,id',
             'type_id' => 'required|exists:employee_types,id',
             'branch_id' => 'required|exists:branches,id',
-            'hiring_date' => 'required|date',
             'salary' => 'required|numeric',
         ];
     }

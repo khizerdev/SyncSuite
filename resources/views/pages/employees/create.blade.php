@@ -126,7 +126,7 @@
                                         <div class="form-group">
                                             <label for="cnic_number">CNIC Number</label>
                                             <input type="text" id="cnic_number" name="cnic_number" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
@@ -147,7 +147,7 @@
                                         <div class="form-group">
                                             <label for="hiring_date">Hiring Date</label>
                                             <input type="date" id="hiring_date" name="hiring_date"
-                                                class="form-control" required>
+                                                class="form-control" >
                                         </div>
                                     </div>
                                     <div class="col-sm-3">

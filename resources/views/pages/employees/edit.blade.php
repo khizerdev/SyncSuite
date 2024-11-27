@@ -126,7 +126,7 @@
                                         <div class="form-group">
                                             <label for="cnic_number">CNIC Number</label>
                                             <input type="text" id="cnic_number" name="cnic_number"
-                                                value="{{ $employee->cnic_number }}" class="form-control" required>
+                                                value="{{ $employee->cnic_number }}" class="form-control" >
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
@@ -148,7 +148,7 @@
                                         <div class="form-group">
                                             <label for="hiring_date">Hiring Date</label>
                                             <input type="date" id="hiring_date" name="hiring_date"
-                                                value="{{ $employee->hiring_date }}" class="form-control" required>
+                                                value="{{ $employee->hiring_date }}" class="form-control" >
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
