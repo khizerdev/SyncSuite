@@ -17,6 +17,7 @@
                 <div class="card-body">
                     <form action="{{ route('generate-salary.process') }}" method="POST">
                      @csrf
+                     <div class="form-group">
                         <label for="department">Select Department:</label>
                         <select name="department_id" id="department_id" class="form-control mb-2" required>
                             <option value="">Select Department</option>
@@ -24,6 +25,23 @@
                                 <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
                         </select>
+                     </div>
+
+                        <div class="form-group">
+                        <label for="department">Duration</label>
+                        <div class="custom-control custom-radio">
+                          <input class="custom-control-input" value="first_half" type="radio" id="customRadio1" name="period" required>
+                          <label for="customRadio1" class="custom-control-label">First 15 Days</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                          <input class="custom-control-input" value="second_half" type="radio" id="customRadio2" name="period" required>
+                          <label for="customRadio2" class="custom-control-label">Next 15 Days</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                          <input class="custom-control-input" value="full_month" type="radio" id="customRadio3" name="period" required>
+                          <label for="customRadio3" class="custom-control-label">Full Month</label>
+                        </div>
+                      </div>
                            
                             <button type="submit" class="btn btn-primary">Generate </button>
                         </form>

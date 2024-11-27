@@ -11,6 +11,7 @@ use App\Models\Employee;
 use App\Models\Salary;
 use App\Models\Shift;
 use App\Services\SalaryService;
+use Carbon\Carbon;
 use Exception;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -64,6 +65,24 @@ class SalaryController extends Controller
     {
         $currentMonth = now()->month;
         $currentYear = now()->year;
+        $period = $request->period;
+
+        $timestamp = mktime(0, 0, 0, $currentMonth, 1, 1970);
+
+        $month_name = date("F", $timestamp);
+
+        //  check start and end dates
+        if ($period === 'first_half') {
+            $startDate = Carbon::parse($month_name)->startOfMonth();
+            $endDate = Carbon::parse($month_name)->startOfMonth()->addDays(14);
+        } elseif ($period === 'second_half') {
+            $startDate = Carbon::parse($month_name)->startOfMonth()->addDays(15);
+            $endDate = Carbon::parse($month_name)->endOfMonth();
+        } else {
+            // full_month
+            $startDate = Carbon::parse($month_name)->startOfMonth();
+            $endDate = Carbon::parse($month_name)->endOfMonth();
+        }
 
         $unresolvedExceptions = Employee::with(['loans'])
             ->whereHas('loans', function ($query) {
@@ -76,7 +95,7 @@ class SalaryController extends Controller
             ->get();
 
         if ($unresolvedExceptions->isNotEmpty()) {
-            return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan exceptions for some employees that need to be clarified.');
+            return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan excemptions for some employees that need to be clarified.');
         }
 
         $departmentId = $request->input('department_id');
@@ -86,7 +105,7 @@ class SalaryController extends Controller
         foreach ($employees as $employee) {
             try {
                 $salaryService = new SalaryService();
-                $salaryService->calculateSalary($employee->id);
+                $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period);
             } catch (Exception $e){
                 dd($e);
             }

@@ -12,7 +12,7 @@ use Exception;
 
 class SalaryService
 {
-    public function calculateSalary($employeeId)
+    public function calculateSalary($employeeId, $startDate, $endDate, $period)
     {
         try {
             $employee = Employee::findOrFail($employeeId);
@@ -21,8 +21,19 @@ class SalaryService
             $currentMonthNum = date('m');
             $currentYear = date('Y');
     
-            $salary = Salary::where('employee_id' , $employeeId)->where('month', $currentMonth)
-            ->where('year', $currentYear)->first();
+            // Check for conflicting salary records
+            $salary = Salary::where('employee_id', $employeeId)
+            ->where(function ($query) use ($period, $currentMonth) {
+                if ($period === 'full_month') {
+                    $query->where('period', 'first_half')
+                        ->orWhere('period', 'second_half');
+                } else {
+                    $query->where('period', 'full_month');
+                }
+            })
+            ->whereYear('start_date', Carbon::parse($currentMonth)->year)
+            ->whereMonth('start_date', Carbon::parse($currentMonth)->month)
+            ->exists();
     
             if($salary) {
                 return;
@@ -45,27 +56,30 @@ class SalaryService
             $totalOvertimeMinutes = 0;
         
             // Calculate the number of working days in current month 2024
-            $startDate = Carbon::create($currentYear, $currentMonthNum, 1);
-            $endDate = Carbon::create($currentYear, $currentMonthNum, $startDate->daysInMonth);
+            
+            // $startDate = Carbon::create($currentYear, $currentMonthNum, 1);
+            // $endDate = Carbon::create($currentYear, $currentMonthNum, $startDate->daysInMonth);
+
             $attendances = Attendance::where('code', $employee->code)
             ->whereBetween('datetime', [$startDate, $endDate])
             ->orderBy('datetime')
             ->get();
-    
+            
             $workingDays = 0;
-        
-            while ($startDate->lte($endDate)) {
-                $date = $startDate->format('Y-m-d');
-                $groupedAttendances[$date] = []; // Empty by default
+            
+            $startingDate = clone $startDate;
+            while ($startingDate->lte($endDate)) {
+                $date = $startingDate->format('Y-m-d');
+                $groupedAttendances[$date] = [];
                 $dailyMinutes[$date] = 0; // Default to 0 minutes
                 // Check if the day is not a holiday for the employee
-                if (!in_array($startDate->format('l'), $holidays)) {
+                if (!in_array($startingDate->format('l'), $holidays)) {
                     $workingDays++;
                 }
-                $startDate->addDay();
+                $startingDate->addDay();
             }
         
-            // Total number of hours the employee is expected to work in July
+            // Total number of hours the employee is expected to work
             $hoursPerDay = 12;
             $totalExpectedWorkingHours = $workingDays * $hoursPerDay;
         
@@ -195,7 +209,7 @@ class SalaryService
                 $loan->paid += $loan->amount / $loan->months;
                 $loan->save();
             }
-    
+            
             $salary = null;
             if($advance){
                 $salary = Salary::create([
@@ -213,6 +227,9 @@ class SalaryService
                     'overtime_hours' => $overTimeRatio,
                     'holidays' => $employee->type->holidays,
                     'advance_deducted' => $advance->amount,
+                    'period' => $period,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
                     'loan_deducted' => $loanException && $loanException->is_approved ? 0 : $loanInstallmentAmount
                 ]);
                 $advance->is_paid = 1;
@@ -233,6 +250,9 @@ class SalaryService
                     'overtime_hours' => $overTimeRatio,
                     'holidays' => $employee->type->holidays,
                     'advance_deducted' => 0,
+                    'period' => $period,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
                     'loan_deducted' => $loanException && $loanException->is_approved ? 0 : $loanInstallmentAmount
                 ]);
         } 
