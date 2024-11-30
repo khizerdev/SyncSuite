@@ -159,14 +159,24 @@
                                                 required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="salary_duration">Salary Duration</label>
+                                            <select id="salary_duration" name="salary_duration" class="form-control"
+                                                required>
+                                                <option value="half_month" @if($employee->salary_duration == "half_month") selected @endif>Half Month</option>
+                                                <option value="full_month" @if($employee->salary_duration == "full_month") selected @endif>Full Month</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="profile_picture">Profile Picture</label>
                                             <input type="file" id="profile_picture" name="profile_picture"
                                                 class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="resume">Resume</label>
                                             <input type="file" id="resume" name="resume" class="form-control">

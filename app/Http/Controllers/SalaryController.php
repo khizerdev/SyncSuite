@@ -99,8 +99,14 @@ class SalaryController extends Controller
         }
 
         $departmentId = $request->input('department_id');
-
-        $employees = Employee::where('department_id', $departmentId)->get();
+        $employees = Employee::where('department_id', $departmentId)
+        ->when($period == "first_half" || $period == "second_half", function($query) {
+            return $query->where('salary_duration', 'half_month');
+        })
+        ->when($period == "full_month", function($query) {
+            return $query->where('salary_duration', 'full_month');
+        })
+        ->get();
 
         foreach ($employees as $employee) {
             try {

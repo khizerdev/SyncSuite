@@ -31,6 +31,7 @@ class StoreEmployeeRequest extends FormRequest
             'type_id' => 'required|exists:employee_types,id',
             'branch_id' => 'required|exists:branches,id',
             'salary' => 'required|numeric',
+            'salary_duration' => 'required',
         ];
     }
 }
