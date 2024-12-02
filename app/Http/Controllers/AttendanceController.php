@@ -8,13 +8,16 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
 use App\Imports\AttendanceImport;
+use App\Imports\UsersInfoImport;
 use App\Models\Attendance;
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\UserInfo;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use League\Csv\Reader;
 
 class AttendanceController extends Controller
 {
@@ -50,10 +53,25 @@ class AttendanceController extends Controller
         return $data;
     }
 
+    
+
     public function import(Request $request)
     {
-        
+        // Validate the uploaded file
+        $request->validate([
+            'excel_file' => 'required|file'
+        ]);
 
+        try {
+            set_time_limit(300); // Increase to 300 seconds (5 minutes) or any required limit
+            Excel::import(new UsersInfoImport, $request->file('excel_file'));
+            
+            return back()->with('success', 'Users imported successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error importing file: ' . $e->getMessage());
+        }
+
+        return
         $file = $request->file('excel_file');
         $filePath = $file->getRealPath();
 
@@ -150,7 +168,9 @@ class AttendanceController extends Controller
         $startDay = $request->input('start_date');
         $endDay = $request->input('end_date');
 
-        $attendances = Attendance::where('code', $employee->code)
+        $userInfo = UserInfo::where('code' , $employee->code)->first();
+
+        $attendances = Attendance::where('code', $userInfo->id)
         ->whereBetween('datetime', [$startDay, $endDay])
         ->orderBy('datetime')
         ->get();
