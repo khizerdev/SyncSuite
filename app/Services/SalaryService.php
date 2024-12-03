@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\Loan;
 use App\Models\Salary;
+use App\Models\UserInfo;
 use Carbon\Carbon;
 use Exception;
 
@@ -60,7 +61,9 @@ class SalaryService
             // $startDate = Carbon::create($currentYear, $currentMonthNum, 1);
             // $endDate = Carbon::create($currentYear, $currentMonthNum, $startDate->daysInMonth);
 
-            $attendances = Attendance::where('code', $employee->code)
+            $userInfo = UserInfo::where('code' , $employee->code)->firstOrFail();
+
+            $attendances = Attendance::where('code', $userInfo->id)
             ->whereBetween('datetime', [$startDate, $endDate])
             ->orderBy('datetime')
             ->get();
