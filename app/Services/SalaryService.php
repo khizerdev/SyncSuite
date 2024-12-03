@@ -18,8 +18,10 @@ class SalaryService
         try {
             $employee = Employee::findOrFail($employeeId);
             $shift = $employee->timings;
-            $currentMonth = date('F');
-            $currentMonthNum = date('m');
+            // $currentMonth = date('F');
+            // $currentMonthNum = date('m');
+            $currentMonth = 'October';
+            $currentMonthNum = '10';
             $currentYear = date('Y');
     
             // Check for conflicting salary records
