@@ -8,6 +8,7 @@
 
         @foreach ($collectiveAttendances as $employeeId => $attendance)
 
+            @if($attendance)
             @php
                 $employee = $attendance['employee'];
                 $dailyMinutes = $attendance['dailyMinutes'];
@@ -112,6 +113,7 @@
 
                                 </tbody>
                             </table>
+                            @endif
         @endforeach
                         </div>
                     </div>
