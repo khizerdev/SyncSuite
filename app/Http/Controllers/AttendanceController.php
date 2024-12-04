@@ -53,8 +53,6 @@ class AttendanceController extends Controller
         return $data;
     }
 
-    
-
     public function import(Request $request)
     {
         // Validate the uploaded file
@@ -162,12 +160,7 @@ class AttendanceController extends Controller
         return view('pages.attendance.hours', compact('totalWorkingHours', 'requiredHours', 'overtime', 'undertime', 'dailyHours'));
     }
 
-    public function viewAttendance(Request $request){
-
-        $employee = Employee::findOrFail($request->employee_id);
-        $startDay = $request->input('start_date');
-        $endDay = $request->input('end_date');
-
+    private function createAttd($employee,$startDay,$endDay,$request){
         $userInfo = UserInfo::where('code' , $employee->code)->first();
 
         $attendances = Attendance::where('code', $userInfo->id)
@@ -302,7 +295,40 @@ class AttendanceController extends Controller
         $totalHoursWorked = $totalMinutesWorked / 60;
         $totalHolidayHoursWorked = $totalHolidayMinutesWorked / 60;
 
-        return view('pages.attendance.show', compact('groupedAttendances', 'dailyMinutes', 'employee', 'shift', 'isNightShift','totalHoursWorked', 'workingDays', 'totalHolidayHoursWorked','holidays','totalOvertimeMinutes'));
+        return [
+            'employee' => $employee,
+            'dailyMinutes' => $dailyMinutes,
+            'totalHoursWorked' => $totalHoursWorked,
+            'workingDays' => $workingDays,
+            'totalHolidayHoursWorked' => $totalHolidayHoursWorked,
+            'holidays' => $holidays,
+            'totalOvertimeMinutes' => $totalOvertimeMinutes,
+            'isNightShift' => $isNightShift,
+            'shift' => $shift,
+            'groupedAttendances' => $groupedAttendances,
+        ];
     }
+
+    public function viewAttendance(Request $request){
+
+        // $employee = Employee::findOrFail($request->employee_id);
+        $employees = Employee::where('department_id', $request->department_id)->get();
+        $startDay = $request->input('start_date');
+        $endDay = $request->input('end_date');
+
+        $allAttendances = [];
+
+        foreach($employees as $employee){
+            $record = $this->createAttd($employee,$startDay,$endDay,$request);
+            $allAttendances [$employee->id] = $record;
+        }
+
+        return view('pages.attendance.show', [
+            'collectiveAttendances' => $allAttendances,
+        ]);
+        
+    }
+
+    
     
 }

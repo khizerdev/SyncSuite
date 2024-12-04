@@ -21,7 +21,6 @@ class SalaryService
             $currentMonth = $currentMonth;
 
             $timestamp = mktime(0, 0, 0, $currentMonth, 1, 1970);
-
             $currentMonthNum = date("F", $timestamp);
 
             $currentYear = date('Y');

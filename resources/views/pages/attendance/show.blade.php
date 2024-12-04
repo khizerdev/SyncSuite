@@ -5,7 +5,22 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-12">
+
+        @foreach ($collectiveAttendances as $employeeId => $attendance)
+
             @php
+                $employee = $attendance['employee'];
+                $dailyMinutes = $attendance['dailyMinutes'];
+                $totalHoursWorked = $attendance['totalHoursWorked'];
+                $workingDays = $attendance['workingDays'];
+                $totalHolidayHoursWorked = $attendance['totalHolidayHoursWorked'];
+                $holidays = $attendance['holidays'];
+                $totalOvertimeMinutes = $attendance['totalOvertimeMinutes'];
+                $isNightShift = $attendance['isNightShift'];
+                $shift = $attendance['shift'];
+                $groupedAttendances = $attendance['groupedAttendances'];
+
+
                 $isNightShift =
                 Carbon\Carbon::parse($shift->start_time)->greaterThan(Carbon\Carbon::parse($shift->end_time));
                 $weekends = explode("," , $employee->type->holidays);
@@ -97,6 +112,7 @@
 
                                 </tbody>
                             </table>
+        @endforeach
                         </div>
                     </div>
         </div>

@@ -11,16 +11,16 @@
                 <h3 class="card-title">Attendance View</h3>
               </div>
               <form action="{{route('attendance.view')}}" id="dateForm" class="card-body">
-                <div class="col-12">
-                    <div class="form-group">
-                        <label for="employee_id">Employee</label>
-                        <select id="employee_id" name="employee_id" class="form-control js-example-basic-multiple" required>
-                            @foreach (App\Models\Employee::all(['id','name']) as $item)
-                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                
+                <div class="form-group">
+                        <label for="department">Select Department:</label>
+                        <select name="department_id" id="department_id" class="form-control mb-2" required>
+                            <option value="">Select Department</option>
+                            @foreach (App\Models\Department::all() as $department)
+                                <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
                         </select>
-                    </div>
-                </div>
+                     </div>
                 <div class="col-12">
                     <div class="form-group">
                         <label for="year">Year</label>
