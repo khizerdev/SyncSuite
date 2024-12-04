@@ -63,7 +63,7 @@ class SalaryController extends Controller
 
     public function processSalaryGeneration(Request $request)
     {
-        $currentMonth = now()->month;
+        $currentMonth = intval($request->month);
         $currentYear = now()->year;
         $period = $request->period;
 

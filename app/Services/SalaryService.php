@@ -13,20 +13,22 @@ use Exception;
 
 class SalaryService
 {
-    public function calculateSalary($employeeId, $startDate, $endDate, $period)
+    public function calculateSalary($employeeId, $startDate, $endDate, $period, $currentMonth)
     {
         try {
             $employee = Employee::findOrFail($employeeId);
             $shift = $employee->timings;
-            // $currentMonth = date('F');
-            // $currentMonthNum = date('m');
-            $currentMonth = 'October';
-            $currentMonthNum = '10';
+            $currentMonth = $currentMonth;
+
+            $timestamp = mktime(0, 0, 0, $currentMonth, 1, 1970);
+
+            $currentMonthNum = date("F", $timestamp);
+
             $currentYear = date('Y');
     
             // Check for conflicting salary records
             $salary = Salary::where('employee_id', $employeeId)
-            ->where(function ($query) use ($period, $currentMonth) {
+            ->where(function ($query) use ($period) {
                 if ($period === 'full_month') {
                     $query->where('period', 'first_half')
                         ->orWhere('period', 'second_half');

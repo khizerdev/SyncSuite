@@ -27,6 +27,16 @@
                         </select>
                      </div>
 
+                     <div class="form-group">
+                <label for="month">Select Month:</label>
+                <select class="form-control" name="month" id="month" required>
+                    <option value="" disabled selected>Select Month</option>
+                    @foreach (range(1, 12) as $m)
+                        <option value="{{ sprintf('%02d', $m) }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                    @endforeach
+                </select>
+            </div>
+
                         <div class="form-group">
                         <label for="department">Duration</label>
                         <div class="custom-control custom-radio">
