@@ -163,6 +163,10 @@ class AttendanceController extends Controller
     private function createAttd($employee,$startDay,$endDay,$request){
         $userInfo = UserInfo::where('code' , $employee->code)->first();
 
+        if(!$userInfo){
+            return
+        }
+
         $attendances = Attendance::where('code', $userInfo->id)
         ->whereBetween('datetime', [$startDay, $endDay])
         ->orderBy('datetime')
