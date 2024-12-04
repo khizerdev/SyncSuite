@@ -311,21 +311,35 @@ class AttendanceController extends Controller
 
     public function viewAttendance(Request $request){
 
-        // $employee = Employee::findOrFail($request->employee_id);
-        $employees = Employee::where('department_id', $request->department_id)->get();
         $startDay = $request->input('start_date');
         $endDay = $request->input('end_date');
-
-        $allAttendances = [];
-
-        foreach($employees as $employee){
-            $record = $this->createAttd($employee,$startDay,$endDay,$request);
-            $allAttendances [$employee->id] = $record;
+        $selection = $request->selection;
+        
+        
+        if($selection == "department"){
+            $employees = Employee::where('department_id', $request->department_id)->get();
+            $allAttendances = [];
+            
+            foreach($employees as $employee){
+                $record = $this->createAttd($employee,$startDay,$endDay,$request);
+                $allAttendances [$employee->id] = $record;
+            }
+            
+            return view('pages.attendance.show', [
+                'collectiveAttendances' => $allAttendances,
+            ]);
+        } else {
+            $employee = Employee::findOrFail($request->employee_id);
+            $allAttendances = [];
+    
+                $record = $this->createAttd($employee,$startDay,$endDay,$request);
+                $allAttendances [$employee->id] = $record;
+    
+            return view('pages.attendance.show', [
+                'collectiveAttendances' => $allAttendances,
+            ]);
         }
 
-        return view('pages.attendance.show', [
-            'collectiveAttendances' => $allAttendances,
-        ]);
         
     }
 

@@ -11,16 +11,36 @@
                 <h3 class="card-title">Attendance View</h3>
               </div>
               <form action="{{route('attendance.view')}}" id="dateForm" class="card-body">
-                
+               
                 <div class="form-group">
+                        <div class="custom-control custom-radio">
+                          <input class="custom-control-input" value="department" type="radio" id="by-department" name="selection" required>
+                          <label for="by-department" class="custom-control-label">By Department</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                          <input class="custom-control-input" value="employee" type="radio" id="by-employee" name="selection" required>
+                          <label for="by-employee" class="custom-control-label">By Employee</label>
+                        </div>
+                      </div>
+                <div class="form-group" style="display: none;" id="department_id">
                         <label for="department">Select Department:</label>
-                        <select name="department_id" id="department_id" class="form-control mb-2" required>
+                        <select  name="department_id"  class="form-control mb-2" required>
                             <option value="">Select Department</option>
                             @foreach (App\Models\Department::all() as $department)
                                 <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
                         </select>
                      </div>
+                     <div class="col-12">
+                    <div class="form-group" style="display: none;" id="employee_id">
+                        <label for="employee_id">Employee</label>
+                        <select name="employee_id" class="form-control js-example-basic-multiple" required>
+                            @foreach (App\Models\Employee::all(['id','name']) as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <div class="col-12">
                     <div class="form-group">
                         <label for="year">Year</label>
@@ -87,6 +107,21 @@ $(document).ready(function() {
         width: 'resolve', // need to override the changed default
         theme: 'bootstrap4',
     });
+
+    $('input[name="selection"]').on('change', function() {
+        const selectedValue = $(this).val();
+
+        if (selectedValue === 'department') {
+            // Show department select and hide employee select
+            $('#department_id').show();
+            $('#employee_id').hide();
+        } else if (selectedValue === 'employee') {
+            // Show employee select and hide department select
+            $('#department_id').hide();
+            $('#employee_id').show();
+        }
+    });
+
 });
 
 $(document).ready(function() {
