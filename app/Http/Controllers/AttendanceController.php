@@ -164,7 +164,7 @@ class AttendanceController extends Controller
         $userInfo = UserInfo::where('code' , $employee->code)->first();
 
         if(!$userInfo){
-            return
+            return;
         }
 
         $attendances = Attendance::where('code', $userInfo->id)
