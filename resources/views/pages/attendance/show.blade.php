@@ -114,8 +114,8 @@
                                 </tbody>
                             </table>
                             @endif
-        @endforeach
                         </div>
+        @endforeach
                     </div>
         </div>
       </div>

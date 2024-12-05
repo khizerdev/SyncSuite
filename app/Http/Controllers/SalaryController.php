@@ -84,19 +84,21 @@ class SalaryController extends Controller
             $endDate = Carbon::parse($month_name)->endOfMonth();
         }
 
-        $unresolvedExceptions = Employee::with(['loans'])
-            ->whereHas('loans', function ($query) {
-                $query->whereColumn('paid', '<', 'amount');
-            })
-            ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
-                $query->where('month', $currentMonth)
-                    ->where('year', $currentYear);
-            })
-            ->get();
+        // $unresolvedExceptions = Employee::with(['loans'])
+        //     ->whereHas('loans', function ($query) {
+        //         $query->whereColumn('paid', '<', 'amount');
+        //     })
+        //     ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
+        //         $query->where('month', $currentMonth)
+        //             ->where('year', $currentYear);
+        //     })
+        //     ->get();
 
-        if ($unresolvedExceptions->isNotEmpty()) {
-            return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan excemptions for some employees that need to be clarified.');
-        }
+        //     dd($unresolvedExceptions);
+
+        // if ($unresolvedExceptions->isNotEmpty()) {
+        //     return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan excemptions for some employees that need to be clarified.');
+        // }
 
         $departmentId = $request->input('department_id');
         $employees = Employee::where('department_id', $departmentId)
@@ -111,7 +113,7 @@ class SalaryController extends Controller
         foreach ($employees as $employee) {
             try {
                 $salaryService = new SalaryService();
-                $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period);
+                $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
             } catch (Exception $e){
                 dd($e);
             }
