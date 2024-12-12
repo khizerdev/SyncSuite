@@ -4,7 +4,7 @@
   <section class="content-header">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-md-12">
+<div class="col-md-12">
 
         @foreach ($collectiveAttendances as $employeeId => $attendance)
 
@@ -113,10 +113,11 @@
 
                                 </tbody>
                             </table>
-                            @endif
+                            
                         </div>
-        @endforeach
                     </div>
+                    @endif
+        @endforeach
         </div>
       </div>
     </div>

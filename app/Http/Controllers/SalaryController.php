@@ -115,7 +115,7 @@ class SalaryController extends Controller
                 $salaryService = new SalaryService();
                 $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
             } catch (Exception $e){
-                dd($e);
+                throw $e;
             }
         }
 

@@ -11,6 +11,8 @@ import ProductCreate from "./components/Product/Create.vue";
 import ShiftCreate from "./components/Shift/Create.vue";
 import EditShift from "./components/Shift/Edit.vue";
 
+import GazetteCalendar from "./components/GazetteCalendar/GazetteCalendar.vue";
+
 if (document.querySelector("#widgets")) {
   createApp(DashboardCounts).mount("#widgets");
 }
@@ -35,4 +37,8 @@ if (document.querySelector("#create-shift")) {
 if (document.querySelector("#edit-shift")) {
   const editShift = JSON.parse(document.querySelector("#edit-shift").dataset.shift);
   createApp(EditShift, { shift: editShift }).mount("#edit-shift");
+}
+
+if (document.querySelector("#gazette-calendar")) {
+  createApp(GazetteCalendar).mount("#gazette-calendar");
 }

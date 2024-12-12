@@ -16,6 +16,7 @@ class SalaryService
     public function calculateSalary($employeeId, $startDate, $endDate, $period, $currentMonth)
     {
         try {
+            $employeeId = 5;
             $employee = Employee::findOrFail($employeeId);
             $shift = $employee->timings;
             $currentMonth = $currentMonth;
@@ -43,8 +44,6 @@ class SalaryService
                 return;
             }
             
-            $employee = Employee::findOrFail($employeeId);
-            
     
             $shift = $employee->timings;
         
@@ -58,18 +57,21 @@ class SalaryService
         
             $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
             $totalOvertimeMinutes = 0;
-        
-            // Calculate the number of working days in current month 2024
             
-            // $startDate = Carbon::create($currentYear, $currentMonthNum, 1);
-            // $endDate = Carbon::create($currentYear, $currentMonthNum, $startDate->daysInMonth);
-
-            $userInfo = UserInfo::where('code' , $employee->code)->firstOrFail();
+         
+            $userInfo = UserInfo::where('code' , $employee->code)->first();
+            
+            if(!$userInfo) {
+                return;
+            }
 
             $attendances = Attendance::where('code', $userInfo->id)
             ->whereBetween('datetime', [$startDate, $endDate])
             ->orderBy('datetime')
             ->get();
+            
+            
+          
             
             $workingDays = 0;
             
@@ -86,40 +88,47 @@ class SalaryService
             }
         
             // Total number of hours the employee is expected to work
-            $hoursPerDay = 12;
+            $hoursPerDay = 10;
             $totalExpectedWorkingHours = $workingDays * $hoursPerDay;
+            
         
             // Calculate salary per hour
             $salaryPerMonth = $employee->salary;
             $salaryPerHour = $salaryPerMonth / $totalExpectedWorkingHours;
+            
         
             for ($i = 0; $i < count($attendances); $i++) {
+                
+                
+                
                 $checkIn = Carbon::parse($attendances[$i]->datetime);
                 $date = $checkIn->format('Y-m-d');
-        
-                // Find the next check-out or check-in
-                $nextEntry = null;
-                for ($j = $i + 1; $j < count($attendances); $j++) {
-                    $nextEntry = Carbon::parse($attendances[$j]->datetime);  
-                    if (abs($nextEntry->diffInHours($checkIn)) <= 16) {
-                        break;
-                    }
-                    $nextEntry = null;
+                
+                if($groupedAttendances[$date]){
+                    continue;
                 }
+            
                 $shiftStart = Carbon::parse($shift->start_time);
                 $shiftEnd = Carbon::parse($shift->end_time);
+            
                 if ($isNightShift) {
                     $shiftEnd->addDay();
                 }
+            
                 $maxCheckOut = $shiftEnd->copy()->addHours(4);
-        
-                if ($nextEntry && $nextEntry <= $maxCheckOut) {
-                    $checkOut = $nextEntry;
-                    $i = $j;
-                } else {
-                    $checkOut = null;
+            
+                // Find the next valid Check-Out
+                $checkOut = null;
+                for ($j = $i + 1; $j < count($attendances); $j++) {
+                    $nextEntry = Carbon::parse($attendances[$j]->datetime);
+                    if ($nextEntry > $checkIn && $nextEntry <= $maxCheckOut) {
+                        $checkOut = $nextEntry;
+                        $i = $j; // Move to the next Check-In
+                        break;
+                    }
                 }
-        
+            
+                // Adjust for night shifts
                 if ($isNightShift) {
                     $calculationCheckIn = $checkIn->copy()->addHours(6);
                     $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(6) : null;
@@ -127,19 +136,20 @@ class SalaryService
                     $calculationCheckIn = $checkIn;
                     $calculationCheckOut = $checkOut;
                 }
-        
+            
+                // Group the attendance
                 $groupedAttendances[$date][] = [
-                    'original_checkin' => $checkIn,
-                    'original_checkout' => $checkOut,
+                    'original_checkin' => $checkIn->addHours(5),
+                    'original_checkout' => $checkOut->addHours(5),
                     'calculation_checkin' => $calculationCheckIn,
                     'calculation_checkout' => $calculationCheckOut,
-                    'is_incomplete' => !$checkOut
+                    'is_incomplete' => !$checkOut,
                 ];
             }
         
             $totalMinutesWorked = 0;
             $totalHolidayMinutesWorked = 0;
-        
+            
             foreach ($groupedAttendances as $date => $entries) {
                 $shiftStartTime = Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
                 $shiftEndTime = Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
@@ -164,6 +174,7 @@ class SalaryService
         
                         if ($startTime->lt($endTime)) {
                             $minutesWorked = $startTime->diffInMinutes($endTime);
+                            
                             $totalMinutes += $minutesWorked;
         
                             // Check if the date is a holiday
@@ -185,18 +196,20 @@ class SalaryService
                 $totalMinutesWorked += $totalMinutes;
                 $totalOvertimeMinutes += $overtimeMinutes;
             }
-        
+            
             // Convert total minutes worked to hours
             $totalHoursWorked = $totalMinutesWorked / 60;
+            
             $totalHolidayHoursWorked = $totalHolidayMinutesWorked / 60;
         
             $regularHoursWorked = $totalHoursWorked;
-            $overtimeAmount = number_format((number_format($totalOvertimeMinutes, 2) / 60)*($overTimeRatio*$salaryPerHour) , 2);
+            $overtimeAmount = number_format(($totalOvertimeMinutes / 60) * ($overTimeRatio * $salaryPerHour), 2);
+
             $actualSalaryEarned = ($regularHoursWorked * $salaryPerHour) + ($totalHolidayHoursWorked * $salaryPerHour * $holidayRatio) + $overtimeAmount;
     
             $totalExpectedWorkingDays = number_format($workingDays * 12, 2);
-            $totalOverTimeHoursWorked = number_format($totalOvertimeMinutes, 2) / 60;
-            $totalOvertimePay = number_format((number_format($totalOvertimeMinutes, 2) / 60)*($overTimeRatio*$salaryPerHour) , 2);
+            $totalOverTimeHoursWorked = $totalOvertimeMinutes / 60;
+            $totalOvertimePay = number_format(($totalOvertimeMinutes / 60) * ($overTimeRatio * $salaryPerHour), 2);
     
             $advance = AdvanceSalary::where('employee_id', $employee->id)
             ->orderBy('created_at', 'desc')
@@ -263,7 +276,7 @@ class SalaryService
                 ]);
         } 
         } catch (Exception $e) {
-            dd($e);
+            throw $e;
         }
 
     }

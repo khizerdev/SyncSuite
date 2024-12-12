@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+
+use App\Models\GazetteHoliday;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+
+class GazetteController extends Controller
+{
+
+    public function getHolidays(Request $request)
+    {
+        $month = $request->get('month', Carbon::now()->month);
+        $year = $request->get('year', Carbon::now()->year);
+
+        $holidays = GazetteHoliday::whereYear('holiday_date', $year)
+            ->whereMonth('holiday_date', $month)
+            ->get()
+            ->map(function ($holiday) {
+                return [
+                    'date' => $holiday->holiday_date->format('Y-m-d'),
+                    'description' => $holiday->description
+                ];
+            });
+
+        return response()->json($holidays);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'holidays' => 'required|array',
+            'holidays.*.date' => 'required|date',
+            'holidays.*.description' => 'nullable|string'
+        ]);
+
+        foreach ($request->holidays as $holiday) {
+            GazetteHoliday::create([
+                'holiday_date' => $holiday['date'],
+                'description' => $holiday['description'] ?? null,
+                'created_by' => auth()->id()
+            ]);
+        }
+
+        return response()->json(['message' => 'Holidays saved successfully']);
+    }
+
+    public function checkMonthlyHolidays($year, $month)
+    {
+        $exists = GazetteHoliday::hasHolidaysForMonth($year, $month);
+        return response()->json(['exists' => $exists]);
+    }
+}

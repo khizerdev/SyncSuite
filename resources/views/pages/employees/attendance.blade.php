@@ -8,8 +8,19 @@
                 <div class="card mb-4">
                     <div class="card-header">
                     <div class="row">
+                        @php
+                        
+                        $months = array(
+            "January", "February", "March", "April", "May",
+            "June", "July", "August", "September", "October",
+            "November", "December"
+        );
+        
+        $month = $months[$salary->month - 1];
+                        
+                        @endphp
                     <div class="col-md-6">
-                        <h3>Salary Details for {{$salary->month}} 2024</h3>
+                        <h3>Salary Details for {{$month}} 2024</h3>
                         <p>Employee Holidays: {{ implode(', ', $holidays) }}</p>
                         <p>Total Working Days: {{ $workingDays }} days</p>
                         <p>Total Expected Working Hours: {{ $totalExpectedWorkingDays }} hours</p>
@@ -55,8 +66,9 @@
 
                     <!-- Combined Attendance and Salary Table -->
                     <div class="card mb-4">
+                        
                         <div class="card-header">
-                            <h3>Attendance Details for {{$salary->month}} 2024</h3>
+                            <h3>Attendance Details for {{$month}} 202c4</h3>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
@@ -71,12 +83,12 @@
                                 </thead>
                                 <tbody>
                                     @php
-                                    $totalHoursWorked = 0;
+                                    
                                     $totalHolidayHoursWorked = 0;
                                     $salaryPerHour = $employee->salary / (12 * 6); // Assuming 12 hours per day, 6 days a week
                                     $holidayRatio = $employee->holiday_ratio;
-                                    $holidays = explode(',', $employee->holidays);
-                                    $workingDays = Carbon\Carbon::parse('2024-07-01')->daysInMonth;
+                                    $holidays = explode(',', $employee->type->holidays);
+                                    $dailyMinutex = [];
 
                                     foreach ($groupedAttendances as $date => $entries) {
                                     $dailyMinutes = 0;
@@ -88,12 +100,13 @@
                                     if (!$entry['is_incomplete']) {
                                     $entryStart = $entry['calculation_checkin'];
                                     $entryEnd = $entry['calculation_checkout'];
-
+                                    
                                     $dailyMinutes += $entryStart->diffInMinutes($entryEnd);
+                                    $dailyMinutex[$date] = $dailyMinutes;
                                     }
                                     }
 
-                                    $totalHoursWorked += $dailyMinutes / 60;
+                                    
                                     $holidayHoursWorked = $isHoliday ? ($dailyMinutes / 60) * $holidayRatio : 0;
                                     $totalHolidayHoursWorked += $holidayHoursWorked;
 
@@ -103,19 +116,23 @@
 
                                     $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes / 60), $dailyMinutes % 60);
                                     $holidayPay = number_format($holidayHoursWorked * $salaryPerHour, 2);
+                                    
+                                    $dayName = \Carbon\Carbon::parse($date)->format('l');
+                                    
+                                    
                                     @endphp
                                     <tr>
                                         <td>{{ Carbon\Carbon::parse($date)->format('l, F j, Y') }}</td>
                                         <td>
                                             @if(isset($entries[0]['original_checkin']))
-                                            {{ $entries[0]['original_checkin']->format('Y-m-d H:i:s') }}
+                                            {{ $entries[0]['original_checkin']->format('h:i A') }}
                                             @else
                                             N/A
                                             @endif
                                         </td>
                                         <td>
                                             @if(isset($entries[0]['original_checkout']))
-                                            {{ $entries[0]['original_checkout']->format('Y-m-d H:i:s') }}
+                                            {{ $entries[0]['original_checkout']->format('h:i A') }}
                                             @else
                                             N/A
                                             @endif
@@ -124,25 +141,23 @@
 
                                         <td>{{ $dailyHours }}</td>
                                         <td>
-                                            @if(empty($entries))
-                                            <span class="text-danger">Absent</span>
-                                            @elseif(empty($entries) && !$entries[0]['is_incomplete'])
-                                            <span class="text-success">Present</span>
-                                            @elseif(!empty($entries) && !$entries[0]['is_incomplete'])
-                                            <span class="text-success">Present</span>
-                                            @elseif(empty($entries) && !$entries[0]['is_incomplete'])
-                                            <span class="text-danger">Absent</span>
-                                            @elseif(!empty($entries) && $entries[0]['is_incomplete'])
-                                            <span class="text-danger">Misscan</span>
-                                            @endif
+                                            
+                                            @if(in_array($dayName, $holidays))
+    <span class="text-danger">Holiday</span>
+@elseif(empty($entries))
+    <span class="text-danger">Absent</span>
+@elseif(!empty($entries) && !$entries[0]['is_incomplete'])
+    <span class="text-success">Present</span>
+@elseif(!empty($entries) && $entries[0]['is_incomplete'])
+    <span class="text-danger">Misscan</span>
+@endif
                                         </td>
 
                                     </tr>
                                     @php
                                     }
 
-                                    $actualSalaryEarned = ($totalHoursWorked * $salaryPerHour) +
-                                    $totalHolidayHoursWorked * $salaryPerHour;
+                                    
                                     @endphp
 
                                 </tbody>

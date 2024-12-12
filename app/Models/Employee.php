@@ -48,6 +48,12 @@ class Employee extends Model
 
     }
 
+    public function loan()
+    {
+        return $this->hasOne(Loan::class);
+
+    }
+
     public function loanExceptions()
     {
         return $this->hasMany(LoanException::class);

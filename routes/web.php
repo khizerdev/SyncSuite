@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\GazetteController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanExceptionController;
@@ -184,6 +185,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/generate-salary', [SalaryController::class, 'generateSalary'])->name('generate-salary');
     Route::post('/generate-salary/process', [SalaryController::class, 'processSalaryGeneration'])->name('generate-salary.process');
+
+    Route::resource('gazette-holidays', GazetteController::class);
     
     Route::get('/dashboard', function () {
         return view('dashboard');

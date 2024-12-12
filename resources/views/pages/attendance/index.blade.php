@@ -104,24 +104,33 @@
 
 $(document).ready(function() {
     $('.js-example-basic-multiple').select2({
-        width: 'resolve', // need to override the changed default
+        width: 'resolve',
         theme: 'bootstrap4',
     });
 
     $('input[name="selection"]').on('change', function() {
         const selectedValue = $(this).val();
+        const departmentSelect = $('select[name="department_id"]');
+        const employeeSelect = $('select[name="employee_id"]');
 
         if (selectedValue === 'department') {
             // Show department select and hide employee select
             $('#department_id').show();
             $('#employee_id').hide();
+            
+            // Make department required and employee not required
+            departmentSelect.prop('required', true);
+            employeeSelect.prop('required', false);
         } else if (selectedValue === 'employee') {
             // Show employee select and hide department select
             $('#department_id').hide();
             $('#employee_id').show();
+            
+            // Make employee required and department not required
+            departmentSelect.prop('required', false);
+            employeeSelect.prop('required', true);
         }
     });
-
 });
 
 $(document).ready(function() {

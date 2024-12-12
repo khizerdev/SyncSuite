@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\Api\ProductTypeController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\ShiftController;
+use App\Http\Controllers\Api\GazetteController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ParticularController;
 
@@ -31,3 +32,8 @@ Route::post('/particulars/store', [ParticularController::class, 'store']);
 Route::apiResource('shifts', ShiftController::class)->only([
     'store','update'
 ]);
+
+Route::get('/gazette-holidays', [GazetteController::class, 'index'])->name('gazette-holidays.index');
+Route::get('/gazette-holidays', [GazetteController::class, 'getHolidays']);
+Route::post('/gazette-holidays', [GazetteController::class, 'store']);
+Route::get('/gazette-holidays/check/{year}/{month}', [GazetteController::class, 'checkMonthlyHolidays']);
