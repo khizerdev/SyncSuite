@@ -179,6 +179,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('attendance','pages.attendance.index')->name('attendance.index');
     Route::get('attendance/employee', [AttendanceController::class, 'viewAttendance'])->name('attendance.view');
+    Route::view('attendance/create', 'pages.attendance.create')->name('attendance.create');
+    Route::post('attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::post('/attendance/check-status', [AttendanceController::class, 'checkStatus'])->name('attendance.check-status');
 
     Route::get('/loan-exceptions', [LoanExceptionController::class, 'index'])->name('loan-exception.index');
     Route::put('/loan-exceptions/bulk-update', [LoanExceptionController::class, 'bulkUpdate'])->name('loan-exception.bulk-update');
@@ -187,6 +190,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/generate-salary/process', [SalaryController::class, 'processSalaryGeneration'])->name('generate-salary.process');
 
     Route::resource('gazette-holidays', GazetteController::class);
+
     
     Route::get('/dashboard', function () {
         return view('dashboard');

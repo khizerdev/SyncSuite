@@ -206,45 +206,71 @@ class AttendanceController extends Controller
         for ($i = 0; $i < count($attendances); $i++) {
             $checkIn = Carbon::parse($attendances[$i]->datetime);
             $date = $checkIn->format('Y-m-d');
-    
-            // Find the next check-out or check-in
-            $nextEntry = null;
-            for ($j = $i + 1; $j < count($attendances); $j++) {
-                $nextEntry = Carbon::parse($attendances[$j]->datetime);  
-                if (abs($nextEntry->diffInHours($checkIn)) <= 16) {
+            if($groupedAttendances[$date]){
+                continue;
+            }
+        
+            // Collect all entries for the current date
+            $currentDateEntries = [];
+            $currentIndex = $i;
+            
+            while ($currentIndex < count($attendances)) {
+                $entry = Carbon::parse($attendances[$currentIndex]->datetime);
+                if ($entry->format('Y-m-d') == $date) {
+                    $currentDateEntries[] = $attendances[$currentIndex];
+                    $currentIndex++;
+                } else {
                     break;
                 }
-                $nextEntry = null;
             }
-            $shiftStart = Carbon::parse($shift->start_time);
-            $shiftEnd = Carbon::parse($shift->end_time);
-            if ($isNightShift) {
-                $shiftEnd->addDay();
+        
+            // If we have entries for current date
+            if (count($currentDateEntries) > 0) {
+                $entriesCount = count($currentDateEntries);
+                
+                // Determine check-in and check-out based on count
+                if ($entriesCount % 2 == 0) {
+                    // Even number of entries - take last pair
+                    $checkIn = Carbon::parse($currentDateEntries[0]->datetime);
+                    $checkOut = Carbon::parse($currentDateEntries[$entriesCount - 1]->datetime);
+                } else {
+                    // Odd number of entries - take second last entry as checkout
+                    $checkIn = Carbon::parse($currentDateEntries[0]->datetime);
+                    $checkOut = Carbon::parse($currentDateEntries[$entriesCount - 2]->datetime);
+                }
+        
+                $shiftStart = Carbon::parse($shift->start_time);
+                $shiftEnd = Carbon::parse($shift->end_time);
+                
+                if ($isNightShift) {
+                    $shiftEnd->addDay();
+                }
+                $maxCheckOut = $shiftEnd->copy()->addHours(4);
+        
+                // Validate checkout time against max allowed
+                if ($checkOut > $maxCheckOut) {
+                    $checkOut = null;
+                }
+        
+                if ($isNightShift) {
+                    $calculationCheckIn = $checkIn->copy()->addHours(6);
+                    $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(6) : null;
+                } else {
+                    $calculationCheckIn = $checkIn;
+                    $calculationCheckOut = $checkOut;
+                }
+        
+                $groupedAttendances[$date][] = [
+                    'original_checkin' => $checkIn,
+                    'original_checkout' => $checkOut,
+                    'calculation_checkin' => $calculationCheckIn,
+                    'calculation_checkout' => $calculationCheckOut,
+                    'is_incomplete' => !$checkOut
+                ];
+        
+                // Update outer loop counter
+                $i = $currentIndex - 1;
             }
-            $maxCheckOut = $shiftEnd->copy()->addHours(4);
-    
-            if ($nextEntry && $nextEntry <= $maxCheckOut) {
-                $checkOut = $nextEntry;
-                $i = $j;
-            } else {
-                $checkOut = null;
-            }
-    
-            if ($isNightShift) {
-                $calculationCheckIn = $checkIn->copy()->addHours(6);
-                $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(6) : null;
-            } else {
-                $calculationCheckIn = $checkIn;
-                $calculationCheckOut = $checkOut;
-            }
-    
-            $groupedAttendances[$date][] = [
-                'original_checkin' => $checkIn,
-                'original_checkout' => $checkOut,
-                'calculation_checkin' => $calculationCheckIn,
-                'calculation_checkout' => $calculationCheckOut,
-                'is_incomplete' => !$checkOut
-            ];
         }
     
         $totalMinutesWorked = 0;
@@ -316,7 +342,7 @@ class AttendanceController extends Controller
     public function viewAttendance(Request $request){
 
         $startDay = $request->input('start_date');
-        $endDay = $request->input('end_date');
+        $endDay = Carbon::create($request->year, $request->month, 1)->endOfMonth()->endOfDay();
         $selection = $request->selection;
         
         
@@ -346,6 +372,108 @@ class AttendanceController extends Controller
 
         
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id'
+        ]);
+
+        $today = Carbon::today();
+
+        $employee_id = $request->employee_id;
+        $employee = Employee::find($employee_id);
+        $userInfo = UserInfo::where('code' , $employee->code)->first();
+
+        if(!$userInfo){
+            return response()->json([
+                'success' => false,
+                'message' => "Employee Info not found",
+            ]);
+        }
+
+        $lastRecord = Attendance::where('code', $userInfo->id)
+            ->whereDate('datetime', Carbon::today())
+            ->latest()
+            ->first();
+
+        if ($request->attendance_type === 'checkin' && $lastRecord) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Already checked in today'
+            ], 422);
+        }
+    
+        if ($request->attendance_type === 'checkout' && !$lastRecord) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot check out at this time'
+            ], 422);
+        }
+        
+        $attendance = new Attendance([
+            'code' => $userInfo->id,
+            'datetime' => now()
+        ]);
+        $attendance->save();
+
+        $timeFormatted = Carbon::parse($attendance->datetime)->format('Y-m-d H:i:s');
+        $type = $request->attendance_type === 'checkin' ? 'Check-in' : 'Check-out';
+    
+        return response()->json([
+            'success' => true,
+            'message' => "$type recorded successfully",
+            'data' => [
+                'employee_name' => $employee->name,
+                'datetime' => $timeFormatted,
+                'type' => $type
+            ]
+        ]);
+    }
+
+    public function checkStatus(Request $request)
+    {
+        $employee_id = $request->employee_id;
+        $employee = Employee::find($employee_id);
+        $userInfo = UserInfo::where('code' , $employee->code)->first();
+
+        if(!$userInfo){
+            return response()->json([
+                'success' => false,
+                'message' => "Employee Info not found",
+            ]);
+        }
+
+        $lastRecord = Attendance::where('code', $userInfo->id)
+            ->whereDate('datetime', Carbon::today())
+            ->latest()
+            ->first();
+
+        // No record found - allow check-in
+        if (!$lastRecord) {
+            return response()->json([
+                'status' => 'checkin'
+            ]);
+        }
+
+        // Get count of today's records for this employee
+        $todayRecordsCount = Attendance::where('code', $userInfo->id)
+        ->whereDate('datetime', Carbon::today())
+        ->count();
+
+        if ($todayRecordsCount >= 2) {
+            // Both check-in and check-out exist
+            return response()->json([
+                'status' => 'completed'
+            ]);
+        } else {
+            // Only one record exists (check-in) - allow check-out
+            return response()->json([
+                'status' => 'checkout'
+            ]);
+        }
+    }
+
 
     
     
