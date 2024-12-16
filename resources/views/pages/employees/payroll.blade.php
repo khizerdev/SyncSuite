@@ -27,9 +27,9 @@
                                     $month = $months[$salary->month - 1];
                                 @endphp
 
-                                <x-salary-details :month="$month" :holidays="$holidays" :working-days="$workingDays" :total-expected-working-days="$totalExpectedWorkingDays"
-                                    :total-hours-worked="$totalHoursWorked" :total-holiday-hours-worked="$totalHolidayHoursWorked" :salary-per-hour="$salaryPerHour" :holiday-ratio="$holidayRatio"
-                                    :over-time-ratio="$overTimeRatio" :total-over-time-hours-worked="$totalOverTimeHoursWorked" :total-overtime-pay="$totalOvertimePay" :actual-salary-earned="$actualSalaryEarned"
+                                <x-salary-details :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']" :total-expected-working-days="$salary->expected_hours"
+                                    :total-hours-worked="$salary->normal_hours" :total-holiday-hours-worked="$salary->holiday_hours" :salary-per-hour="$result['salaryPerHour']" :holiday-ratio="$salary->holiday_pay_ratio"
+                                    :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-overtime-pay="$result['totalOvertimePay']" :actual-salary-earned="$result['actualSalaryEarned']"
                                     :salary="$salary" />
 
                                 <div class="col-md-6 text-right">
@@ -45,11 +45,12 @@
                             <h3>Attendance Details for {{ $month }} 2024</h3>
                         </div>
                         <div class="card-body">
-                            <x-attendance-table :grouped-attendances="$groupedAttendances" :employee="$employee" :holidays="$holidays" />
+                            <x-attendance-table :grouped-attendances="$result['groupedAttendances']" :employee="$result['employee']" :holidays="$result['holidays']" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </section>
 @endsection

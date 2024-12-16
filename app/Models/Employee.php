@@ -59,4 +59,9 @@ class Employee extends Model
         return $this->hasMany(LoanException::class);
 
     }
+
+    public function userInfo()
+    {
+        return $this->hasOne(UserInfo::class, 'code', 'code');
+    }
 }

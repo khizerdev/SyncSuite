@@ -11,9 +11,4 @@ class Shift extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-    ];
-
 }

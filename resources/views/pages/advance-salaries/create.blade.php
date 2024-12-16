@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="content-header">
+    <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/advance-salaries') }}">View List</a></li>
+                        <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/advance-salaries') }}">View
+                                List</a></li>
                         {{-- <li class="breadcrumb-item active">Create</li> --}}
                     </ol>
                 </div>
@@ -26,7 +27,7 @@
                                 <div class="form-group">
                                     <label for="employee_id">Employee</label>
                                     <select name="employee_id" id="employee_id" class="form-control" required>
-                                    <option value="">Select Employee</option>
+                                        <option value="">Select Employee</option>
                                         @foreach ($employees as $employee)
                                             <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                                         @endforeach
@@ -34,11 +35,13 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="earnings">Earnings</label>
-                                    <input type="number" name="earnings" id="earnings" class="form-control" readonly required>
+                                    <input type="number" name="earnings" id="earnings" class="form-control" readonly
+                                        required>
                                 </div>
                                 <div class="form-group">
                                     <label for="amount">Amount</label>
-                                    <input type="number" name="amount" id="amount" class="form-control" max="0" required>
+                                    <input type="number" name="amount" id="amount" class="form-control" max="0"
+                                        required>
                                 </div>
                                 <div class="form-group">
                                     <label for="notes">Notes</label>
@@ -56,37 +59,37 @@
 @endsection
 
 @section('script')
-<script>
-    $(document).ready(function() {
-        $('#employee_id').change(function() {
-            var employeeId = $(this).val();
+    <script>
+        $(document).ready(function() {
+            $('#employee_id').change(function() {
+                var employeeId = $(this).val();
 
-             var apiUrl = `{{ url('/employees/calculate-salary-for-advance') }}/${employeeId}`;
+                var apiUrl = `{{ url('/employees/calculate-salary-for-advance') }}/${employeeId}`;
 
-            if (employeeId) {
-                $.ajax({
-                    url: apiUrl,
-                    type: 'GET',
-                    success: function(response) {
-                        $('#earnings').val(response);
-                        $('#amount').attr('max', response);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-            } else {
-                $('#earnings').val('');
-                $('#amount').attr('max', 0);
-            }
+                if (employeeId) {
+                    $.ajax({
+                        url: apiUrl,
+                        type: 'GET',
+                        success: function(response) {
+                            $('#earnings').val(response.actualSalaryEarned);
+                            $('#amount').attr('max', response.actualSalaryEarned);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(error);
+                        }
+                    });
+                } else {
+                    $('#earnings').val('');
+                    $('#amount').attr('max', 0);
+                }
+            });
+
+            $('#amount').on('input', function() {
+                var maxSalary = parseFloat($('#earnings').val());
+                if ($(this).val() > maxSalary) {
+                    $(this).val(maxSalary);
+                }
+            });
         });
-
-        $('#amount').on('input', function() {
-            var maxSalary = parseFloat($('#earnings').val());
-            if ($(this).val() > maxSalary) {
-                $(this).val(maxSalary);
-            }
-        });
-    });
-</script>
+    </script>
 @endsection

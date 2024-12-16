@@ -1,5 +1,7 @@
 @props(['groupedAttendances', 'employee', 'holidays'])
 
+
+
 <table class="table table-bordered">
     <thead>
         <tr>

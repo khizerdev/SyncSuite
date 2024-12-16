@@ -32,6 +32,7 @@ const form = reactive({
 });
 
 const submitForm = async () => {
+  console.log(baseUrl);
   isSubmitted.value = true;
   if (form.name == "" || start_time == "" || end_time == "") return;
   try {

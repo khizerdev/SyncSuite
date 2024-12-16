@@ -13,6 +13,7 @@ use App\Models\Attendance;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\UserInfo;
+use App\Services\AttendanceService;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
@@ -160,184 +161,6 @@ class AttendanceController extends Controller
         return view('pages.attendance.hours', compact('totalWorkingHours', 'requiredHours', 'overtime', 'undertime', 'dailyHours'));
     }
 
-    private function createAttd($employee,$startDay,$endDay,$request){
-        $userInfo = UserInfo::where('code' , $employee->code)->first();
-
-        if(!$userInfo){
-            return;
-        }
-
-        $attendances = Attendance::where('code', $userInfo->id)
-        ->whereBetween('datetime', [$startDay, $endDay])
-        ->orderBy('datetime')
-        ->get();
-
-        $shift = $employee->timings;
-        
-        $holidays = explode(',', $employee->type->holidays);
-        $holidays = array_map('trim', $holidays);
-        $holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1;
-        $overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;
-
-        $dailyMinutes = [];
-        $groupedAttendances = [];
-    
-        $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
-        $totalOvertimeMinutes = 0;
-
-        $startDate = Carbon::create($request->year, $request->month, 1);
-        $endDate = Carbon::create($request->year, $request->month, Carbon::parse($endDay)->day);
-        $workingDays = 0;
-
-        while ($startDate->lte($endDate)) {
-            $date = $startDate->format('Y-m-d');
-            $groupedAttendances[$date] = [];
-            $dailyMinutes[$date] = 0;
-            // check if it is holiday for an employee
-            if (!in_array($startDate->format('l'), $holidays)) {
-                $workingDays++;
-            }
-            $startDate->addDay();
-        }
-
-        $hoursPerDay = 12;
-        $totalExpectedWorkingHours = $workingDays * $hoursPerDay;
-
-        for ($i = 0; $i < count($attendances); $i++) {
-            $checkIn = Carbon::parse($attendances[$i]->datetime);
-            $date = $checkIn->format('Y-m-d');
-            if($groupedAttendances[$date]){
-                continue;
-            }
-        
-            // Collect all entries for the current date
-            $currentDateEntries = [];
-            $currentIndex = $i;
-            
-            while ($currentIndex < count($attendances)) {
-                $entry = Carbon::parse($attendances[$currentIndex]->datetime);
-                if ($entry->format('Y-m-d') == $date) {
-                    $currentDateEntries[] = $attendances[$currentIndex];
-                    $currentIndex++;
-                } else {
-                    break;
-                }
-            }
-        
-            // If we have entries for current date
-            if (count($currentDateEntries) > 0) {
-                $entriesCount = count($currentDateEntries);
-                
-                // Determine check-in and check-out based on count
-                if ($entriesCount % 2 == 0) {
-                    // Even number of entries - take last pair
-                    $checkIn = Carbon::parse($currentDateEntries[0]->datetime);
-                    $checkOut = Carbon::parse($currentDateEntries[$entriesCount - 1]->datetime);
-                } else {
-                    // Odd number of entries - take second last entry as checkout
-                    $checkIn = Carbon::parse($currentDateEntries[0]->datetime);
-                    $checkOut = Carbon::parse($currentDateEntries[$entriesCount - 2]->datetime);
-                }
-        
-                $shiftStart = Carbon::parse($shift->start_time);
-                $shiftEnd = Carbon::parse($shift->end_time);
-                
-                if ($isNightShift) {
-                    $shiftEnd->addDay();
-                }
-                $maxCheckOut = $shiftEnd->copy()->addHours(4);
-        
-                // Validate checkout time against max allowed
-                if ($checkOut > $maxCheckOut) {
-                    $checkOut = null;
-                }
-        
-                if ($isNightShift) {
-                    $calculationCheckIn = $checkIn->copy()->addHours(6);
-                    $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(6) : null;
-                } else {
-                    $calculationCheckIn = $checkIn;
-                    $calculationCheckOut = $checkOut;
-                }
-        
-                $groupedAttendances[$date][] = [
-                    'original_checkin' => $checkIn,
-                    'original_checkout' => $checkOut,
-                    'calculation_checkin' => $calculationCheckIn,
-                    'calculation_checkout' => $calculationCheckOut,
-                    'is_incomplete' => !$checkOut
-                ];
-        
-                // Update outer loop counter
-                $i = $currentIndex - 1;
-            }
-        }
-    
-        $totalMinutesWorked = 0;
-        $totalHolidayMinutesWorked = 0;
-    
-        foreach ($groupedAttendances as $date => $entries) {
-            $shiftStartTime = Carbon::parse($shift->start_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
-            $shiftEndTime = Carbon::parse($shift->end_time)->addHours($isNightShift ? 6 : 0)->format('H:i:s');
-    
-            $shiftStart = Carbon::parse($date . ' ' . $shiftStartTime);
-            $shiftEnd = Carbon::parse($date . ' ' . $shiftEndTime);
-    
-            if ($isNightShift) {
-                $shiftEnd->addDay();
-            }
-    
-            $totalMinutes = 0;
-            $overtimeMinutes = 0;
-    
-            foreach ($entries as $entry) {
-                if (!$entry['is_incomplete']) {
-                    $entryTimeStart = $entry['calculation_checkin'];
-                    $entryTimeEnd = $entry['calculation_checkout'];
-    
-                    $startTime = $entryTimeStart->max($shiftStart);
-                    $endTime = $entryTimeEnd->min($shiftEnd);
-    
-                    if ($startTime->lt($endTime)) {
-                        $minutesWorked = $startTime->diffInMinutes($endTime);
-                        $totalMinutes += $minutesWorked;
-    
-                        // checking if it is holiday
-                        $dayOfWeek = Carbon::parse($date)->format('l');
-                        if (in_array($dayOfWeek, $holidays)) {
-                            $totalHolidayMinutesWorked += $minutesWorked;
-                        }
-    
-                        $workedMinutes = $entryTimeStart->diffInMinutes($entryTimeEnd);
-                        // if exceed 12 hours calculate overtime
-                        if ($workedMinutes > 720) {
-                            $overtimeMinutes += $workedMinutes - 720; // extra minutes
-                        }
-                    }
-                }
-            }
-    
-            $dailyMinutes[$date] = $totalMinutes;
-            $totalMinutesWorked += $totalMinutes;
-            $totalOvertimeMinutes += $overtimeMinutes;
-        }
-
-        $totalHoursWorked = $totalMinutesWorked / 60;
-        $totalHolidayHoursWorked = $totalHolidayMinutesWorked / 60;
-
-        return [
-            'employee' => $employee,
-            'dailyMinutes' => $dailyMinutes,
-            'totalHoursWorked' => $totalHoursWorked,
-            'workingDays' => $workingDays,
-            'totalHolidayHoursWorked' => $totalHolidayHoursWorked,
-            'holidays' => $holidays,
-            'totalOvertimeMinutes' => $totalOvertimeMinutes,
-            'isNightShift' => $isNightShift,
-            'shift' => $shift,
-            'groupedAttendances' => $groupedAttendances,
-        ];
-    }
 
     public function viewAttendance(Request $request){
 
@@ -351,7 +174,8 @@ class AttendanceController extends Controller
             $allAttendances = [];
             
             foreach($employees as $employee){
-                $record = $this->createAttd($employee,$startDay,$endDay,$request);
+                $processor = new AttendanceService($employee);
+                $record = $processor->processAttendance($startDay,$endDay);
                 $allAttendances [$employee->id] = $record;
             }
             
@@ -362,7 +186,8 @@ class AttendanceController extends Controller
             $employee = Employee::findOrFail($request->employee_id);
             $allAttendances = [];
     
-                $record = $this->createAttd($employee,$startDay,$endDay,$request);
+            $processor = new AttendanceService($employee);
+            $record = $processor->processAttendance($startDay,$endDay);
                 $allAttendances [$employee->id] = $record;
     
             return view('pages.attendance.show', [
@@ -470,6 +295,101 @@ class AttendanceController extends Controller
             // Only one record exists (check-in) - allow check-out
             return response()->json([
                 'status' => 'checkout'
+            ]);
+        }
+    }
+
+    public function showCorrectionForm()
+    {
+        $employees = Employee::get(['id','name']);
+        return view('pages.attendance.correction', compact('employees'));
+    }
+    
+    public function getAttendanceEntries(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'type' => 'required|in:checkin,checkout'
+        ]);
+
+        $date = Carbon::parse($request->date);
+        
+        $employee = Employee::findOrFail($request->employee_id);
+        
+        // Get all entries for the selected date
+        $entries = Attendance::where('code', $employee->userInfo->id)
+            ->whereDate('datetime', $date)
+            ->orderBy('datetime', 'asc')
+            ->get();
+
+        if ($entries->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No attendance records found for this date'
+            ]);
+        }
+
+        // If only one entry exists, treat it as check-in
+        if ($entries->count() === 1) {
+            if ($request->type === 'checkin') {
+                return response()->json([
+                    'status' => 'success',
+                    'entry' => $entries->first(),
+                    'current_time' => Carbon::parse($entries->first()->datetime)->format('H:i')
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Checkout entry not found'
+                ]);
+            }
+        }
+
+        // For multiple entries
+        $entry = $request->type === 'checkin' 
+            ? $entries->first()  // First entry for check-in
+            : $entries->last();  // Last entry for check-out
+
+        return response()->json([
+            'status' => 'success',
+            'entry' => $entry,
+            'current_time' => Carbon::parse($entry->datetime)->format('H:i')
+        ]);
+    }
+
+    public function updateAttendance(Request $request)
+    {
+        $request->validate([
+            'attendance_id' => 'required|exists:attendances,id',
+            'new_time' => 'required',
+            'date' => 'required|date'
+        ]);
+
+        try {
+            $attendance = Attendance::findOrFail($request->attendance_id);
+            
+            // Combine the date with new time
+            $currentDateTime = Carbon::parse($attendance->datetime);
+            $newTime = Carbon::parse($request->new_time);
+            
+            $newDateTime = Carbon::parse($request->date)->setTime(
+                $newTime->hour,
+                $newTime->minute,
+                $newTime->second
+            );
+
+            $attendance->datetime = $newDateTime;
+            $attendance->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Attendance time updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update attendance time'
             ]);
         }
     }

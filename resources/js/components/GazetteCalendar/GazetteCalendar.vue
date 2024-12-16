@@ -1,53 +1,14 @@
-<template>
-  <div class="gazette-calendar">
-    <div class="card">
-      <div class="card-body">
-        <FullCalendar
-          ref="fullCalendar"
-          :options="calendarOptions"
-          class="gazette-calendar-fc mb-4"
-        />
-
-        <div class="selected-holidays mt-4">
-          <h3 class="h5 mb-3">Selected Holidays</h3>
-          <div class="selected-holidays-list" style="max-height: 250px; overflow-y: auto">
-            <div v-if="selectedHolidays.length === 0" class="text-muted">No holidays selected</div>
-            <div
-              v-for="holiday in selectedHolidays"
-              :key="holiday.id"
-              class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded"
-            >
-              <span>{{ formatDate(holiday.date) }}</span>
-              <button @click="removeHoliday(holiday)" class="btn btn-sm btn-outline-danger">
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-4 text-right">
-          <button
-            @click="saveHolidays"
-            class="btn btn-primary"
-            :disabled="selectedHolidays.length === 0"
-          >
-            Save Holidays
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script>
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format } from "date-fns";
+import { Toaster, toast } from "vue-sonner";
 
 export default {
   components: {
     FullCalendar,
+    Toaster,
   },
 
   data() {
@@ -58,7 +19,7 @@ export default {
         initialView: "dayGridMonth",
         themeSystem: "bootstrap",
         headerToolbar: {
-          left: "",
+          left: "prev,next today",
           center: "title",
           right: "dayGridMonth",
         },
@@ -116,6 +77,7 @@ export default {
       if (index !== -1) {
         this.selectedHolidays.splice(index, 1);
         this.updateCalendarEvents();
+        toast.info("Holiday removed");
       }
     },
 
@@ -164,8 +126,7 @@ export default {
 
         this.updateCalendarEvents();
       } catch (error) {
-        console.error("Error loading holidays:", error);
-        this.showError("Error loading holidays");
+        toast.error("Error loading holidays");
       }
     },
 
@@ -173,62 +134,65 @@ export default {
       try {
         const holidays = this.selectedHolidays.map((holiday) => ({
           date: holiday.date,
-          description: `Holiday on ${holiday.date}`,
         }));
 
         await axios.post("/api/gazette-holidays", { holidays });
-        this.showSuccess("Holidays saved successfully!");
+        toast.success("Holiday saved successfully");
       } catch (error) {
-        console.error("Error saving holidays:", error);
-        this.showError("Error saving holidays");
+        console.error(error);
+        toast.error("Error saving holidays");
       }
-    },
-
-    showSuccess(message) {
-      // Using Bootstrap alert
-      const alertHtml = `
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          ${message}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      `;
-      this.showAlert(alertHtml);
-    },
-
-    showError(message) {
-      // Using Bootstrap alert
-      const alertHtml = `
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          ${message}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-      `;
-      this.showAlert(alertHtml);
-    },
-
-    showAlert(alertHtml) {
-      const alertContainer = document.createElement("div");
-      alertContainer.innerHTML = alertHtml;
-      this.$el.insertBefore(alertContainer, this.$el.firstChild);
-
-      // Auto-dismiss after 3 seconds
-      setTimeout(() => {
-        $(alertContainer).find(".alert").alert("close");
-      }, 3000);
     },
   },
 
   mounted() {
-    if (selectedMonth) {
-      this.loadExistingHolidays();
-    }
+    this.loadExistingHolidays();
   },
 };
 </script>
+
+<template>
+  <div class="gazette-calendar">
+    <div class="card">
+      <Toaster richColors position="top-right" />
+
+      <div class="card-body">
+        <FullCalendar
+          ref="fullCalendar"
+          :options="calendarOptions"
+          class="gazette-calendar-fc mb-4"
+        />
+
+        <div class="selected-holidays mt-4">
+          <h3 class="h5 mb-3">Selected Holidays</h3>
+          <div class="selected-holidays-list" style="max-height: 250px; overflow-y: auto">
+            <div v-if="selectedHolidays.length === 0" class="text-muted">No holidays selected</div>
+            <div
+              v-for="holiday in selectedHolidays"
+              :key="holiday.id"
+              class="d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded"
+            >
+              <span>{{ formatDate(holiday.date) }}</span>
+              <button @click="removeHoliday(holiday)" class="btn btn-sm btn-outline-danger">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-right">
+          <button
+            @click="saveHolidays"
+            class="btn btn-primary"
+            :disabled="selectedHolidays.length === 0"
+          >
+            Save Holidays
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style>
 .gazette-calendar {

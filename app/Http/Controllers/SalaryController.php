@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Salary;
 use App\Models\Shift;
+use App\Services\AttendanceService;
 use App\Services\SalaryService;
 use Carbon\Carbon;
 use Exception;
@@ -110,10 +111,15 @@ class SalaryController extends Controller
         })
         ->get();
 
+        
+
         foreach ($employees as $employee) {
             try {
-                $salaryService = new SalaryService();
+                $processor = new AttendanceService($employee);
+                $result = $processor->processAttendance($startDate, $endDate);
+                $salaryService = new SalaryService($employee, $result);
                 $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
+                dd($salaryService);
             } catch (Exception $e){
                 throw $e;
             }

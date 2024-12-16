@@ -15,7 +15,7 @@ class EmployeeTypeController extends Controller
      public function index(Request $request)
      {
          if ($request->ajax()) {
-             $data = EmployeeType::all();
+             $data = EmployeeType::get();
              return DataTables::of($data)
                 ->addColumn('action', function($row){
                     $editUrl = route('employee-types.edit', $row->id);
@@ -24,6 +24,9 @@ class EmployeeTypeController extends Controller
                     $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
                     $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/employee-types/\', \'DELETE\')" class="delete btn btn-danger btn-sm mr-2"><i class="fas fa-trash"></i></button>';
                     return $btn;
+                })
+                ->editColumn('overtime', function ($row) {
+                    return $row->overtime ? 'Yes' : 'No';
                 })
                  ->rawColumns(['action'])
                  ->make(true);

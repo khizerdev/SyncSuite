@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('employees/{id}', [App\Http\Controllers\EmployeeController::class, 'update'])->name('employees.update');
     Route::get('employees/{id}', [App\Http\Controllers\EmployeeController::class, 'destroy'])->name('employees.destroy');
     Route::get('attachments/{id}/download', [App\Http\Controllers\EmployeeController::class, 'download'])->name('attachments.download');
-    Route::get('employees/payroll/{id}', [App\Http\Controllers\EmployeeController::class, 'attd'])->name('employees.attd');
+    Route::get('employees/payroll/{id}', [App\Http\Controllers\EmployeeController::class, 'payroll'])->name('employees.attd');
     Route::get('employees/calculate-salary-for-advance/{id}', [App\Http\Controllers\EmployeeController::class, 'calculateSalaryForAdvance'])->name('employees.calculate.salary.for.advance');
 
     
@@ -182,6 +182,9 @@ Route::middleware(['auth'])->group(function () {
     Route::view('attendance/create', 'pages.attendance.create')->name('attendance.create');
     Route::post('attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::post('/attendance/check-status', [AttendanceController::class, 'checkStatus'])->name('attendance.check-status');
+    Route::get('/attendance/correction', [AttendanceController::class, 'showCorrectionForm'])->name('attendance.correction');
+    Route::post('/attendance/get-entries', [AttendanceController::class, 'getAttendanceEntries'])->name('attendance.getEntries');
+    Route::post('/attendance/update', [AttendanceController::class, 'updateAttendance'])->name('attendance.update');
 
     Route::get('/loan-exceptions', [LoanExceptionController::class, 'index'])->name('loan-exception.index');
     Route::put('/loan-exceptions/bulk-update', [LoanExceptionController::class, 'bulkUpdate'])->name('loan-exception.bulk-update');

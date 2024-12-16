@@ -34,7 +34,8 @@
     <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/toastr/toastr.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('css')
 </head>
@@ -50,10 +51,10 @@
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            
+
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                
+
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -101,12 +102,13 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column nav-compact" data-widget="treeview" role="menu"
                         data-accordion="false">
-                        
+
                         @php
-                         $currentRouteName = Route::currentRouteName();
+                            $currentRouteName = Route::currentRouteName();
                         @endphp
                         <li class="nav-item">
-                            <a href="{{ url('/dashboard') }}" class="nav-link {{ $currentRouteName == "dashboard" ? 'active' : '' }}">
+                            <a href="{{ url('/dashboard') }}"
+                                class="nav-link {{ $currentRouteName == 'dashboard' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-circle"></i>
                                 <p>
                                     Dashboard
@@ -115,190 +117,171 @@
                         </li>
 
                         @php
-                        $erpItems = [
-                            [
-                                'title' => 'Branch',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'branches.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'branches.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Customer',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'customers.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'customers.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Vendor',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'vendors.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'vendors.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Manufacturer',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'manufacturers.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'manufacturers.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Machine',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'machines.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'machines.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Product',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'products.index',
-                                'children' => [
-                                    ['title' => 'Products', 'route' => 'products.index'],
-                                    ['title' => 'Product Type', 'route' => 'product-types.index'],
-                                    ['title' => 'Materials', 'route' => 'materials.index'],
-                                    ['title' => 'Particulars', 'route' => 'particulars.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Purchases',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'purchases.index',
-                                'children' => [
-                                    ['title' => 'Purchase Order', 'route' => 'purchases.index'],
-                                    ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
-                                    ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
-                                ]
-                            ],
-                            [
-                                'title' => 'Inward',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'inward-receipts.index',
-                                'children' => [
-                                    ['title' => 'Inward Receipt', 'route' => 'inward-receipts.index'],
-                                    ['title' => 'Inward General', 'route' => 'inward-general.index']
-                                ]
-                            ]
-                        ];
+                            $erpItems = [
+                                [
+                                    'title' => 'Branch',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'branches.index',
+                                    'children' => [['title' => 'View', 'route' => 'branches.index']],
+                                ],
+                                [
+                                    'title' => 'Customer',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'customers.index',
+                                    'children' => [['title' => 'View', 'route' => 'customers.index']],
+                                ],
+                                [
+                                    'title' => 'Vendor',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'vendors.index',
+                                    'children' => [['title' => 'View', 'route' => 'vendors.index']],
+                                ],
+                                [
+                                    'title' => 'Manufacturer',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'manufacturers.index',
+                                    'children' => [['title' => 'View', 'route' => 'manufacturers.index']],
+                                ],
+                                [
+                                    'title' => 'Machine',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'machines.index',
+                                    'children' => [['title' => 'View', 'route' => 'machines.index']],
+                                ],
+                                [
+                                    'title' => 'Product',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'products.index',
+                                    'children' => [
+                                        ['title' => 'Products', 'route' => 'products.index'],
+                                        ['title' => 'Product Type', 'route' => 'product-types.index'],
+                                        ['title' => 'Materials', 'route' => 'materials.index'],
+                                        ['title' => 'Particulars', 'route' => 'particulars.index'],
+                                    ],
+                                ],
+                                [
+                                    'title' => 'Purchases',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'purchases.index',
+                                    'children' => [
+                                        ['title' => 'Purchase Order', 'route' => 'purchases.index'],
+                                        ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
+                                        ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
+                                    ],
+                                ],
+                                [
+                                    'title' => 'Inward',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'inward-receipts.index',
+                                    'children' => [
+                                        ['title' => 'Inward Receipt', 'route' => 'inward-receipts.index'],
+                                        ['title' => 'Inward General', 'route' => 'inward-general.index'],
+                                    ],
+                                ],
+                            ];
 
-                        $hrItems = [
-                            [
-                                'title' => 'Employee',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'employees.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'employees.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Attendance',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'attendance.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'attendance.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Department',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'departments.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'departments.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Shifts',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'shifts.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'shifts.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Employee Types',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'employee-types.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'employee-types.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Loan',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'loans.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'loans.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Advance',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'advance-salaries.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'advance-salaries.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Leaves',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'leaves.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'leaves.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Loan Exceptions',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'loan-exception.index',
-                                'children' => [
-                                    ['title' => 'View', 'route' => 'loan-exception.index']
-                                ]
-                            ],
-                            [
-                                'title' => 'Generate Salary',
-                                'icon' => 'fas fa-circle',
-                                'route' => 'generate-salary',
-                                'children' => [
-                                    ['title' => 'Create', 'route' => 'generate-salary']
-                                ]
-                            ],
-                        ]
+                            $hrItems = [
+                                [
+                                    'title' => 'Employee',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'employees.index',
+                                    'children' => [['title' => 'View', 'route' => 'employees.index']],
+                                ],
+                                [
+                                    'title' => 'Attendance',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'attendance.index',
+                                    'children' => [
+                                        ['title' => 'View', 'route' => 'attendance.index'],
+                                        ['title' => 'Create', 'route' => 'attendance.create'],
+                                        ['title' => 'Time Correction', 'route' => 'attendance.correction'],
+                                    ],
+                                ],
+                                [
+                                    'title' => 'Department',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'departments.index',
+                                    'children' => [['title' => 'View', 'route' => 'departments.index']],
+                                ],
+                                [
+                                    'title' => 'Shifts',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'shifts.index',
+                                    'children' => [['title' => 'View', 'route' => 'shifts.index']],
+                                ],
+                                [
+                                    'title' => 'Employee Types',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'employee-types.index',
+                                    'children' => [['title' => 'View', 'route' => 'employee-types.index']],
+                                ],
+                                [
+                                    'title' => 'Loan',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'loans.index',
+                                    'children' => [['title' => 'View', 'route' => 'loans.index']],
+                                ],
+                                [
+                                    'title' => 'Advance',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'advance-salaries.index',
+                                    'children' => [['title' => 'View', 'route' => 'advance-salaries.index']],
+                                ],
+                                [
+                                    'title' => 'Leaves',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'leaves.index',
+                                    'children' => [['title' => 'View', 'route' => 'leaves.index']],
+                                ],
+                                [
+                                    'title' => 'Loan Exceptions',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'loan-exception.index',
+                                    'children' => [['title' => 'View', 'route' => 'loan-exception.index']],
+                                ],
+                                [
+                                    'title' => 'Generate Salary',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'generate-salary',
+                                    'children' => [['title' => 'Create', 'route' => 'generate-salary']],
+                                ],
+                                [
+                                    'title' => 'Gazette Holidays',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'gazette-holidays.index',
+                                    'children' => [['title' => 'Create', 'route' => 'gazette-holidays.index']],
+                                ],
+                            ];
 
                         @endphp
                         @php
-                        $currentMode = session()->get('currentMode') ?? 'erp';
-                        $navItems = [];
+                            $currentMode = session()->get('currentMode') ?? 'erp';
+                            $navItems = [];
 
-                        if($currentMode == 'erp'){
-                            if(Auth::check() && Auth::user()->email === 'test@example.com'){
-                                $navItems = $erpItems;
+                            if ($currentMode == 'erp') {
+                                if (Auth::check() && Auth::user()->email === 'test@example.com') {
+                                    $navItems = $erpItems;
+                                }
+                            } else {
+                                if (Auth::check() && Auth::user()->email === 'hr@gmail.com') {
+                                    $navItems = $hrItems;
+                                }
                             }
-                        } else {
-                            if(Auth::check() && Auth::user()->email === 'hr@gmail.com'){
-                                $navItems = $hrItems;
-                            }
-                        }
                         @endphp
 
                         @foreach ($navItems as $item)
-                        @php
-                            $isActive = false;
-                            foreach ($item['children'] as $child) {
-                                if (Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'))) {
-                                    $isActive = true;
-                                    break;
+                            @php
+                                $isActive = false;
+                                foreach ($item['children'] as $child) {
+                                    if (Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'))) {
+                                        $isActive = true;
+                                        break;
+                                    }
                                 }
-                            }
                             @endphp
                             <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
-                                <a href="{{ route($item['route']) }}" class="nav-link {{ $isActive ? 'active' : '' }}">
+                                <a href="{{ route($item['route']) }}"
+                                    class="nav-link {{ $isActive ? 'active' : '' }}">
                                     <i class="nav-icon {{ $item['icon'] }}"></i>
                                     <p>
                                         {{ $item['title'] }}
@@ -308,10 +291,14 @@
                                 <ul class="nav nav-treeview">
                                     @foreach ($item['children'] as $child)
                                         @php
-                                        $isChildActive = Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'));
+                                            $isChildActive = Str::startsWith(
+                                                $currentRouteName,
+                                                Str::beforeLast($child['route'], '.'),
+                                            );
                                         @endphp
                                         <li class="nav-item">
-                                            <a href="{{ route($child['route']) }}" class="nav-link {{ $isChildActive ? 'active' : '' }}">
+                                            <a href="{{ route($child['route']) }}"
+                                                class="nav-link {{ $isChildActive ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>{{ $child['title'] }}</p>
                                             </a>
@@ -336,7 +323,7 @@
 
         </div>
         <!-- /.content-wrapper -->
-        
+
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
             <!-- Control sidebar content goes here -->
@@ -392,29 +379,29 @@
 
 
     @if ($message = Session::get('success'))
-              <script>
-                toastr.success(' {{$message}} ');
-              </script>
-            @endif
+        <script>
+            toastr.success(' {{ $message }} ');
+        </script>
+    @endif
 
-            @if ($message = Session::get('error'))
-                <script>
-                toastr.error(' {{$message}} ');
-              </script>
-            @endif
+    @if ($message = Session::get('error'))
+        <script>
+            toastr.error(' {{ $message }} ');
+        </script>
+    @endif
 
-            @if ($message = Session::get('warning'))
-              <script>
-                toastr.warning(' {{$message}} ');
-              </script>
-            @endif
-            
-    
-            @if ($message = Session::get('info'))
-              <script>
-                toastr.info(' {{$message}} ');
-              </script>
-              @endif
+    @if ($message = Session::get('warning'))
+        <script>
+            toastr.warning(' {{ $message }} ');
+        </script>
+    @endif
+
+
+    @if ($message = Session::get('info'))
+        <script>
+            toastr.info(' {{ $message }} ');
+        </script>
+    @endif
 
     <script>
         $(document).ready(function() {
@@ -459,10 +446,11 @@
     </script>
 
     <script>
-        const baseUrl = "{{env('APP_URL')}}"
+        const baseUrl = "{{ env('APP_URL') }}"
+
         function deleteData(id, url, type) {
             console.log(baseUrl + url + id)
-            
+
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -474,29 +462,29 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-              url: baseUrl + url + id,
-              type: type,
-              data: {
-                  "_token": "{{ csrf_token() }}",
-              },
-              success: function(response) {
-                  Swal.fire(
-                      'Deleted!',
-                      'The record has been deleted.',
-                      'success'
-                  );
-                  $('#table').DataTable().ajax.reload();
-              },
-              error: function(xhr) {
-                console.log()
-                    const message = xhr.responseJSON.error ? xhr.responseJSON.error : 'There was an error while deleting'
-                  Swal.fire(
-                      'Error!',
-                      message,
-                      'error'
-                  );
-              }
-          })
+                        url: baseUrl + url + id,
+                        type: type,
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                        },
+                        success: function(response) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The record has been deleted.',
+                                'success'
+                            );
+                            $('#table').DataTable().ajax.reload();
+                        },
+                        error: function(xhr) {
+                            const message = xhr.responseJSON.error ? xhr.responseJSON.error :
+                                'There was an error while deleting'
+                            Swal.fire(
+                                'Error!',
+                                message,
+                                'error'
+                            );
+                        }
+                    })
                 }
             });
         }

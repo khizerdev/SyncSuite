@@ -22,7 +22,6 @@ class GazetteController extends Controller
             ->map(function ($holiday) {
                 return [
                     'date' => $holiday->holiday_date->format('Y-m-d'),
-                    'description' => $holiday->description
                 ];
             });
 
@@ -34,14 +33,11 @@ class GazetteController extends Controller
         $request->validate([
             'holidays' => 'required|array',
             'holidays.*.date' => 'required|date',
-            'holidays.*.description' => 'nullable|string'
         ]);
-
+        GazetteHoliday::query()->delete();
         foreach ($request->holidays as $holiday) {
             GazetteHoliday::create([
                 'holiday_date' => $holiday['date'],
-                'description' => $holiday['description'] ?? null,
-                'created_by' => auth()->id()
             ]);
         }
 

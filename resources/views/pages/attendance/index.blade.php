@@ -4,7 +4,7 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
 
                     <div class="card card-primary">
                         <div class="card-header">
@@ -33,60 +33,68 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-12">
-                                <div class="form-group" style="display: none;" id="employee_id">
-                                    <label for="employee_id">Employee</label>
-                                    <select name="employee_id" class="form-control js-example-basic-multiple" required>
-                                        @foreach (App\Models\Employee::all(['id', 'name']) as $item)
-                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+
+                            <div class="form-group" style="display: none;" id="employee_id">
+                                <label for="employee_id">Employee</label>
+                                <select name="employee_id" class="form-control js-example-basic-multiple" required>
+                                    @foreach (App\Models\Employee::all(['id', 'name']) as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="year">Year</label>
-                                    <select id="year" name="year" class="form-control">
-                                        @php
-                                            $currentYear = date('Y');
-                                            $startYear = $currentYear - 10;
-                                        @endphp
-                                        @for ($year = $currentYear; $year >= $startYear; $year--)
-                                            <option value="{{ $year }}">{{ $year }}</option>
-                                        @endfor
-                                    </select>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="year">Year</label>
+                                        <select id="year" name="year" class="form-control">
+                                            @php
+                                                $currentYear = date('Y');
+                                                $startYear = $currentYear - 10;
+                                            @endphp
+                                            @for ($year = $currentYear; $year >= $startYear; $year--)
+                                                <option value="{{ $year }}">{{ $year }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="month">Month</label>
-                                    <select id="month" name="month" class="form-control">
-                                        <option value="">Select Month</option>
-                                        @foreach (range(1, 12) as $month)
-                                            <option value="{{ $month }}">{{ date('F', mktime(0, 0, 0, $month, 1)) }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="start_date">Start Date</label>
-                                    <input type="date" id="start_date" name="start_date" class="form-control" disabled>
-                                    <div class="invalid-feedback">
-                                        Please select a valid start date.
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="month">Month</label>
+                                        <select id="month" name="month" class="form-control">
+                                            <option value="">Select Month</option>
+                                            @foreach (range(1, 12) as $month)
+                                                <option value="{{ $month }}">
+                                                    {{ date('F', mktime(0, 0, 0, $month, 1)) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="end_date">End Date</label>
-                                    <input type="date" id="end_date" name="end_date" class="form-control" disabled>
-                                    <div class="invalid-feedback">
-                                        Please select a valid end date.
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="start_date">Start Date</label>
+                                        <input type="date" id="start_date" name="start_date" class="form-control"
+                                            disabled>
+                                        <div class="invalid-feedback">
+                                            Please select a valid start date.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label for="end_date">End Date</label>
+                                        <input type="date" id="end_date" name="end_date" class="form-control" disabled>
+                                        <div class="invalid-feedback">
+                                            Please select a valid end date.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
                             <button type="submit" class="btn btn-primary w-100">
                                 Submit
                             </button>
