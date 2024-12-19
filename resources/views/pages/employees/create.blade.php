@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/employees') }}">View List</a></li>
+                        <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/employees') }}">View List</a>
+                        </li>
                         {{-- <li class="breadcrumb-item active">Create</li> --}}
                     </ol>
                 </div>
@@ -35,8 +36,7 @@
                                     <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="name">Father Name</label>
-                                            <input type="text" id="father_name" name="father_name" class="form-control"
-                                                >
+                                            <input type="text" id="father_name" name="father_name" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
@@ -50,7 +50,7 @@
                                         <div class="form-group">
                                             <label for="name">Passport Number</label>
                                             <input type="text" id="passport_number" name="passport_number"
-                                                class="form-control" >
+                                                class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
@@ -117,7 +117,8 @@
                                             <label for="shift_id">Shift</label>
                                             <select id="shift_id" name="shift_id" class="form-control" required>
                                                 @foreach (App\Models\Shift::all() as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->name }} - {{ $item->start_time->format('H:i:s') }} - {{ $item->end_time->format('H:i:s') }}</option>
+                                                    <option value="{{ $item->id }}">{{ $item->name }} -
+                                                        {{ $item->start_time }} - {{ $item->end_time }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -125,8 +126,8 @@
                                     <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="cnic_number">CNIC Number</label>
-                                            <input type="text" id="cnic_number" name="cnic_number" class="form-control"
-                                                >
+                                            <input type="text" id="cnic_number" name="cnic_number"
+                                                class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
@@ -138,16 +139,15 @@
                                     <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="dob">Date of Birth</label>
-                                            <input type="date" id="dob" name="dob" class="form-control"
-                                                >
+                                            <input type="date" id="dob" name="dob" class="form-control">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="hiring_date">Hiring Date</label>
                                             <input type="date" id="hiring_date" name="hiring_date"
-                                                class="form-control" >
+                                                class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
