@@ -34,7 +34,7 @@ class SalaryService
 
         return [
             'actualSalaryEarned' => number_format($regularPay + $holidayPay + $overtimePay, 2, '.', ''),
-            'totalExpectedWorkingDays' => number_format($this->attendanceData['workingDays'] * 12, 2),
+            'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * 10, 2),
             'totalOverTimeHoursWorked' => $this->attendanceData['totalOvertimeMinutes'] / 60,
             'totalOvertimePay' => number_format($overtimePay, 2, '.', ''),
             'salaryPerHour' => $salaryPerHour

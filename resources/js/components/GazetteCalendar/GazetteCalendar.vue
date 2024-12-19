@@ -4,6 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format } from "date-fns";
 import { Toaster, toast } from "vue-sonner";
+import { baseUrl } from "../../utils/constants";
 
 export default {
   components: {
@@ -110,7 +111,7 @@ export default {
 
     async loadExistingHolidays() {
       try {
-        const response = await axios.get("/api/gazette-holidays", {
+        const response = await axios.get(`${baseUrl}/api/gazette-holidays`, {
           params: {
             year: new Date().getFullYear(),
             month: new Date().getMonth() + 1,
@@ -136,7 +137,7 @@ export default {
           date: holiday.date,
         }));
 
-        await axios.post("/api/gazette-holidays", { holidays });
+        await axios.post(`${baseUrl}/api/gazette-holidays`, { holidays });
         toast.success("Holiday saved successfully");
       } catch (error) {
         console.error(error);

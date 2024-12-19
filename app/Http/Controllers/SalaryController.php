@@ -6,14 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
+use App\Models\AdvanceSalary;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Loan;
 use App\Models\Salary;
 use App\Models\Shift;
 use App\Services\AttendanceService;
 use App\Services\SalaryService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class SalaryController extends Controller
@@ -85,21 +88,23 @@ class SalaryController extends Controller
             $endDate = Carbon::parse($month_name)->endOfMonth();
         }
 
-        // $unresolvedExceptions = Employee::with(['loans'])
-        //     ->whereHas('loans', function ($query) {
-        //         $query->whereColumn('paid', '<', 'amount');
-        //     })
-        //     ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
-        //         $query->where('month', $currentMonth)
-        //             ->where('year', $currentYear);
-        //     })
-        //     ->get();
+        $unresolvedExceptions = Employee::with(['loans'])
+            ->whereHas('loans', function ($query) {
+                $query->whereColumn('paid', '<', 'amount');
+            })
+            ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
+                $query->where('month', $currentMonth)
+                    ->where('year', $currentYear)
+                    ->where(function ($query) {
+                        $query->where('salary_duration', 'full_month')
+                                ->orWhere('salary_duration', 'half_month');
+                    });
+            })
+            ->get();
 
-        //     dd($unresolvedExceptions);
-
-        // if ($unresolvedExceptions->isNotEmpty()) {
-        //     return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan excemptions for some employees that need to be clarified.');
-        // }
+        if ($unresolvedExceptions->isNotEmpty()) {
+            return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan exceptions for some employees.');
+        }
 
         $departmentId = $request->input('department_id');
         $employees = Employee::where('department_id', $departmentId)
@@ -111,15 +116,60 @@ class SalaryController extends Controller
         })
         ->get();
 
-        
 
         foreach ($employees as $employee) {
             try {
                 $processor = new AttendanceService($employee);
                 $result = $processor->processAttendance($startDate, $endDate);
                 $salaryService = new SalaryService($employee, $result);
-                $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
-                dd($salaryService);
+                $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
+                
+                $salaryData = array_merge($result,$salary);
+
+                $advance = AdvanceSalary::where('employee_id', $employee->id)->latest()->first();
+
+                $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
+                $loanInstallmentAmount = isset($loan) ? $loan->amount / $loan->months : 0;
+
+                $loanException = $employee->loanExceptions()->where('month', $month_name)
+                ->where('year', $currentYear)
+                ->first();
+
+                DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
+                    if($loan && $loanException && !$loanException->is_approved){
+                        $loan->paid += $loan->amount / $loan->months;
+                        $loan->save();
+                    }
+                    
+                    $data = [
+                        'employee_id' => $employee->id,
+                        'month' => $currentMonth,
+                        'year' => $currentYear,
+                        'current_salary' => $employee->salary,
+                        'expected_hours' => $salaryData['totalExpectedWorkingHours'],
+                        'normal_hours' => $salaryData['totalHoursWorked'],
+                        'holiday_hours' => $salaryData['totalHolidayHoursWorked'],
+                        'overtime_hours' => $salaryData['totalOvertimeMinutes']/60,
+                        'salary_per_hour' => $employee->salary/$salaryData['totalExpectedWorkingHours'],
+                        'holiday_pay_ratio' => $employee->type->holiday_ratio,
+                        'overtime_pay_ratio' => $employee->type->overtime_ratio,
+                        'overtime_hours' => $salaryData['totalOverTimeHoursWorked'],
+                        'holidays' => $employee->type->holidays,
+                        'advance_deducted' => $advance ? $advance->amount : 0,
+                        'period' => $period,
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'loan_deducted' => $loanException && $loanException->is_approved ? 0 : $loanInstallmentAmount,
+                    ];
+                    
+                    Salary::create($data);
+                    
+                    if ($advance) {
+                        $advance->is_paid = 1;
+                        $advance->save();
+                    }
+                });
+
             } catch (Exception $e){
                 throw $e;
             }
