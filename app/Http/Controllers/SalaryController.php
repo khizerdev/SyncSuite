@@ -87,26 +87,30 @@ class SalaryController extends Controller
             $startDate = Carbon::parse($month_name)->startOfMonth();
             $endDate = Carbon::parse($month_name)->endOfMonth();
         }
+        $departmentId = $request->input('department_id');
 
         $unresolvedExceptions = Employee::with(['loans'])
-            ->whereHas('loans', function ($query) {
-                $query->whereColumn('paid', '<', 'amount');
-            })
-            ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
-                $query->where('month', $currentMonth)
-                    ->where('year', $currentYear)
-                    ->where(function ($query) {
-                        $query->where('salary_duration', 'full_month')
-                                ->orWhere('salary_duration', 'half_month');
-                    });
-            })
-            ->get();
+        ->where('department_id', $departmentId)
+        ->whereHas('loans', function ($query) {
+            $query->whereColumn('paid', '<', 'amount');
+        })
+        ->whereNotExists(function ($query) use ($currentMonth, $currentYear, $period) {
+            $query->select(DB::raw(1))
+                ->from('loan_exceptions')
+                ->whereColumn('loan_exceptions.employee_id', 'employees.id')
+                ->where('loan_exceptions.month', $currentMonth)
+                ->where('loan_exceptions.year', $currentYear)
+                ->where('loan_exceptions.salary_duration', $period);
+        })
+        ->get();
 
         if ($unresolvedExceptions->isNotEmpty()) {
-            return redirect()->back()->with('error', 'Salary generation is blocked. There are unresolved loan exceptions for some employees.');
+            return redirect()->back()->with(
+                'error',
+                'Salary generation is blocked. There are unresolved loan exceptions for some employees in the selected period.'
+            );
         }
 
-        $departmentId = $request->input('department_id');
         $employees = Employee::where('department_id', $departmentId)
         ->when($period == "first_half" || $period == "second_half", function($query) {
             return $query->where('salary_duration', 'half_month');
@@ -115,7 +119,6 @@ class SalaryController extends Controller
             return $query->where('salary_duration', 'full_month');
         })
         ->get();
-
 
         foreach ($employees as $employee) {
             try {
