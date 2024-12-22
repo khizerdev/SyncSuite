@@ -25,12 +25,18 @@
                                         'December',
                                     ];
                                     $month = $months[$salary->month - 1];
-                                @endphp
+                                    $absoluteMinutes = array_map(function ($minute) {
+                                        return is_numeric($minute) ? floor($minute) : 0;
+                                    }, $attendance['lateMinutes']);
 
+                                    $overMinutes = array_map(function ($minute) {
+                                        return is_numeric($minute) ? floor($minute) : 0;
+                                    }, $attendance['overMinutes']);
+                                @endphp
                                 <x-salary-details :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']" :total-expected-working-days="$salary->expected_hours"
                                     :total-hours-worked="$salary->normal_hours" :total-holiday-hours-worked="$salary->holiday_hours" :salary-per-hour="$result['salaryPerHour']" :holiday-ratio="$salary->holiday_pay_ratio"
-                                    :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-overtime-pay="$result['totalOvertimePay']" :actual-salary-earned="$result['actualSalaryEarned']"
-                                    :salary="$salary" />
+                                    :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="array_sum($overMinutes)" :total-overtime-pay="$result['totalOvertimePay']"
+                                    :late-minutes="array_sum($absoluteMinutes)" :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary" />
 
                                 <div class="col-md-6 text-right">
                                     <button type="button" class="btn btn-primary d-print-none"
@@ -45,7 +51,8 @@
                             <h3>Attendance Details for {{ $month }} 2024</h3>
                         </div>
                         <div class="card-body">
-                            <x-attendance-table :grouped-attendances="$result['groupedAttendances']" :employee="$result['employee']" :holidays="$result['holidays']" />
+                            <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']" :holidays="$attendance['holidays']"
+                                :late-minutes="$attendance['lateMinutes']" :early-minutes="$attendance['earlyCheckinMinutes']" :over-minutes="$attendance['overMinutes']" />
                         </div>
                     </div>
                 </div>

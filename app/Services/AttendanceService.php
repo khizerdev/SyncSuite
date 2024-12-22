@@ -41,15 +41,19 @@ class AttendanceService
         $dates = $this->initializeDates($startDate, $endDate);
         $groupedAttendances = $dates['groupedAttendances'];
         $workingDays = $dates['workingDays'];
+        $monthDays = $dates['monthDays'];
 
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
         $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances']);
-
         return [
             'employee' => $this->employee,
             'dailyMinutes' => $calculatedMinutes['dailyMinutes'],
+            'earlyCheckinMinutes' => $calculatedMinutes['earlyCheckinMinutes'],
+            'lateMinutes' => $calculatedMinutes['lateMinutes'],
+            'overMinutes' => $calculatedMinutes['overMinutes'],
             'totalHoursWorked' => $calculatedMinutes['totalMinutesWorked'] / 60,
             'workingDays' => $workingDays,
+            'monthDays' => $monthDays,
             'totalHolidayHoursWorked' => $calculatedMinutes['totalHolidayMinutesWorked'] / 60,
             'holidays' => $this->holidays,
             'totalOvertimeMinutes' => $calculatedMinutes['totalOvertimeMinutes'],
@@ -76,6 +80,7 @@ class AttendanceService
     {
         $groupedAttendances = [];
         $workingDays = 0;
+        $monthDays = 0;
         // $currentDate = clone $startDate;
         $currentDate = Carbon::parse($startDate);
 
@@ -86,12 +91,14 @@ class AttendanceService
             if (!in_array($currentDate->format('l'), $this->holidays)) {
                 $workingDays++;
             }
+            $monthDays++;
             $currentDate->addDay();
         }
 
         return [
             'groupedAttendances' => $groupedAttendances,
-            'workingDays' => $workingDays
+            'workingDays' => $workingDays,
+            'monthDays' => $monthDays
         ];
     }
 
@@ -170,8 +177,8 @@ class AttendanceService
     private function createAttendanceEntry($checkIn, $checkOut)
     {
         if ($this->isNightShift) {
-            $calculationCheckIn = $checkIn ? $checkIn->copy()->addHours(6) : null;
-            $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(6) : null;
+            $calculationCheckIn = $checkIn ? $checkIn->copy()->addHours(5) : null;
+            $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(5) : null;
         } else {
             $calculationCheckIn = $checkIn;
             $calculationCheckOut = $checkOut;
@@ -191,33 +198,43 @@ class AttendanceService
         $totalMinutesWorked = 0;
         $totalHolidayMinutesWorked = 0;
         $totalOvertimeMinutes = 0;
+        $earlyCheckinMinutes = [];
         $dailyMinutes = [];
+        $lateMinutes = [];
+        $overMinutes = [];
 
         foreach ($groupedAttendances as $date => $entries) {
             $shiftTimes = $this->getShiftTimes($date);
             $results = $this->calculateDailyMinutes($entries, $shiftTimes, $date);
-            
+               
             $dailyMinutes[$date] = $results['totalMinutes'];
-            $totalMinutesWorked += $results['totalMinutes'];
+
+            $earlyCheckinMinutes[$date] = $results['earlyCheckinMinutes'];
+            $totalMinutesWorked += $dailyMinutes[$date];
             $totalHolidayMinutesWorked += $results['holidayMinutes'];
             $totalOvertimeMinutes += $results['overtimeMinutes'];
+            $lateMinutes[$date] = $results['lateMinutes'];
+            $overMinutes[$date] = $results['overtimeMinutes'];
+            
         }
-
         return [
             'dailyMinutes' => $dailyMinutes,
             'totalMinutesWorked' => $totalMinutesWorked,
             'totalHolidayMinutesWorked' => $totalHolidayMinutesWorked,
-            'totalOvertimeMinutes' => $totalOvertimeMinutes
+            'totalOvertimeMinutes' => $totalOvertimeMinutes,
+            'earlyCheckinMinutes' => $earlyCheckinMinutes,
+            'lateMinutes' => $lateMinutes,
+            'overMinutes' => $overMinutes,
         ];
     }
 
     private function getShiftTimes($date)
     {
         $shiftStartTime = Carbon::parse($this->shift->start_time)
-            ->addHours($this->isNightShift ? 6 : 0)
+            ->addHours($this->isNightShift ? 5 : 0)
             ->format('H:i:s');
         $shiftEndTime = Carbon::parse($this->shift->end_time)
-            ->addHours($this->isNightShift ? 6 : 0)
+            ->addHours($this->isNightShift ? 5 : 0)
             ->format('H:i:s');
 
         $shiftStart = Carbon::parse($date . ' ' . $shiftStartTime);
@@ -235,24 +252,31 @@ class AttendanceService
         $totalMinutes = 0;
         $holidayMinutes = 0;
         $overtimeMinutes = 0;
+        $earlyCheckinMinutes = 0;
+        $lateMinutes = 0;
 
         foreach ($entries as $entry) {
             if (!$entry['is_incomplete']) {
                 $minutes = $this->calculateEntryMinutes($entry, $shiftTimes);
                 $totalMinutes += $minutes['worked'];
+                // dd($minutes['worked']);
                 
                 if (in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
                     $holidayMinutes += $minutes['worked'];
                 }
                 
                 $overtimeMinutes += $minutes['overtime'];
+                $earlyCheckinMinutes += $minutes['earlyCheckin'];
+                $lateMinutes += $minutes['late'];
             }
         }
 
         return [
             'totalMinutes' => $totalMinutes,
             'holidayMinutes' => $holidayMinutes,
-            'overtimeMinutes' => $overtimeMinutes
+            'overtimeMinutes' => $overtimeMinutes,
+            'earlyCheckinMinutes' => $earlyCheckinMinutes,
+            'lateMinutes' => $lateMinutes
         ];
     }
 
@@ -261,18 +285,31 @@ class AttendanceService
         $startTime = $entry['calculation_checkin']->max($shiftTimes['start']);
         $endTime = $entry['calculation_checkout']->min($shiftTimes['end']);
 
+        $earlyCheckinMinutes = $entry['calculation_checkin']->lt($shiftTimes['start']) 
+        ? $entry['calculation_checkin']->diffInMinutes($shiftTimes['start']) 
+        : 0;
+
+        $lateMinutes = $entry['calculation_checkin']->gt($shiftTimes['start']) 
+        ? abs($entry['calculation_checkin']->diffInMinutes($shiftTimes['start']) )
+        : 0;
+
+        $overtimeMinutes = $entry['calculation_checkout']->gt($shiftTimes['end']) 
+        ? abs($entry['calculation_checkout']->diffInMinutes($shiftTimes['end'])) 
+        : 0;
+
+
         if ($startTime->lt($endTime)) {
             $minutesWorked = $startTime->diffInMinutes($endTime);
             $totalWorkedMinutes = $entry['calculation_checkin']->diffInMinutes($entry['calculation_checkout']);
             
-            $overtimeMinutes = $totalWorkedMinutes > 600 ? $totalWorkedMinutes - 600 : 0;
-
             return [
                 'worked' => $minutesWorked,
-                'overtime' => $overtimeMinutes
+                'overtime' => $overtimeMinutes,
+                'earlyCheckin' => $earlyCheckinMinutes,
+                'late' => $lateMinutes
             ];
         }
 
-        return ['worked' => 0, 'overtime' => 0];
+        return ['worked' => 0, 'overtime' => 0,'earlyCheckin' => $earlyCheckinMinutes];
     }
 }

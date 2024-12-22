@@ -300,6 +300,7 @@ class EmployeeController extends Controller
         $salaryComponent = $salaryCalculator->calculateSalary();
         
         $result = collect(array_merge($attendance,$salaryComponent));
+        // dd($result);
         
         return view('pages.employees.payroll', compact('attendance', 'result', 'salary'));
         

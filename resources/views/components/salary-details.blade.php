@@ -9,7 +9,9 @@
     'holidayRatio',
     'overTimeRatio',
     'totalOverTimeHoursWorked',
+    'totalOverTimeMinutesWorked',
     'totalOvertimePay',
+    'lateMinutes',
     'actualSalaryEarned',
     'salary',
 ])
@@ -25,7 +27,10 @@
     <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
     <p>Overtime Pay Ratio: {{ $overTimeRatio }}x</p>
     <p>Total Overtime Hours Worked: {{ $totalOverTimeHoursWorked }} hours</p>
+    <p>Total Overtime Minutes Worked: {{ $totalOverTimeMinutesWorked }} minutes</p>
     <p>Total Overtime Pay: PKR {{ $totalOvertimePay }}</p>
+    <p>Late Minutes: {{ $lateMinutes }} minutes</p>
+    <p>Late Cut Amount: PKR {{ number_format(($lateMinutes / 60) * $salaryPerHour, 0) }}</p>
     <p>Salary Got: {{ number_format($actualSalaryEarned, 0) }}</p>
     <p>Advance amount: {{ number_format($salary->advance_deducted, 0) }}</p>
     <p>Loan amount: {{ number_format($salary->loan_deducted, 0) }}</p>

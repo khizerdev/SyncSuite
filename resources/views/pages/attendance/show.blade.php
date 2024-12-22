@@ -13,7 +13,8 @@
                                         <h2 class="mb-4">Attendance for Employee: {{ $attendance['employee']->name }}
                                             {{ $attendance['employee']->code }}</h2>
                                     </div>
-                                    <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']" />
+                                    <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']"
+                                        :holidays="$attendance['holidays']" :late-minutes="$attendance['lateMinutes']" :early-minutes="$attendance['earlyCheckinMinutes']" :over-minutes="$attendance['overMinutes']" />
                                 </div>
                             </div>
                         @endif

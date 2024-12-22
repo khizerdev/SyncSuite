@@ -1,4 +1,4 @@
-@props(['groupedAttendances', 'employee', 'holidays'])
+@props(['groupedAttendances', 'employee', 'holidays', 'lateMinutes', 'earlyMinutes', 'overMinutes'])
 
 
 
@@ -9,10 +9,17 @@
             <th>Time In</th>
             <th>Time Out</th>
             <th>Total Working Hours</th>
+            <th>Late Minutes</th>
+            <th>Early Minutes</th>
+            <th>Over Minutes</th>
             <th>Status</th>
         </tr>
     </thead>
     <tbody>
+        @php
+            $lateTimeMinutes = 0;
+            $totalMi = 0;
+        @endphp
         @foreach ($groupedAttendances as $date => $entries)
             @php
                 $dailyMinutes = 0;
@@ -23,11 +30,16 @@
                     if (!$entry['is_incomplete']) {
                         $entryStart = $entry['calculation_checkin'];
                         $entryEnd = $entry['calculation_checkout'];
-                        $dailyMinutes += $entryStart->diffInMinutes($entryEnd);
+                        $dailyMinutes +=
+                            $dailyMinutes +
+                            $entryStart->diffInMinutes($entryEnd) -
+                            floor($earlyMinutes[$date]) -
+                            floor($overMinutes[$date]);
+                        $lateTimeMinutes += floor($lateMinutes[$date]);
                     }
                 }
-
-                $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes / 60), $dailyMinutes % 60);
+                $totalMi += $dailyMinutes;
+                $dailyHours = sprintf('%02d:%02d', $dailyMinutes / 60, $dailyMinutes % 60);
             @endphp
             <tr>
                 <td>{{ Carbon\Carbon::parse($date)->format('l, F j, Y') }}</td>
@@ -46,6 +58,9 @@
                     @endif
                 </td>
                 <td>{{ $dailyHours }}</td>
+                <td>{{ floor($lateMinutes[$date]) }}</td>
+                <td>{{ floor($earlyMinutes[$date]) }}</td>
+                <td>{{ floor($overMinutes[$date]) }}</td>
                 <td>
                     @if (in_array($dayName, $holidays))
                         <span class="text-danger">Holiday</span>
@@ -60,4 +75,5 @@
             </tr>
         @endforeach
     </tbody>
+    {{ $totalMi / 60 }}
 </table>
