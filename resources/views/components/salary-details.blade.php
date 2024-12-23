@@ -26,7 +26,7 @@
     <p>Salary Per Hour: PKR {{ number_format($salaryPerHour, 2) }}</p>
     <p>Holiday Pay Ratio: {{ $holidayRatio }}x</p>
     <p>Overtime Pay Ratio: {{ $overTimeRatio }}x</p>
-    <p>Total Overtime Hours Worked: {{ $totalOverTimeHoursWorked }} hours</p>
+    {{-- <p>Total Overtime Hours Worked: {{ $totalOverTimeHoursWorked }} hours</p> --}}
     <p>Total Overtime Minutes Worked: {{ $totalOverTimeMinutesWorked }} minutes</p>
     <p>Total Overtime Pay: PKR {{ $totalOvertimePay }}</p>
     <p>Late Minutes: {{ $lateMinutes }} minutes</p>
