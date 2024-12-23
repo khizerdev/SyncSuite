@@ -165,7 +165,8 @@ class AttendanceController extends Controller
     public function viewAttendance(Request $request){
 
         $startDay = $request->input('start_date');
-        $endDay = Carbon::create($request->year, $request->month, 1)->endOfMonth()->endOfDay();
+        $endDay = $request->input('end_date');
+        // $endDay = Carbon::create($request->year, $request->month, 1)->endOfMonth()->endOfDay();
         $selection = $request->selection;
         
         

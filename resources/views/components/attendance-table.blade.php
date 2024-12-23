@@ -75,5 +75,4 @@
             </tr>
         @endforeach
     </tbody>
-    {{ $totalMi / 60 }}
 </table>

@@ -38,6 +38,7 @@ class AttendanceService
         }
 
         $attendances = $this->getAttendances($userInfo->id, $startDate, $endDate);
+        // dd($endDate);
         $dates = $this->initializeDates($startDate, $endDate);
         $groupedAttendances = $dates['groupedAttendances'];
         $workingDays = $dates['workingDays'];
