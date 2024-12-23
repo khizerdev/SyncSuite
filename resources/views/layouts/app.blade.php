@@ -251,6 +251,12 @@
                                     'route' => 'gazette-holidays.index',
                                     'children' => [['title' => 'Create', 'route' => 'gazette-holidays.index']],
                                 ],
+                                [
+                                    'title' => 'Salary Records',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'salaries.index',
+                                    'children' => [['title' => 'View History', 'route' => 'salaries.index']],
+                                ],
                             ];
 
                         @endphp
