@@ -310,6 +310,6 @@ class AttendanceService
             ];
         }
 
-        return ['worked' => 0, 'overtime' => 0,'earlyCheckin' => $earlyCheckinMinutes];
+        return ['worked' => 0, 'overtime' => 0,'earlyCheckin' => $earlyCheckinMinutes, 'late' => 0];
     }
 }

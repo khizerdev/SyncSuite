@@ -170,6 +170,16 @@
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
+                                            <label for="salary_type">Salary Type</label>
+                                            <select id="salary_type" name="salary_type" class="form-control" required>
+                                                <option value="" selected disabled>No Option</option>
+                                                <option value="daily">Daily</option>
+                                                <option value="monthly">Monthly</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
                                             <label for="profile_picture">Profile Picture</label>
                                             <input type="file" id="profile_picture" name="profile_picture"
                                                 class="form-control">

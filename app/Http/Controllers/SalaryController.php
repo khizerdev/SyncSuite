@@ -27,16 +27,19 @@ class SalaryController extends Controller
         if ($request->ajax()) {
             $data = Salary::all();
             return DataTables::of($data)
+            ->addColumn('employee_name', function ($row) {
+                return $row->employee->name;
+            })
             ->addColumn('action', function($row){
-                $editUrl = route('shifts.edit', $row->id);
-                $deleteUrl = route('shifts.destroy', $row->id);
+                // $editUrl = route('shifts.edit', $row->id);
+                // $deleteUrl = route('shifts.destroy', $row->id);
 
-                $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
-                $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/shifts/\', \'DELETE\')" class="delete btn btn-danger btn-sm">Delete</button>';
+                // $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
+                $btn = '<button onclick="deleteData(\'' . $row->id . '\', \'/salaries/\', \'DELETE\')" class="delete btn btn-danger btn-sm">Delete</button>';
                 return $btn;
             })
-                ->rawColumns(['action'])
-                ->make(true);
+            ->rawColumns(['action'])
+            ->make(true);
         }
         return view('pages.salary.index');
     }
@@ -50,10 +53,10 @@ class SalaryController extends Controller
     public function destroy($id)
     {
         try {
-            $shift = Shift::findOrFail($id);
-            $shift->delete();
+            $salary = Salary::findOrFail($id);
+            $salary->delete();
     
-            return response()->json(['message' => 'Shift deleted successfully'], 200);
+            return response()->json(['message' => 'Salary deleted successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
         }
@@ -121,61 +124,71 @@ class SalaryController extends Controller
         ->get();
 
         foreach ($employees as $employee) {
-            try {
-                $processor = new AttendanceService($employee);
-                $result = $processor->processAttendance($startDate, $endDate);
-                $salaryService = new SalaryService($employee, $result);
-                $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
-                
-                $salaryData = array_merge($result,$salary);
-                // dd($salaryData);
-
-                $advance = AdvanceSalary::where('employee_id', $employee->id)->latest()->first();
-
-                $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
-                $loanInstallmentAmount = isset($loan) ? $loan->amount / $loan->months : 0;
-
-                $loanException = $employee->loanExceptions()->where('month', $month_name)
-                ->where('year', $currentYear)
-                ->first();
-
-                DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
-                    if($loan && $loanException && !$loanException->is_approved){
-                        $loan->paid += $loan->amount / $loan->months;
-                        $loan->save();
+            $salary = Salary::where('employee_id' , $employee->id)->where('month', $request->month)
+            ->where('year', $currentYear)->where('period' , $period)->first();
+            if(!$salary) {
+                try {
+                    
+                    $processor = new AttendanceService($employee);
+                    $result = $processor->processAttendance($startDate, $endDate);
+                    if (empty(array_filter($result['groupedAttendances'], function ($value) {
+                        return !empty($value);
+                    }))) {
+                    } else {
+                        $salaryService = new SalaryService($employee, $result);
+                        $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
+                        
+                        $salaryData = array_merge($result,$salary);
+                        // dd($salaryData);
+        
+                        $advance = AdvanceSalary::where('employee_id', $employee->id)->latest()->first();
+        
+                        $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
+                        $loanInstallmentAmount = isset($loan) ? $loan->amount / $loan->months : 0;
+        
+                        $loanException = $employee->loanExceptions()->where('month', $month_name)
+                        ->where('year', $currentYear)
+                        ->first();
+        
+                        DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
+                            if($loan && $loanException && !$loanException->is_approved){
+                                $loan->paid += $loan->amount / $loan->months;
+                                $loan->save();
+                            }
+                            
+                            $data = [
+                                'employee_id' => $employee->id,
+                                'month' => $currentMonth,
+                                'year' => $currentYear,
+                                'current_salary' => $employee->salary,
+                                'expected_hours' => $salaryData['totalExpectedWorkingHours'],
+                                'normal_hours' => $salaryData['totalHoursWorked'],
+                                'holiday_hours' => $salaryData['totalHolidayHoursWorked'],
+                                'overtime_hours' => $salaryData['totalOvertimeMinutes']/60,
+                                'salary_per_hour' => $employee->salary/$salaryData['totalExpectedWorkingHours'],
+                                'holiday_pay_ratio' => $employee->type->holiday_ratio,
+                                'overtime_pay_ratio' => $employee->type->overtime_ratio,
+                                'overtime_hours' => $salaryData['totalOverTimeHoursWorked'],
+                                'holidays' => $employee->type->holidays,
+                                'advance_deducted' => $advance ? $advance->amount : 0,
+                                'period' => $period,
+                                'start_date' => $startDate,
+                                'end_date' => $endDate,
+                                'loan_deducted' => $loanException && $loanException->is_approved ? 0 : $loanInstallmentAmount,
+                            ];
+                            
+                            Salary::create($data);
+                            
+                            if ($advance) {
+                                $advance->is_paid = 1;
+                                $advance->save();
+                            }
+                        });
                     }
-                    
-                    $data = [
-                        'employee_id' => $employee->id,
-                        'month' => $currentMonth,
-                        'year' => $currentYear,
-                        'current_salary' => $employee->salary,
-                        'expected_hours' => $salaryData['totalExpectedWorkingHours'],
-                        'normal_hours' => $salaryData['totalHoursWorked'],
-                        'holiday_hours' => $salaryData['totalHolidayHoursWorked'],
-                        'overtime_hours' => $salaryData['totalOvertimeMinutes']/60,
-                        'salary_per_hour' => $employee->salary/$salaryData['totalExpectedWorkingHours'],
-                        'holiday_pay_ratio' => $employee->type->holiday_ratio,
-                        'overtime_pay_ratio' => $employee->type->overtime_ratio,
-                        'overtime_hours' => $salaryData['totalOverTimeHoursWorked'],
-                        'holidays' => $employee->type->holidays,
-                        'advance_deducted' => $advance ? $advance->amount : 0,
-                        'period' => $period,
-                        'start_date' => $startDate,
-                        'end_date' => $endDate,
-                        'loan_deducted' => $loanException && $loanException->is_approved ? 0 : $loanInstallmentAmount,
-                    ];
-                    
-                    Salary::create($data);
-                    
-                    if ($advance) {
-                        $advance->is_paid = 1;
-                        $advance->save();
-                    }
-                });
-
-            } catch (Exception $e){
-                throw $e;
+    
+                } catch (Exception $e){
+                    throw $e;
+                }
             }
         }
 
