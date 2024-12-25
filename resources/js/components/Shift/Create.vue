@@ -39,7 +39,7 @@ const submitForm = async () => {
     await api.post(`/api/shifts`, form);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${api.baseURL}/shifts`);
+    window.location.reload();
   } catch (error) {
     window.toastr.error("Something went wrong");
   } finally {

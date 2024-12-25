@@ -36,7 +36,7 @@ const submitForm = async () => {
     await api.put(`/api/shifts/${props.shift.id}`, form);
     window.toastr.success("Updated Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${api.baseURL}/shifts`);
+    window.location.reload();
   } catch (error) {
     console.log(error);
     window.toastr.error("Something went wrong");

@@ -74,7 +74,7 @@ const submitForm = async () => {
     await api.post(`/api/inward-general/store`, form);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${api.baseURL}/inward-general`);
+    window.location.reload();
   } catch (error) {
     console.log(error);
     if (error.response && error.response.status === 422) {

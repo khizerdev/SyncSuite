@@ -110,7 +110,7 @@ const submitForm = async () => {
     await api.put(`/api/inward-general/${id}`, form);
     window.toastr.success("Updated Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${api.baseURL}/inward-general`);
+    window.location.reload();
   } catch (error) {
     console.log(error);
     window.toastr.error("Something went wrong");

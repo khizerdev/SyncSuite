@@ -95,7 +95,7 @@ const submitForm = async () => {
     await api.post(`/api/products/store`, form);
     window.toastr.success("Created Successfully");
     isFormSubmitted.value = false;
-    window.location.replace(`${api.baseURL}/products`);
+    window.location.reload();
   } catch (error) {
     console.log(error);
     window.toastr.error("Something went wrong");
