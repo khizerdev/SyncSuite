@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import { baseUrl } from "../../utils/constants";
+import api from "./../../utils/api";
 
 const shiftModal = ref(null);
 let shiftModalInstance = null;
@@ -32,15 +32,14 @@ const form = reactive({
 });
 
 const submitForm = async () => {
-  console.log(baseUrl);
   isSubmitted.value = true;
   if (form.name == "" || start_time == "" || end_time == "") return;
   try {
     isLoading.value = true;
-    await axios.post(`${baseUrl}/api/shifts`, form);
+    await api.post(`/api/shifts`, form);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${baseUrl}/shifts`);
+    window.location.replace(`${api.baseURL}/shifts`);
   } catch (error) {
     window.toastr.error("Something went wrong");
   } finally {

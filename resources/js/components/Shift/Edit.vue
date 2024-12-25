@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted } from "vue";
-import { baseUrl } from "../../utils/constants";
 import { format, parse } from "date-fns";
+import api from "./../../utils/api";
 
 const props = defineProps({
   shift: {
@@ -33,10 +33,10 @@ const submitForm = async () => {
 
   try {
     isLoading.value = true;
-    await axios.put(`${baseUrl}/api/shifts/${props.shift.id}`, form);
+    await api.put(`/api/shifts/${props.shift.id}`, form);
     window.toastr.success("Updated Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${baseUrl}/shifts`);
+    window.location.replace(`${api.baseURL}/shifts`);
   } catch (error) {
     console.log(error);
     window.toastr.error("Something went wrong");

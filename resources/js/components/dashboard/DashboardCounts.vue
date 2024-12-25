@@ -22,9 +22,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
-import { baseUrl } from "../../utils/constants";
 import CountBox from "./CountBox.vue";
+import api from "./../../utils/api";
 
 const counts = ref({
   products: 0,
@@ -34,9 +33,8 @@ const counts = ref({
 });
 
 onMounted(() => {
-  console.log(baseUrl);
-  axios
-    .get(`${baseUrl}/api/products/count`)
+  api
+    .get(`/api/products/count`)
     .then((response) => {
       counts.value = response.data;
     })

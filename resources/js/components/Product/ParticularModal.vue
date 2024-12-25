@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import { baseUrl } from "../../utils/constants";
+import api from "./../../utils/api";
 
 const emit = defineEmits([
   "get-pariculars",
@@ -38,7 +38,7 @@ const submitpartForm = async () => {
   isSubmitted.value = true;
   if (partForm.name == "") return;
   try {
-    await axios.post(`${baseUrl}/api/particulars/store`, partForm);
+    await api.post(`/api/particulars/store`, partForm);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
     emit("fetch-material-modal-particular");

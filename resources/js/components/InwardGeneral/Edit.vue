@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
-import axios from "axios";
-import { baseUrl } from "../../utils/constants";
+import api from "./../../utils/api";
 
 const props = defineProps({
   inwardGeneral: {
@@ -108,10 +107,10 @@ const submitForm = async () => {
     return;
 
   try {
-    await axios.put(`${baseUrl}/api/inward-general/${id}`, form);
+    await api.put(`/api/inward-general/${id}`, form);
     window.toastr.success("Updated Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${baseUrl}/inward-general`);
+    window.location.replace(`${api.baseURL}/inward-general`);
   } catch (error) {
     console.log(error);
     window.toastr.error("Something went wrong");

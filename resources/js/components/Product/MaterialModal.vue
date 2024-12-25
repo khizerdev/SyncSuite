@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
-import { baseUrl } from "../../utils/constants";
+import api from "./../../utils/api";
 
 const emit = defineEmits(["get-materials", "update-materialId", "update-particularId"]);
 
@@ -33,7 +33,7 @@ const particulars = reactive([]);
 
 const getParticulars = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/api/particulars`);
+    const response = await api.get(`/api/particulars`);
     console.log(response.data);
     particulars.splice(0, particulars.length, ...response.data);
   } catch (error) {
@@ -49,7 +49,7 @@ const onSubmit = async () => {
   isSubmitted.value = true;
   if (form.name == "" || form.particular_id == "") return;
   try {
-    await axios.post(`${baseUrl}/api/materials/store`, form);
+    await api.post(`/api/materials/store`, form);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
     emit("get-materials");

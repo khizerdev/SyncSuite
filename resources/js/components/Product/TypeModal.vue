@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
-import { baseUrl } from "../../utils/constants";
+import api from "./../../utils/api";
 
 const emit = defineEmits(["get-product-types", "update-productTypeId"]);
 
@@ -39,7 +39,7 @@ const particulars = reactive([]);
 const getMaterials = async () => {
   console.log("reaching");
   try {
-    const response = await axios.get(`${baseUrl}/api/materials`);
+    const response = await api.get(`/api/materials`);
     materials.splice(0, materials.length, ...response.data);
   } catch (error) {
     console.error(error);
@@ -49,7 +49,7 @@ const getMaterials = async () => {
 const getParticulars = async () => {
   try {
     if (!typeForm.material_id) return;
-    const response = await axios.get(`${baseUrl}/getParticulars/${typeForm.material_id}`);
+    const response = await api.get(`/getParticulars/${typeForm.material_id}`);
     particulars.splice(0, particulars.length, ...response.data);
     typeForm.particular_id = "";
   } catch (error) {
@@ -65,7 +65,7 @@ const submitTypeForm = async () => {
   isSubmitted.value = true;
   if (typeForm.material_id == "" || typeForm.name == "" || typeForm.particular_id == "") return;
   try {
-    await axios.post(`${baseUrl}/api/productsType/store`, typeForm);
+    await api.post(`/api/productsType/store`, typeForm);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
     emit("get-product-types");

@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import axios from "axios";
-import { baseUrl } from "../../utils/constants";
+import api from "./../../utils/api";
 
 const initialForm = {
   ref_number: "",
@@ -72,10 +71,10 @@ const submitForm = async () => {
     return;
 
   try {
-    await axios.post(`${baseUrl}/api/inward-general/store`, form);
+    await api.post(`/api/inward-general/store`, form);
     window.toastr.success("Created Successfully");
     isSubmitted.value = false;
-    window.location.replace(`${baseUrl}/inward-general`);
+    window.location.replace(`${api.baseURL}/inward-general`);
   } catch (error) {
     console.log(error);
     if (error.response && error.response.status === 422) {

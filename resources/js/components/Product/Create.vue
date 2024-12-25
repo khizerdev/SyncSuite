@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, computed, reactive, ref } from "vue";
-import { baseUrl } from "../../utils/constants";
 import TypeModal from "./TypeModal.vue";
 import MaterialModal from "./MaterialModal.vue";
 import ParticularModal from "./ParticularModal.vue";
+import api from "./../../utils/api";
 
 const isFormSubmitted = ref(false);
 const product = reactive({
@@ -43,7 +43,7 @@ const particulars = reactive([]);
 
 const getDepartments = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/api/departments`);
+    const response = await api.get(`/api/departments`);
     departments.push(...response.data);
   } catch (error) {
     console.error(error);
@@ -52,7 +52,7 @@ const getDepartments = async () => {
 
 const getProductTypes = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/api/product-types`);
+    const response = await api.get(`/api/product-types`);
     productTypes.splice(0, productTypes.length, ...response.data);
   } catch (error) {
     console.error(error);
@@ -62,7 +62,7 @@ const getProductTypes = async () => {
 const getParticulars = async () => {
   try {
     if (!product.material_id) return;
-    const response = await axios.get(`${baseUrl}/getParticulars/${product.material_id}`);
+    const response = await api.get(`/getParticulars/${product.material_id}`);
     particulars.splice(0, particulars.length, ...response.data);
   } catch (error) {
     console.error(error);
@@ -71,7 +71,7 @@ const getParticulars = async () => {
 
 const getMaterials = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/api/materials`);
+    const response = await api.get(`/api/materials`);
     materials.splice(0, materials.length, ...response.data);
   } catch (error) {
     console.error(error);
@@ -92,10 +92,10 @@ const submitForm = async () => {
   isFormSubmitted.value = true;
   const form = { ...product, total_price: totalPrice.value };
   try {
-    await axios.post(`${baseUrl}/api/products/store`, form);
+    await api.post(`/api/products/store`, form);
     window.toastr.success("Created Successfully");
     isFormSubmitted.value = false;
-    window.location.replace(`${baseUrl}/products`);
+    window.location.replace(`${api.baseURL}/products`);
   } catch (error) {
     console.log(error);
     window.toastr.error("Something went wrong");
