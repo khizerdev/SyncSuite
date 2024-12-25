@@ -4,7 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format } from "date-fns";
 import { Toaster, toast } from "vue-sonner";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 export default {
   components: {

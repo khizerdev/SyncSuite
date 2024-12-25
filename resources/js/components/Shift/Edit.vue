@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted } from "vue";
 import { format, parse } from "date-fns";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 const props = defineProps({
   shift: {

@@ -23,7 +23,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import CountBox from "./CountBox.vue";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 const counts = ref({
   products: 0,

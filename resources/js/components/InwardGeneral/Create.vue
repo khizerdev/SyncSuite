@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 const initialForm = {
   ref_number: "",

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 const emit = defineEmits(["get-product-types", "update-productTypeId"]);
 

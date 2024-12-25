@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 const shiftModal = ref(null);
 let shiftModalInstance = null;

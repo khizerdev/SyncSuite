@@ -3,7 +3,7 @@ import { onMounted, computed, reactive, ref } from "vue";
 import TypeModal from "./TypeModal.vue";
 import MaterialModal from "./MaterialModal.vue";
 import ParticularModal from "./ParticularModal.vue";
-import api from "./../../utils/api";
+import api from "./../../../api";
 
 const isFormSubmitted = ref(false);
 const product = reactive({
