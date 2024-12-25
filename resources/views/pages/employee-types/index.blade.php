@@ -118,6 +118,20 @@
                                 step="0.01" min="0">
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">Adjust Hours</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="adjust_hours" id="adjust_yes"
+                                    value="yes" required>
+                                <label class="form-check-label" for="adjust_yes">Yes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="adjust_hours" id="adjust_no"
+                                    value="no" required>
+                                <label class="form-check-label" for="adjust_no">No</label>
+                            </div>
+                        </div>
+
 
                         <button type="submit" class="btn btn-primary float-right">Create</button>
                     </form>

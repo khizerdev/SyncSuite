@@ -158,8 +158,17 @@ class AttendanceService
         $checkOut = null;
 
         if ($entriesCount > 1) {
-            $checkOut = Carbon::parse($entries[$entriesCount - ($entriesCount % 2 == 0 ? 1 : 2)]->datetime);
+            for ($i = 1; $i < $entriesCount; $i++) {
+                $nextEntry = Carbon::parse($entries[$i]->datetime);
+                
+                // Check if the time difference is more than 2 minutes
+                if ($checkIn->diffInMinutes($nextEntry) > 2) {
+                    $checkOut = $nextEntry;
+                    break;
+                }
+            }
         }
+
 
         // Validate checkout time
         $shiftEnd = Carbon::parse($this->shift->end_time);

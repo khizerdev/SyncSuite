@@ -45,6 +45,7 @@ class EmployeeTypeController extends Controller
             'holidays' => 'required|array',
             'holidays.*' => 'string',
             'overtime' => 'required|in:yes,no',
+            'adjust_hours' => 'required',
             'overtime_ratio' => 'required_if:overtime,yes|nullable|numeric|min:0|max:10',
             'holiday_ratio' => 'required|numeric|min:0|max:10',
         ]);
@@ -54,6 +55,7 @@ class EmployeeTypeController extends Controller
 
         // Convert overtime to boolean
         $validatedData['overtime'] = $validatedData['overtime'] === 'yes';
+        $validatedData['adjust_hours'] = $validatedData['adjust_hours'] === 'yes';
 
         // Create a new EmployeeInfo instance
         EmployeeType::create($validatedData);
@@ -100,6 +102,7 @@ class EmployeeTypeController extends Controller
             'holiday_ratio' => $request->holiday_ratio,
             'overtime' => $request->overtime,
             'overtime_ratio' => $request->overtime_ratio,
+            'adjust_hours' => $request->adjust_hours,
         ]);
 
         return redirect()->route('employee-types.index')->with('success', 'Employee type updated successfully.');
