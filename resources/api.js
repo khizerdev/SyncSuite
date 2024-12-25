@@ -1,6 +1,13 @@
 import axios from "axios";
 
-const webUrl = window.location.protocol + "//" + window.location.host;
+function getBaseUrlWithFirstSubdirectory(url) {
+  const parsedUrl = new URL(url);
+  const pathSegments = parsedUrl.pathname.split("/").filter((segment) => segment);
+  const firstSubdirectory = pathSegments[0] || "";
+  return `${parsedUrl.origin}/${firstSubdirectory}`;
+}
+
+let webUrl = getBaseUrlWithFirstSubdirectory(window.location.href);
 
 let baseUrl;
 
