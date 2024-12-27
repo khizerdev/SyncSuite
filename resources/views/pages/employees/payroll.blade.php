@@ -36,9 +36,9 @@
 
                                 <x-salary-details :employee="$result['employee']" :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']"
                                     :total-expected-working-days="$salary->expected_hours" :total-hours-worked="$salary->normal_hours" :total-holiday-hours-worked="$salary->holiday_hours" :salary-per-hour="$result['salaryPerHour']"
-                                    :paid-holiday-amount="$result['normalHolidayPay']" :gazatte-pay-amount="$result['gazattePay']" :holiday-ratio="$salary->holiday_pay_ratio" :over-time-ratio="$salary->overtime_pay_ratio"
-                                    :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="array_sum($overMinutes)" :total-overtime-pay="$result['totalOvertimePay']" :late-minutes="array_sum($absoluteMinutes)"
-                                    :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary" />
+                                    :paid-holiday-amount="$result['normalHolidayPay']" :gazatte-pay-amount="$result['gazattePay']" :holiday-pay-amount="$result['holidayPay']" :holiday-ratio="$salary->holiday_pay_ratio"
+                                    :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="array_sum($overMinutes)" :total-overtime-pay="$result['totalOvertimePay']"
+                                    :late-minutes="array_sum($absoluteMinutes)" :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary" />
 
                                 <div class="col-md-1 text-right">
                                     <button type="button" class="btn btn-primary d-print-none"

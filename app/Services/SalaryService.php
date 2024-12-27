@@ -15,16 +15,17 @@ class SalaryService
 {
     private $employee;
     private $attendanceData;
+    private $period;
     
-    public function __construct($employee, $attendanceData)
+    public function __construct($employee, $attendanceData,$period)
     {
         $this->employee = $employee;
         $this->attendanceData = $attendanceData;
+        $this->period = $period;
     }
 
     public function calculateTimeDifference($data) 
     {
-        // Convert strings to Carbon instances
         $startTime = Carbon::parse($data['start_time']);
         $endTime = Carbon::parse($data['end_time']);
         
@@ -62,8 +63,14 @@ class SalaryService
 
         $gazattePay = ($this->attendanceData['gazatteMinutes'] / 60) * $this->employee->type->holiday_ratio * $salaryPerHour;
 
+        $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount;
+
+        if ($this->period === 'first_half' || $this->period === 'second_half') {
+            $actualSalary = $actualSalary / 2;
+        }
+
         return [
-            'actualSalaryEarned' => ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount,
+            'actualSalaryEarned' => $actualSalary,
             
             'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * $hoursPerDay, 2),
 
@@ -73,6 +80,7 @@ class SalaryService
             'totalOvertimePay' => number_format($overtimePay, 2, '.', ''),
 
             'salaryPerHour' => $salaryPerHour,
+            'holidayPay' => $holidayPay,
             'normalHolidayPay' => $normalHolidayPay,
             'gazattePay' => $gazattePay,
         ];

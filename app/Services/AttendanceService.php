@@ -112,7 +112,6 @@ class AttendanceService
             $monthDays++;
             $currentDate->addDay();
         }
-
         return [
             'groupedAttendances' => $groupedAttendances,
             'workingDays' => $workingDays,

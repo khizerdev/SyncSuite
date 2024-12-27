@@ -65,7 +65,7 @@ class EmployeeController extends Controller
                     $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/employees/\', \'GET\')" class="delete btn btn-danger btn-sm mr-2"><i class="fas fa-trash"></i></button>';
                     
                     // $btn .= '<a href="'.$attdUrl.'" class="btn btn-warning btn-sm">Payroll Information</a>';
-                    $btn .= '<button data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-warning btn-show-employee" data-employee-id="' . $row->id . '" data-employee-name="' . $row->name . '">Payroll Information</button>';
+                    $btn .= '<button data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-warning btn-show-employee" data-employee-id="' . $row->id . '" data-employee-name="' . $row->name . '">Payroll</button>';
                     return $btn;
                 })
                  ->rawColumns(['action'])
@@ -277,11 +277,31 @@ class EmployeeController extends Controller
     public function payroll(Request $request, $employeeId)
     {
         $employee = Employee::findOrFail($employeeId);
-        $startDate = Carbon::create($request->year, $request->month, 1)->startOfDay();
-        $endDate = Carbon::create($request->year, $request->month, 1)->endOfMonth()->endOfDay();
+
+        $currentMonth = intval($request->month);
+        $timestamp = mktime(0, 0, 0, $currentMonth, 1, $request->year);
+        $month_name = date("F", $timestamp);
+
+        $period = $request->duration;
+
+        //  check start and end dates
+        if ($period === 'first_half') {
+            $startDate = Carbon::parse($month_name)->startOfMonth();
+            $endDate = Carbon::parse($month_name)->startOfMonth()->addDays(14);
+        } elseif ($period === 'second_half') {
+            $startDate = Carbon::parse($month_name)->startOfMonth()->addDays(15);
+            $endDate = Carbon::parse($month_name)->endOfMonth();
+        } else {
+            // full_month
+            $startDate = Carbon::parse($month_name)->startOfMonth();
+            $endDate = Carbon::parse($month_name)->endOfMonth();
+        }
+
+        // $startDate = Carbon::create($request->year, $request->month, 1)->startOfDay();
+        // $endDate = Carbon::create($request->year, $request->month, 1)->endOfMonth()->endOfDay();
 
         $salary = Salary::where('employee_id' , intval ($employeeId))->where('month', $request->month)
-        ->where('year', $request->year)->first();
+        ->where('year', $request->year)->where('period', $request->duration)->first();
         
        
         if(!$salary){
@@ -296,7 +316,7 @@ class EmployeeController extends Controller
         }
 
         // Calculate salary components
-        $salaryCalculator = new SalaryService($employee, $attendance);
+        $salaryCalculator = new SalaryService($employee, $attendance,$period);
         $salaryComponent = $salaryCalculator->calculateSalary();
         
         $result = collect(array_merge($attendance,$salaryComponent));
