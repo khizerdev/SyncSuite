@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AdvanceSalary;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\GazetteHoliday;
 use App\Models\Loan;
 use App\Models\Salary;
 use App\Models\UserInfo;
@@ -19,6 +20,7 @@ class AttendanceService
     private $holidayRatio;
     private $overTimeRatio;
     private $isNightShift;
+    private $gazatteHolidays;
     
     public function __construct($employee)
     {
@@ -30,13 +32,21 @@ class AttendanceService
         $this->isNightShift = Carbon::parse($this->shift->start_time)->greaterThan(Carbon::parse($this->shift->end_time));
     }
 
+    public function getGazatteHolidays($startDate, $endDate)
+    {
+        $holidays = GazetteHoliday::whereBetween('holiday_date', [$startDate, $endDate])
+            ->get(['holiday_date']);
+
+        return $holidays;
+    }
+
     public function processAttendance($startDate, $endDate)
     {
         $userInfo = $this->getUserInfo();
         if (!$userInfo) {
             return null;
         }
-
+        $gazetteHolidays = $this->getGazatteHolidays($startDate,$endDate);
         $attendances = $this->getAttendances($userInfo->id, $startDate, $endDate);
         // dd($endDate);
         $dates = $this->initializeDates($startDate, $endDate);
@@ -46,13 +56,14 @@ class AttendanceService
         $holidayDays = $dates['holidayDays'];
 
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
-        $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances']);
+        $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances'],$gazetteHolidays);
         return [
             'employee' => $this->employee,
             'dailyMinutes' => $calculatedMinutes['dailyMinutes'],
             'earlyCheckinMinutes' => $calculatedMinutes['earlyCheckinMinutes'],
             'lateMinutes' => $calculatedMinutes['lateMinutes'],
             'overMinutes' => $calculatedMinutes['overMinutes'],
+            'gazatteMinutes' => $calculatedMinutes['gazatteMinutes'],
             'totalHoursWorked' => $calculatedMinutes['totalMinutesWorked'] / 60,
             'workingDays' => $workingDays,
             'monthDays' => $monthDays,
@@ -176,8 +187,6 @@ class AttendanceService
             }
         }
 
-
-        // Validate checkout time
         $shiftEnd = Carbon::parse($this->shift->end_time);
         if ($this->isNightShift) {
             $shiftEnd->addDay();
@@ -210,7 +219,7 @@ class AttendanceService
         ];
     }
 
-    private function calculateWorkingMinutes($groupedAttendances)
+    private function calculateWorkingMinutes($groupedAttendances,$gazetteHolidays)
     {
         $totalMinutesWorked = 0;
         $totalHolidayMinutesWorked = 0;
@@ -219,10 +228,11 @@ class AttendanceService
         $dailyMinutes = [];
         $lateMinutes = [];
         $overMinutes = [];
+        $gazatteMinutes = 0;
 
         foreach ($groupedAttendances as $date => $entries) {
             $shiftTimes = $this->getShiftTimes($date);
-            $results = $this->calculateDailyMinutes($entries, $shiftTimes, $date);
+            $results = $this->calculateDailyMinutes($entries, $shiftTimes, $date,$gazetteHolidays);
                
             $dailyMinutes[$date] = $results['totalMinutes'];
 
@@ -230,6 +240,7 @@ class AttendanceService
             $totalMinutesWorked += $dailyMinutes[$date];
             $totalHolidayMinutesWorked += $results['holidayMinutes'];
             $totalOvertimeMinutes += $results['overtimeMinutes'];
+            $gazatteMinutes += $results['gazatteMinutes'];
             $lateMinutes[$date] = $results['lateMinutes'];
             $overMinutes[$date] = $results['overtimeMinutes'];
             
@@ -242,6 +253,7 @@ class AttendanceService
             'earlyCheckinMinutes' => $earlyCheckinMinutes,
             'lateMinutes' => $lateMinutes,
             'overMinutes' => $overMinutes,
+            'gazatteMinutes' => $gazatteMinutes,
         ];
     }
 
@@ -264,13 +276,19 @@ class AttendanceService
         return ['start' => $shiftStart, 'end' => $shiftEnd];
     }
 
-    private function calculateDailyMinutes($entries, $shiftTimes, $date)
+    private function calculateDailyMinutes($entries, $shiftTimes, $date,$gazetteHolidays)
     {
         $totalMinutes = 0;
+        $holidayMinutes = 0;
         $holidayMinutes = 0;
         $overtimeMinutes = 0;
         $earlyCheckinMinutes = 0;
         $lateMinutes = 0;
+        $gazatteMinutes = 0;
+
+        $gazetteDays =  $gazetteHolidays->pluck('holiday_date')->map(function ($date) {
+            return date('Y-m-d', strtotime($date));
+        })->toArray();
 
         foreach ($entries as $entry) {
             if (!$entry['is_incomplete']) {
@@ -278,10 +296,14 @@ class AttendanceService
                 $totalMinutes += $minutes['worked'];
                 // dd($minutes['worked']);
                 
-                if (in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
+                if (in_array(Carbon::parse($date)->format('l'), $this->holidays) && !in_array($date, $gazetteDays)) {
                     $holidayMinutes += $minutes['worked'];
                 }
-                
+
+                if (in_array($date, $gazetteDays) && !in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
+                    $gazatteMinutes += $minutes['worked'];
+                }
+
                 $overtimeMinutes += $minutes['overtime'];
                 $earlyCheckinMinutes += $minutes['earlyCheckin'];
                 $lateMinutes += $minutes['late'];
@@ -293,7 +315,8 @@ class AttendanceService
             'holidayMinutes' => $holidayMinutes,
             'overtimeMinutes' => $overtimeMinutes,
             'earlyCheckinMinutes' => $earlyCheckinMinutes,
-            'lateMinutes' => $lateMinutes
+            'lateMinutes' => $lateMinutes,
+            'gazatteMinutes' => $gazatteMinutes,
         ];
     }
 

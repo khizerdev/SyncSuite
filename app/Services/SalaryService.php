@@ -47,33 +47,34 @@ class SalaryService
     {
         $timings = $this->calculateTimeDifference($this->employee->timings);
         $hoursPerDay = intval($timings['formatted']);
-       
-        $totalExpectedWorkingHours = $this->attendanceData['workingDays'] * $hoursPerDay;
-
         $salaryPerHour = ($this->employee->salary / $this->attendanceData['monthDays']) / $hoursPerDay;
 
         $regularPay = $this->attendanceData['totalHoursWorked'] * $salaryPerHour;
+        
         $holidayPay = $this->attendanceData['totalHolidayHoursWorked'] * $salaryPerHour * $this->employee->type->holiday_ratio;
+
         $overtimePay = ($this->attendanceData['totalOvertimeMinutes'] / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
         
         $lateMinutes = array_sum($this->attendanceData['lateMinutes']);
         $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
-        // $lateCutAmount = number_format(($lateMinutes / 60) * $salaryPerHour, 0);
-            //   dd($lateCutAmount);
+        
         $normalHolidayPay = $this->attendanceData['holidayDays'] * $salaryPerHour * $hoursPerDay;
+
+        $gazattePay = ($this->attendanceData['gazatteMinutes'] / 60) * $this->employee->type->holiday_ratio * $salaryPerHour;
+
         return [
             'actualSalaryEarned' => ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount,
             
             'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * $hoursPerDay, 2),
+
             'totalOverTimeHoursWorked' => $this->attendanceData['totalOvertimeMinutes'] / 60,
             'totalOvertimeMinutes' => $this->attendanceData['totalOvertimeMinutes'],
             'totalOvertimeMinutesArray' => $this->attendanceData['overMinutes'],
             'totalOvertimePay' => number_format($overtimePay, 2, '.', ''),
 
-            // 'actualSalaryEarned' => number_format($regularPay + $holidayPay + $overtimePay - $lateCutAmount),
-
             'salaryPerHour' => $salaryPerHour,
             'normalHolidayPay' => $normalHolidayPay,
+            'gazattePay' => $gazattePay,
         ];
     }
 
