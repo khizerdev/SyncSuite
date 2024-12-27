@@ -43,6 +43,7 @@ class AttendanceService
         $groupedAttendances = $dates['groupedAttendances'];
         $workingDays = $dates['workingDays'];
         $monthDays = $dates['monthDays'];
+        $holidayDays = $dates['holidayDays'];
 
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
         $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances']);
@@ -55,6 +56,7 @@ class AttendanceService
             'totalHoursWorked' => $calculatedMinutes['totalMinutesWorked'] / 60,
             'workingDays' => $workingDays,
             'monthDays' => $monthDays,
+            'holidayDays' => $holidayDays,
             'totalHolidayHoursWorked' => $calculatedMinutes['totalHolidayMinutesWorked'] / 60,
             'holidays' => $this->holidays,
             'totalOvertimeMinutes' => $calculatedMinutes['totalOvertimeMinutes'],
@@ -81,6 +83,7 @@ class AttendanceService
     {
         $groupedAttendances = [];
         $workingDays = 0;
+        $holidayDays = 0;
         $monthDays = 0;
         // $currentDate = clone $startDate;
         $currentDate = Carbon::parse($startDate);
@@ -92,6 +95,9 @@ class AttendanceService
             if (!in_array($currentDate->format('l'), $this->holidays)) {
                 $workingDays++;
             }
+            if (in_array($currentDate->format('l'), $this->holidays)) {
+                $holidayDays++;
+            }
             $monthDays++;
             $currentDate->addDay();
         }
@@ -99,7 +105,8 @@ class AttendanceService
         return [
             'groupedAttendances' => $groupedAttendances,
             'workingDays' => $workingDays,
-            'monthDays' => $monthDays
+            'monthDays' => $monthDays,
+            'holidayDays' => $holidayDays,
         ];
     }
 

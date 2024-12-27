@@ -60,9 +60,9 @@ class SalaryService
         $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
         // $lateCutAmount = number_format(($lateMinutes / 60) * $salaryPerHour, 0);
             //   dd($lateCutAmount);
+        $normalHolidayPay = $this->attendanceData['holidayDays'] * $salaryPerHour * $hoursPerDay;
         return [
-            'actualSalaryEarned' => ($regularPay + $holidayPay + $overtimePay) - $lateCutAmount,
-            
+            'actualSalaryEarned' => ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount,
             
             'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * $hoursPerDay, 2),
             'totalOverTimeHoursWorked' => $this->attendanceData['totalOvertimeMinutes'] / 60,
@@ -72,7 +72,8 @@ class SalaryService
 
             // 'actualSalaryEarned' => number_format($regularPay + $holidayPay + $overtimePay - $lateCutAmount),
 
-            'salaryPerHour' => $salaryPerHour
+            'salaryPerHour' => $salaryPerHour,
+            'normalHolidayPay' => $normalHolidayPay,
         ];
     }
 
