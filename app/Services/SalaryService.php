@@ -16,12 +16,17 @@ class SalaryService
     private $employee;
     private $attendanceData;
     private $period;
+    private $currentMonth;
+    private $monthDays;
     
-    public function __construct($employee, $attendanceData,$period)
+    public function __construct($employee, $attendanceData,$period,$currentMonth)
     {
         $this->employee = $employee;
         $this->attendanceData = $attendanceData;
         $this->period = $period;
+        $this->currentMonth = $currentMonth;
+        
+        $this->monthDays = cal_days_in_month(CAL_GREGORIAN, $currentMonth, now()->year);
     }
 
     public function calculateTimeDifference($data) 
@@ -48,7 +53,7 @@ class SalaryService
     {
         $timings = $this->calculateTimeDifference($this->employee->timings);
         $hoursPerDay = intval($timings['formatted']);
-        $salaryPerHour = ($this->employee->salary / $this->attendanceData['monthDays']) / $hoursPerDay;
+        $salaryPerHour = ($this->employee->salary / $this->monthDays) / $hoursPerDay;
 
         $regularPay = $this->attendanceData['totalHoursWorked'] * $salaryPerHour;
         

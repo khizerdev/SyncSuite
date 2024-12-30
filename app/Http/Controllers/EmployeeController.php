@@ -17,6 +17,8 @@ use App\Models\UserInfo;
 use App\Services\AttendanceService;
 use App\Services\SalaryService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables as FacadesDataTables;
 
 class EmployeeController extends Controller
 {
@@ -49,7 +51,7 @@ class EmployeeController extends Controller
     
             $data = $query->latest()->get();
 
-             return DataTables::of($data)
+             return FacadesDataTables::of($data)
                 ->addColumn('department_name', function ($data) {
                     return $data->department_id ? $data->department->name : 'N/A';
                 })
@@ -316,7 +318,7 @@ class EmployeeController extends Controller
         }
 
         // Calculate salary components
-        $salaryCalculator = new SalaryService($employee, $attendance,$period);
+        $salaryCalculator = new SalaryService($employee, $attendance,$period,intval($request->month));
         $salaryComponent = $salaryCalculator->calculateSalary();
         
         $result = collect(array_merge($attendance,$salaryComponent));

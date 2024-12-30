@@ -135,7 +135,7 @@ class SalaryController extends Controller
                         return !empty($value);
                     }))) {
                     } else {
-                        $salaryService = new SalaryService($employee, $result,$period);
+                        $salaryService = new SalaryService($employee, $result,$period,$currentMonth);
                         $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
                         
                         $salaryData = array_merge($result,$salary);
