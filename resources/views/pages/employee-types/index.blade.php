@@ -44,6 +44,7 @@
                                         <th>Holiday Ratio</th>
                                         <th>Overtime</th>
                                         <th>Overtime Ratio</th>
+                                        <th>Adjust Hours</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -78,24 +79,30 @@
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="holidays" class="form-label">Holidays</label>
-                            <select multiple class="holidays js-example-basic-single" id="holidays" name="holidays[]"
-                                required>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                                <option value="Sunday">Sunday</option>
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="No Holiday">No Holiday</option>
-                            </select>
-                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
 
-                        <div class="mb-3">
-                            <label for="holiday_ratio" class="form-label">Holiday Ratio</label>
-                            <input type="number" class="form-control" id="holiday_ratio" name="holiday_ratio"
-                                step="0.01" min="0">
+                                    <label for="holidays" class="form-label">Holidays</label>
+                                    <select multiple class="holidays js-example-basic-single" id="holidays"
+                                        name="holidays[]" required>
+                                        <option value="Friday">Friday</option>
+                                        <option value="Saturday">Saturday</option>
+                                        <option value="Sunday">Sunday</option>
+                                        <option value="Monday">Monday</option>
+                                        <option value="Tuesday">Tuesday</option>
+                                        <option value="Wednesday">Wednesday</option>
+                                        <option value="Thursday">Thursday</option>
+                                        <option value="No Holiday">No Holiday</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="holiday_ratio" class="form-label">Holiday Ratio</label>
+                                        <input type="number" class="form-control" id="holiday_ratio" name="holiday_ratio"
+                                            step="0.01" min="0">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -224,6 +231,10 @@
                     {
                         data: 'overtime_ratio',
                         name: 'overtime_ratio'
+                    },
+                    {
+                        data: 'adjust_hours',
+                        name: 'adjust_hours'
                     },
                     {
                         data: 'action',

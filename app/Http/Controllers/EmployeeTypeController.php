@@ -28,6 +28,9 @@ class EmployeeTypeController extends Controller
                 ->editColumn('overtime', function ($row) {
                     return $row->overtime ? 'Yes' : 'No';
                 })
+                ->editColumn('adjust_hours', function ($row) {
+                    return $row->adjust_hours ? 'Yes' : 'No';
+                })
                  ->rawColumns(['action'])
                  ->make(true);
          }

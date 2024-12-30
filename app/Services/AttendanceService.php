@@ -340,14 +340,24 @@ class AttendanceService
         if ($startTime->lt($endTime)) {
             $minutesWorked = $startTime->diffInMinutes($endTime);
             $totalWorkedMinutes = $entry['calculation_checkin']->diffInMinutes($entry['calculation_checkout']);
-            
+        
+            // Calculate late minutes based on adjustment setting
+            if ($this->employee->type->adjust_hours) {
+                $remainingLateMinutes = max(0, $lateMinutes - $overtimeMinutes);
+                $adjustedOvertime = max(0, $overtimeMinutes - $lateMinutes);
+            } else {
+                $remainingLateMinutes = $lateMinutes;
+                $adjustedOvertime = $overtimeMinutes;
+            }
+        
             return [
                 'worked' => $minutesWorked,
-                'overtime' => $overtimeMinutes,
+                'overtime' => $adjustedOvertime,
                 'earlyCheckin' => $earlyCheckinMinutes,
-                'late' => $lateMinutes
+                'late' => $remainingLateMinutes
             ];
         }
+        
 
         return ['worked' => 0, 'overtime' => 0,'earlyCheckin' => $earlyCheckinMinutes, 'late' => 0];
     }
