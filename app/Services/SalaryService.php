@@ -70,10 +70,6 @@ class SalaryService
 
         $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount;
 
-        if ($this->period === 'first_half' || $this->period === 'second_half') {
-            $actualSalary = $actualSalary / 2;
-        }
-
         return [
             'actualSalaryEarned' => $actualSalary,
             
