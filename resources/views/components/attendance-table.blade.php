@@ -6,8 +6,7 @@
     <thead>
         <tr>
             <th>Date</th>
-            <th>Time In</th>
-            <th>Time Out</th>
+            <th>Entries</th>
             <th>Total Working Hours</th>
             <th>Late Minutes</th>
             <th>Early Minutes</th>
@@ -17,62 +16,70 @@
     </thead>
     <tbody>
         @php
-            $lateTimeMinutes = 0;
-            $totalMi = 0;
+            $totalWorkingMinutes = 0;
         @endphp
         @foreach ($groupedAttendances as $date => $entries)
             @php
                 $dailyMinutes = 0;
-                $entryCount = count($entries);
                 $dayName = \Carbon\Carbon::parse($date)->format('l');
-
-                foreach ($entries as $entry) {
-                    if (!$entry['is_incomplete']) {
-                        $entryStart = $entry['calculation_checkin'];
-                        $entryEnd = $entry['calculation_checkout'];
-                        $dailyMinutes +=
-                            $dailyMinutes +
-                            $entryStart->diffInMinutes($entryEnd) -
-                            floor($earlyMinutes[$date]) -
-                            floor($overMinutes[$date]);
-                        $lateTimeMinutes += floor($lateMinutes[$date]);
-                    }
-                }
-                $totalMi += $dailyMinutes;
-                $dailyHours = sprintf('%02d:%02d', $dailyMinutes / 60, $dailyMinutes % 60);
             @endphp
             <tr>
-                <td>{{ Carbon\Carbon::parse($date)->format('l, F j, Y') }}</td>
+                <td>{{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}</td>
                 <td>
-                    @if (isset($entries[0]['original_checkin']))
-                        {{ $entries[0]['original_checkin']->format('h:i A') }}
-                    @else
-                        N/A
-                    @endif
+                    <ul>
+                        @foreach ($entries as $entry)
+                            <li>
+                                @if ($entry['original_checkin'])
+                                    In: {{ $entry['original_checkin']->format('h:i A') }}
+                                @endif
+                                <br />
+                                @if ($entry['original_checkout'])
+                                    Out: {{ $entry['original_checkout']->format('h:i A') }}
+                                @else
+                                    <span class="text-danger">No Checkout</span>
+                                @endif
+                                <br />
+                            </li>
+                            @php
+                                if (!$entry['is_incomplete']) {
+                                    $dailyMinutes += $entry['calculation_checkin']->diffInMinutes(
+                                        $entry['calculation_checkout'],
+                                    );
+                                }
+                            @endphp
+                        @endforeach
+                    </ul>
                 </td>
                 <td>
-                    @if (isset($entries[0]['original_checkout']))
-                        {{ $entries[0]['original_checkout']->format('h:i A') }}
-                    @else
-                        N/A
-                    @endif
+                    @php
+                        $dailyHours = sprintf('%02d:%02d', $dailyMinutes / 60, $dailyMinutes % 60);
+                        $totalWorkingMinutes += $dailyMinutes;
+                    @endphp
+                    {{ $dailyHours }}
                 </td>
-                <td>{{ $dailyHours }}</td>
-                <td>{{ floor($lateMinutes[$date]) }}</td>
-                <td>{{ floor($earlyMinutes[$date]) }}</td>
-                <td>{{ floor($overMinutes[$date]) }}</td>
+                <td>{{ floor($lateMinutes[$date]) ?? 0 }}</td>
+                <td>{{ floor($earlyMinutes[$date]) ?? 0 }}</td>
+                <td>{{ floor($overMinutes[$date]) ?? 0 }}</td>
                 <td>
                     @if (in_array($dayName, $holidays))
                         <span class="text-danger">Holiday</span>
                     @elseif(empty($entries))
                         <span class="text-danger">Absent</span>
-                    @elseif(!empty($entries) && !$entries[0]['is_incomplete'])
+                    @elseif($dailyMinutes > 0)
                         <span class="text-success">Present</span>
-                    @elseif(!empty($entries) && $entries[0]['is_incomplete'])
+                    @else
                         <span class="text-danger">Misscan</span>
                     @endif
                 </td>
             </tr>
         @endforeach
     </tbody>
+    {{-- <tfoot>
+        <tr>
+            <th colspan="2">Total Working Hours</th>
+            <th colspan="5">
+                {{ sprintf('%02d:%02d', $totalWorkingMinutes / 60, $totalWorkingMinutes % 60) }}
+            </th>
+        </tr>
+    </tfoot> --}}
 </table>

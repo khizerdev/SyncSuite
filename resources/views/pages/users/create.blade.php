@@ -50,7 +50,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Roles Dropdown -->
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="role">Role</label>

@@ -126,19 +126,58 @@ class AttendanceService
             $checkIn = Carbon::parse($attendances[$i]->datetime);
             $date = $checkIn->format('Y-m-d');
             
-            if (!empty($groupedAttendances[$date])) {
-                continue;
+            // Group entries by date if not already grouped
+            if (!isset($groupedAttendances[$date])) {
+                $groupedAttendances[$date] = [];
             }
 
             $currentDateEntries = $this->getCurrentDateEntries($attendances, $i, $date);
-            if (count($currentDateEntries) > 0) {
-                $checkInOut = $this->determineCheckInOut($currentDateEntries);
-                $groupedAttendances[$date][] = $this->createAttendanceEntry($checkInOut['checkIn'], $checkInOut['checkOut']);
+            if (count($currentDateEntries['entries']) > 0) {
+                $nestedEntries = $this->determineDailyEntries($currentDateEntries['entries']);
+                foreach ($nestedEntries as $entry) {
+                    $groupedAttendances[$date][] = $this->createAttendanceEntry($entry['checkIn'], $entry['checkOut']);
+                }
                 $i = $currentDateEntries['lastIndex'] - 1;
             }
         }
 
         return ['groupedAttendances' => $groupedAttendances];
+    }
+
+    private function determineDailyEntries($entries)
+    {
+        $nestedEntries = [];
+        $currentCheckIn = null;
+
+        foreach ($entries as $entry) {
+            $entryTime = Carbon::parse($entry->datetime);
+
+            // Start a new check-in if no active check-in exists
+            if (!$currentCheckIn) {
+                $currentCheckIn = $entryTime;
+                continue;
+            }
+
+            // Check time difference with the current check-in
+            if ($currentCheckIn->diffInMinutes($entryTime) > 2) {
+                // Treat as a checkout for the current check-in
+                $nestedEntries[] = [
+                    'checkIn' => $currentCheckIn,
+                    'checkOut' => $entryTime
+                ];
+                $currentCheckIn = null;
+            }
+        }
+
+        // Handle incomplete entries (no checkout for the last check-in)
+        if ($currentCheckIn) {
+            $nestedEntries[] = [
+                'checkIn' => $currentCheckIn,
+                'checkOut' => null
+            ];
+        }
+
+        return $nestedEntries;
     }
 
     private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
@@ -289,7 +328,7 @@ class AttendanceService
             return date('Y-m-d', strtotime($date));
         })->toArray();
 
-        foreach ($entries as $entry) {
+        foreach ($entries as $key => $entry) {
             if (!$entry['is_incomplete']) {
                 $minutes = $this->calculateEntryMinutes($entry, $shiftTimes);
                 $totalMinutes += $minutes['worked'];
@@ -305,7 +344,9 @@ class AttendanceService
 
                 $overtimeMinutes += (int) floor($minutes['overtime']);
                 $earlyCheckinMinutes += $minutes['earlyCheckin'];
-                $lateMinutes += $minutes['late'];
+                if($key == 0){
+                    $lateMinutes += $minutes['late'];
+                }
             }
         }
 
