@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Branch\StoreBranchRequest;
 use App\Http\Requests\Branch\UpdateBranchRequest;
 use App\Models\Branch;
+use App\Models\User;
 
 class BranchController extends Controller
 {
@@ -27,6 +28,14 @@ class BranchController extends Controller
 
      public function index(Request $request)
      {
+        $user = User::find(4); // Find the user
+$user->assignRole('erp'); // Assign the admin role
+        $user = User::find(5); // Find the user
+$user->assignRole('hr'); // Assign the admin role
+$user = User::find(7); // Find the user
+$user->assignRole('hr'); // Assign the admin role
+$user->assignRole('erp'); // Assign the admin role
+return;
          if ($request->ajax()) {
              $data = Branch::latest()->get();
              return DataTables::of($data)

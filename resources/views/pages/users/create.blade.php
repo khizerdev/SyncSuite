@@ -14,44 +14,7 @@
                     </ol>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-secondary">
-                        <div class="card-header">
-                            <h3 class="card-title">User Create</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="form" action="{{ route('users.store') }}" method="POST" data-method="POST"
-                                data-method="POST">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="name">Name</label>
-                                            <input type="text" id="name" name="name" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="name">Email</label>
-                                            <input type="text" id="email" name="email" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="name">Password</label>
-                                            <input type="text" id="password" name="password"
-                                                class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="row">
                 <div class="col-md-12">
@@ -60,40 +23,50 @@
                             <h3 class="card-title">User Create</h3>
                         </div>
                         <div class="card-body">
-                            <form id="form" action="{{ route('users.store') }}" method="POST" data-method="POST"
-                                data-method="POST">
+                            <form id="form" action="{{ route('users.store') }}" method="POST" data-method="POST">
                                 @csrf
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="name">Name</label>
-                                            {{-- <select class="form-control" name="role" id=""> --}}
-                                                @foreach (App\Models\Role::get() as $key => $role)
-                                                @dd($role->role_permissions);
-                                                @if (sizeof($role->role_permissions) == 0)
-                                                <option value="{{$role->id}}">{{$role->name}}</option>
-                                                @endif
+                                            <input type="text" id="name" name="name" class="form-control"
+                                                required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email" id="email" name="email" class="form-control"
+                                                required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <input type="password" id="password" name="password" class="form-control"
+                                                required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Roles Dropdown -->
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="role">Role</label>
+                                            <select id="role" name="roles[]" class="form-control" required multiple>
+                                                <option value="" disabled selected>Select a role</option>
+                                                @foreach (App\Models\Role::all() as $role)
+                                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                 @endforeach
-                                              {{-- </select> --}}
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="name">Email</label>
-                                            <input type="text" id="email" name="email" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="name">Password</label>
-                                            <input type="text" id="password" name="password"
-                                                class="form-control">
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
 
                                 <button type="submit" class="btn btn-secondary">Submit</button>
                             </form>
+
                         </div>
                     </div>
                 </div>

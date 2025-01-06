@@ -16,20 +16,10 @@ class RoleController extends Controller
      * Display a listing of the resource.
      */
 
-     public static function middleware(): array
-     {
-         return [
-             'permission:list-role|create-role|edit-role|delete-role' => ['only' => ['index', 'store']],
-             'permission:create-role' => ['only' => ['create', 'store']],
-             'permission:edit-role' => ['only' => ['edit', 'update']],
-             'permission:delete-role' => ['only' => ['destroy']],
-         ];
-     }
-
      public function index(Request $request)
      {
          if ($request->ajax()) {
-             $data = Role::latest()->get();
+             $data = Role::whereNot('name', 'super-admin')->latest()->get();
              return DataTables::of($data)
                 ->addColumn('action', function($row){
                     $editUrl = route('roles.edit', $row->id);
@@ -130,6 +120,9 @@ class RoleController extends Controller
     {
         try {
             $role = Role::findOrFail($id);
+            if ($role->users()->exists()) {
+                return response()->json(['message' => '', 'error' => 'Cannot delete a role that is associated with users.'], 500);
+            }
             $role->delete();
     
             return response()->json(['message' => 'Role deleted successfully'], 200);

@@ -26,10 +26,13 @@ class UpdateUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'password' => [
-                'required',
+                'nullable',
+                'sometimes',
                 'string',
-                'min:8',             // Minimum length of 8 characters
+                'min:8',
             ],
+            'roles' => 'required|array',
+            'roles.*' => 'exists:roles,id',
         ];
     }
 }

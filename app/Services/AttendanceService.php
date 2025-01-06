@@ -303,7 +303,7 @@ class AttendanceService
                     $gazatteMinutes += $minutes['worked'];
                 }
 
-                $overtimeMinutes += $minutes['overtime'];
+                $overtimeMinutes += (int) floor($minutes['overtime']);
                 $earlyCheckinMinutes += $minutes['earlyCheckin'];
                 $lateMinutes += $minutes['late'];
             }
@@ -352,7 +352,7 @@ class AttendanceService
         
             return [
                 'worked' => $minutesWorked,
-                'overtime' => $adjustedOvertime,
+                'overtime' => (int) floor($adjustedOvertime),
                 'earlyCheckin' => $earlyCheckinMinutes,
                 'late' => $remainingLateMinutes
             ];

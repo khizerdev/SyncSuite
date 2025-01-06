@@ -24,28 +24,53 @@
                             <form id="form" action="{{ route('users.update', $user->id) }}" method="POST"
                                 data-method="PUT">
                                 @csrf
+                                @method('PUT')
                                 <div class="row">
+                                    <!-- Name Input -->
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="name">Name</label>
                                             <input type="text" id="name" name="name" class="form-control"
-                                                value="{{ $user->name }}">
+                                                value="{{ $user->name }}" required>
                                         </div>
                                     </div>
+
+                                    <!-- Email Input -->
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="name">Email</label>
-                                            <input type="text" id="email" name="email" class="form-control"
-                                                value="{{ $user->email }}">
+                                            <label for="email">Email</label>
+                                            <input type="email" id="email" name="email" class="form-control"
+                                                value="{{ $user->email }}" required>
                                         </div>
                                     </div>
+
+                                    <!-- Password Input -->
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="name">Password</label>
-                                            <input type="text" id="password" name="password"
-                                                class="form-control" value="{{ $user->password }}">
+                                            <label for="password">Password</label>
+                                            <input type="password" id="password" name="password" class="form-control"
+                                                placeholder="Leave blank to keep current password">
                                         </div>
                                     </div>
+
+                                    <!-- Roles Dropdown (Multiple Selection) -->
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="roles">Roles</label>
+                                            <select id="roles" name="roles[]" class="form-control" multiple>
+                                                @foreach (App\Models\Role::all() as $role)
+                                                    <option value="{{ $role->id }}"
+                                                        @if ($user->roles->contains($role->id)) selected @endif>
+                                                        {{ $role->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="form-text text-muted">Hold Ctrl (or Cmd on Mac) to select multiple
+                                                roles.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-secondary">Update</button>
@@ -53,6 +78,7 @@
                                     </div>
                                 </div>
                             </form>
+
                         </div>
                     </div>
                 </div>

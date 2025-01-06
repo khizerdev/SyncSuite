@@ -30,12 +30,12 @@
                                             <input type="text" id="name" name="name" class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    {{-- <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="name">Guard Name</label>
                                             <input type="text" id="guard_name" name="guard_name" class="form-control">
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
 
                                 <button type="submit" class="btn btn-secondary">Submit</button>

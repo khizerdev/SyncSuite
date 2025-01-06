@@ -9,6 +9,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserController extends Controller
 {
@@ -16,20 +17,20 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
 
-     public static function middleware(): array
-     {
-         return [
-             'permission:list-user|create-user|edit-user|delete-user' => ['only' => ['index', 'store']],
-             'permission:create-user' => ['only' => ['create', 'store']],
-             'permission:edit-user' => ['only' => ['edit', 'update']],
-             'permission:delete-user' => ['only' => ['destroy']],
-         ];
-     }
+    //  public static function middleware(): array
+    //  {
+    //      return [
+    //          'permission:list-user|create-user|edit-user|delete-user' => ['only' => ['index', 'store']],
+    //          'permission:create-user' => ['only' => ['create', 'store']],
+    //          'permission:edit-user' => ['only' => ['edit', 'update']],
+    //          'permission:delete-user' => ['only' => ['destroy']],
+    //      ];
+    //  }
 
      public function index(Request $request)
      {
          if ($request->ajax()) {
-             $data = User::latest()->get();
+             $data = User::whereNot('name', 'SUPER ADMIN')->latest()->get();
              return DataTables::of($data)
                 ->addColumn('action', function($row){
                     $editUrl = route('users.edit', $row->id);
@@ -60,30 +61,36 @@ class UserController extends Controller
     {
         try {
             $validatedData = $request->validated();
-    
-            // Hash the password before creating the user
-            if (isset($validatedData['password'])) {
-                $validatedData['password'] = Hash::make($validatedData['password']);
-            }
-    
+            
+            // Password is required for new users
+            $validatedData['password'] = Hash::make($validatedData['password']);
+            
+            // Extract roles from validated data
+            $roleIds = $validatedData['roles'] ?? [];
+            unset($validatedData['roles']);
+            
+            // Create user
             $user = User::create($validatedData);
-    
+            
+            // Get role models from IDs and assign them
+            $roles = \Spatie\Permission\Models\Role::whereIn('id', $roleIds)->get();
+            $user->syncRoles($roles);
+            
             return response()->json([
                 'message' => 'User created successfully',
-            ], 200);
-    
+            ], 201); // Using 201 Created status code
+            
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 422);
-    
+            
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to create user',
                 'error' => $e->getMessage(),
             ], 500);
-    
         }
     }
     
@@ -104,20 +111,35 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-    
+            
             $validatedData = $request->validated();
-    
-            // Hash the password before updating the user if a new password is provided
-            if (isset($validatedData['password'])) {
+            
+            // Handle password
+            if (empty($validatedData['password'])) {
+                unset($validatedData['password']);
+            } else {
                 $validatedData['password'] = Hash::make($validatedData['password']);
             }
-    
+            
+            // Extract roles from validated data
+            $roleIds = $validatedData['roles'] ?? [];
+            unset($validatedData['roles']);
+            
+            // Update user data
             $user->update($validatedData);
-    
+            
+            // Get role models from IDs and sync them
+            $roles = \Spatie\Permission\Models\Role::whereIn('id', $roleIds)->get();
+            $user->syncRoles($roles);
+            
             return response()->json([
-                'message' => 'User updated successfully',
+                'message' => 'User and roles updated successfully',
             ], 200);
             
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',

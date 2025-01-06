@@ -44,10 +44,10 @@
     <div class="wrapper">
 
         <!-- Preloader -->
-        <div class="preloader flex-column justify-content-center align-items-center">
+        {{-- <div class="preloader flex-column justify-content-center align-items-center">
             <img class="animation__shake" src="{{ env('ASSET_URL') }}/assets/dist/img/AdminLTELogo.png"
                 alt="AdminLTELogo" height="60" width="60">
-        </div>
+        </div> --}}
 
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -259,22 +259,34 @@
                                 ],
                             ];
 
+                            $superItems = [
+                                [
+                                    'title' => 'Roles',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'roles.index',
+                                    'children' => [['title' => 'View', 'route' => 'roles.index']],
+                                ],
+                                [
+                                    'title' => 'Users',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'users.index',
+                                    'children' => [['title' => 'View', 'route' => 'users.index']],
+                                ],
+                            ];
+
                         @endphp
                         @php
-                            $currentMode = session()->get('currentMode') ?? 'erp';
+                            $authRoles = auth()->user()->roles->pluck('name')->toArray();
                             $navItems = [];
 
-                            if ($currentMode == 'erp') {
-                                if (Auth::check() && Auth::user()->email === 'test@example.com') {
-                                    $navItems = $erpItems;
-                                }
-                            } else {
-                                if (Auth::check() && Auth::user()->email === 'hr@gmail.com') {
-                                    $navItems = $hrItems;
-                                }
+                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles)) {
+                                $navItems = array_merge($erpItems, $hrItems, $superItems);
+                            } elseif (in_array('erp', $authRoles)) {
+                                $navItems = $erpItems;
+                            } elseif (in_array('hr', $authRoles)) {
+                                $navItems = $hrItems;
                             }
                         @endphp
-
                         @foreach ($navItems as $item)
                             @php
                                 $isActive = false;
