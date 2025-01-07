@@ -71,25 +71,23 @@ class SalaryController extends Controller
     public function processSalaryGeneration(Request $request)
     {
         $currentMonth = intval($request->month);
-        $currentYear = now()->year;
+        $currentYear = intval($request->year);
         $period = $request->period;
 
-        $timestamp = mktime(0, 0, 0, $currentMonth, 1, 1970);
+        $baseDate = Carbon::createFromDate($currentYear, $currentMonth, 1);
 
-        $month_name = date("F", $timestamp);
-
-        //  check start and end dates
         if ($period === 'first_half') {
-            $startDate = Carbon::parse($month_name)->startOfMonth();
-            $endDate = Carbon::parse($month_name)->startOfMonth()->addDays(14);
+            $startDate = $baseDate->copy()->startOfMonth();
+            $endDate = $baseDate->copy()->startOfMonth()->addDays(14);
         } elseif ($period === 'second_half') {
-            $startDate = Carbon::parse($month_name)->startOfMonth()->addDays(15);
-            $endDate = Carbon::parse($month_name)->endOfMonth();
+            $startDate = $baseDate->copy()->startOfMonth()->addDays(15);
+            $endDate = $baseDate->copy()->endOfMonth();
         } else {
             // full_month
-            $startDate = Carbon::parse($month_name)->startOfMonth();
-            $endDate = Carbon::parse($month_name)->endOfMonth();
+            $startDate = $baseDate->copy()->startOfMonth();
+            $endDate = $baseDate->copy()->endOfMonth();
         }
+
         $departmentId = $request->input('department_id');
 
         $unresolvedExceptions = Employee::with(['loans'])

@@ -55,7 +55,7 @@ class SalaryService
         $hoursPerDay = intval($timings['formatted']);
         $salaryPerHour = ($this->employee->salary / $this->monthDays) / $hoursPerDay;
 
-        $regularPay = $this->attendanceData['totalHoursWorked'] * $salaryPerHour;
+        $regularPay = int floor($this->attendanceData['totalHoursWorked']) * $salaryPerHour;
         
         $holidayPay = $this->attendanceData['totalHolidayHoursWorked'] * $salaryPerHour * $this->employee->type->holiday_ratio;
 
