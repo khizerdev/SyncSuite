@@ -74,6 +74,9 @@ class SalaryController extends Controller
         $currentYear = intval($request->year);
         $period = $request->period;
 
+        $timestamp = mktime(0, 0, 0, $currentMonth, 1, $currentYear);
+        $month_name = date("F", $timestamp);
+
         $baseDate = Carbon::createFromDate($currentYear, $currentMonth, 1);
 
         if ($period === 'first_half') {
