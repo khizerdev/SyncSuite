@@ -184,6 +184,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', UserController::class);
     });
 
+    Route::get('/check-last-record', [AttendanceController::class, 'updateAttendanceTable'])->name('check.last.record');
+
     
     Route::get('/dashboard', function () {
         return view('dashboard');

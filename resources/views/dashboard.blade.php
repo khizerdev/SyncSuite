@@ -69,6 +69,13 @@
                 {{-- <div class="col-12">
                     <a href="{{ route('calculate.hours', ['employeeId' => '1001']) }}" class="btn btn-primary">Calculate Working Hours</a>
                 </div> --}}
+                <div class="col-12">
+                    <button id="createAttendance" class="btn btn-primary">
+                        <span id="loader" class="spinner-border spinner-border-sm d-none" role="status"
+                            aria-hidden="true"></span>
+                        Create Attendance Records
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -76,4 +83,32 @@
 @endsection
 
 @section('script')
+    <script>
+        $(document).ready(function() {
+            $('#createAttendance').on('click', function() {
+                // Disable the button and show the loader
+                $(this).prop('disabled', true);
+                $('#loader').removeClass('d-none');
+
+                $.ajax({
+                    url: "{{ route('check.last.record') }}",
+                    type: "GET",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        toastr.success("Records update successfully")
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON.message)
+                    },
+                    complete: function() {
+                        // Re-enable the button and hide the loader
+                        $('#createAttendance').prop('disabled', false);
+                        $('#loader').addClass('d-none');
+                    },
+                });
+            });
+        });
+    </script>
 @endsection

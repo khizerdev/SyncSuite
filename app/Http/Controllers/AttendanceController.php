@@ -395,7 +395,57 @@ class AttendanceController extends Controller
         }
     }
 
+    public function updateAttendanceTable()
+    {
+        $lastAttendance = DB::table('attendances')->latest('datetime')->first();
 
+        if (!$lastAttendance) {
+            return response()->json(['message' => 'No records found in attendances table'], 404);
+        }
+
+        $lastDate = \Carbon\Carbon::parse($lastAttendance->datetime)->addDay()->toDateString();
+
+        $startDate = $lastDate;
+        $endDate = Carbon::yesterday()->toDateString();
+
+        $recordsInRange = DB::connection('mysql2')->table('checkinout')
+            ->select(DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time')) // Remove quotes
+            ->get()
+            ->filter(function ($record) use ($startDate, $endDate) {
+                // Convert CHECKTIME to a comparable date format
+                $checktime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d');
+
+                // Check if the date falls within the range
+                return $checktime >= $startDate && $checktime <= $endDate;
+            });
+
+        if ($recordsInRange->isEmpty()) {
+            return response()->json(['message' => 'No records found in the given date range','startDate' => $startDate, 'endDate' => $endDate], 404);
+        }
+        // Process records in chunks
+        $chunkSize = 100;
+        $recordsInRange->chunk($chunkSize)->each(function ($chunk) {
+            $attendanceData = [];
+
+            foreach ($chunk as $key => $record) {
+                try {
+                    $datetime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d H:i:s');
+                    $attendanceData[] = [
+                        'code' => $key,
+                        'datetime' => $datetime,
+                    ];
+                } catch (\Exception $e) {
+                    dd($e);
+                }
+            }
+
+            if (!empty($attendanceData)) {
+                DB::table('attendances')->insert($attendanceData); // Bulk insert
+            }
+        });
+
+        return response()->json(['message' => 'Attendance records created successfully', 'startDate' => $startDate, 'endDate' => $endDate]);
+    }
     
     
 }
