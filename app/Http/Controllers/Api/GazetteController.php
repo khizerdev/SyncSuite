@@ -16,9 +16,7 @@ class GazetteController extends Controller
         $month = $request->get('month', Carbon::now()->month);
         $year = $request->get('year', Carbon::now()->year);
 
-        $holidays = GazetteHoliday::whereYear('holiday_date', $year)
-            ->whereMonth('holiday_date', $month)
-            ->get()
+        $holidays = GazetteHoliday::get()
             ->map(function ($holiday) {
                 return [
                     'date' => $holiday->holiday_date->format('Y-m-d'),

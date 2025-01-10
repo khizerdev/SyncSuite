@@ -199,71 +199,20 @@ class AttendanceController extends Controller
         
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id'
-        ]);
-
-        $today = Carbon::today();
-
-        $employee_id = $request->employee_id;
-        $employee = Employee::find($employee_id);
-        $userInfo = UserInfo::where('code' , $employee->code)->first();
-
-        if(!$userInfo){
-            return response()->json([
-                'success' => false,
-                'message' => "Employee Info not found",
-            ]);
-        }
-
-        $lastRecord = Attendance::where('code', $userInfo->id)
-            ->whereDate('datetime', Carbon::today())
-            ->latest()
-            ->first();
-
-        if ($request->attendance_type === 'checkin' && $lastRecord) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Already checked in today'
-            ], 422);
-        }
-    
-        if ($request->attendance_type === 'checkout' && !$lastRecord) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot check out at this time'
-            ], 422);
-        }
-        
-        $attendance = new Attendance([
-            'code' => $userInfo->id,
-            'datetime' => now()
-        ]);
-        $attendance->save();
-
-        $timeFormatted = Carbon::parse($attendance->datetime)->format('Y-m-d H:i:s');
-        $type = $request->attendance_type === 'checkin' ? 'Check-in' : 'Check-out';
-    
-        return response()->json([
-            'success' => true,
-            'message' => "$type recorded successfully",
-            'data' => [
-                'employee_name' => $employee->name,
-                'datetime' => $timeFormatted,
-                'type' => $type
-            ]
-        ]);
-    }
-
     public function checkStatus(Request $request)
     {
-        $employee_id = $request->employee_id;
-        $employee = Employee::find($employee_id);
-        $userInfo = UserInfo::where('code' , $employee->code)->first();
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date|before_or_equal:today'
+        ]);
 
-        if(!$userInfo){
+        $employee_id = $request->employee_id;
+        $date = Carbon::parse($request->date);
+        
+        $employee = Employee::find($employee_id);
+        $userInfo = UserInfo::where('code', $employee->code)->first();
+
+        if(!$userInfo) {
             return response()->json([
                 'success' => false,
                 'message' => "Employee Info not found",
@@ -271,7 +220,7 @@ class AttendanceController extends Controller
         }
 
         $lastRecord = Attendance::where('code', $userInfo->id)
-            ->whereDate('datetime', Carbon::today())
+            ->whereDate('datetime', $date)
             ->latest()
             ->first();
 
@@ -282,12 +231,11 @@ class AttendanceController extends Controller
             ]);
         }
 
-        // Get count of today's records for this employee
-        $todayRecordsCount = Attendance::where('code', $userInfo->id)
-        ->whereDate('datetime', Carbon::today())
-        ->count();
+        $recordsCount = Attendance::where('code', $userInfo->id)
+            ->whereDate('datetime', $date)
+            ->count();
 
-        if ($todayRecordsCount >= 2) {
+        if ($recordsCount >= 2) {
             // Both check-in and check-out exist
             return response()->json([
                 'status' => 'completed'
@@ -298,6 +246,66 @@ class AttendanceController extends Controller
                 'status' => 'checkout'
             ]);
         }
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date|before_or_equal:today',
+            'attendance_type' => 'required|in:checkin,checkout'
+        ]);
+
+        $employee_id = $request->employee_id;
+        $date = Carbon::parse($request->date);
+        
+        $employee = Employee::find($employee_id);
+        $userInfo = UserInfo::where('code', $employee->code)->first();
+
+        if(!$userInfo) {
+            return response()->json([
+                'success' => false,
+                'message' => "Employee Info not found",
+            ]);
+        }
+
+        $lastRecord = Attendance::where('code', $userInfo->id)
+            ->whereDate('datetime', $date)
+            ->latest()
+            ->first();
+
+        if ($request->attendance_type === 'checkin' && $lastRecord) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Already checked in for selected date'
+            ], 422);
+        }
+
+        if ($request->attendance_type === 'checkout' && !$lastRecord) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot check out without checking in first'
+            ], 422);
+        }
+        
+        $attendance = new Attendance([
+            'code' => $userInfo->id,
+            'datetime' => $date->setTimeFromTimeString(now()->toTimeString())
+        ]);
+        $attendance->save();
+
+        $timeFormatted = Carbon::parse($attendance->datetime)->format('Y-m-d H:i:s');
+        $type = $request->attendance_type === 'checkin' ? 'Check-in' : 'Check-out';
+
+        return response()->json([
+            'success' => true,
+            'message' => "$type recorded successfully",
+            'data' => [
+                'employee_name' => $employee->name,
+                'datetime' => $timeFormatted,
+                'type' => $type
+            ]
+        ]);
     }
 
     public function showCorrectionForm()
@@ -408,11 +416,14 @@ class AttendanceController extends Controller
         $startDate = $lastDate;
         $endDate = Carbon::yesterday()->toDateString();
 
-        $recordsInRange = DB::connection('mysql2')->table('checkinout')
-            ->select(DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time')) // Remove quotes
+        $recordsInRange = DB::connection('mysql2')->table('CHECKINOUT')
+            ->select(
+                'USERID',
+                DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time')
+            )
             ->get()
             ->filter(function ($record) use ($startDate, $endDate) {
-                // Convert CHECKTIME to a comparable date format
+
                 $checktime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d');
 
                 // Check if the date falls within the range
@@ -423,15 +434,15 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'No records found in the given date range','startDate' => $startDate, 'endDate' => $endDate], 404);
         }
         // Process records in chunks
-        $chunkSize = 100;
+        $chunkSize = 200;
         $recordsInRange->chunk($chunkSize)->each(function ($chunk) {
             $attendanceData = [];
 
-            foreach ($chunk as $key => $record) {
+            foreach ($chunk as $record) {
                 try {
                     $datetime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d H:i:s');
                     $attendanceData[] = [
-                        'code' => $key,
+                        'code' => $record->USERID,
                         'datetime' => $datetime,
                     ];
                 } catch (\Exception $e) {
@@ -440,7 +451,7 @@ class AttendanceController extends Controller
             }
 
             if (!empty($attendanceData)) {
-                DB::table('attendances')->insert($attendanceData); // Bulk insert
+                DB::table('attendances')->insert($attendanceData);
             }
         });
 

@@ -20,6 +20,11 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="form-group mt-3">
+                                <label for="attendance_date">Select Date</label>
+                                <input type="date" id="attendance_date" class="form-control" required
+                                    value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}">
+                            </div>
                             <div class="mt-3">
                                 <button id="checkInBtn" class="btn btn-success" disabled>
                                     <span class="spinner-border spinner-border-sm d-none" role="status"></span>
@@ -45,6 +50,7 @@
     <script>
         $(document).ready(function() {
             const employeeSelect = $('#employee_id');
+            const attendanceDate = $('#attendance_date');
             const checkInBtn = $('#checkInBtn');
             const checkOutBtn = $('#checkOutBtn');
             const statusMessage = $('#statusMessage');
@@ -80,7 +86,8 @@
                     case 'completed':
                         checkInBtn.prop('disabled', true);
                         checkOutBtn.prop('disabled', true);
-                        statusMessage.html('<div class="alert alert-success">Attendance completed for today</div>');
+                        statusMessage.html(
+                            '<div class="alert alert-success">Attendance completed for selected date</div>');
                         break;
                     default:
                         checkInBtn.prop('disabled', true);
@@ -89,19 +96,21 @@
                 }
             }
 
-            employeeSelect.on('change', function() {
-                const employeeId = $(this).val();
-                if (!employeeId) {
+            function checkAttendanceStatus() {
+                const employeeId = employeeSelect.val();
+                const date = attendanceDate.val();
+
+                if (!employeeId || !date) {
                     updateButtonStates('none');
                     return;
                 }
 
-                // Check employee's attendance status
                 $.ajax({
                     url: '{{ route('attendance.check-status') }}',
                     method: 'POST',
                     data: {
                         employee_id: employeeId,
+                        date: date,
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {
@@ -113,10 +122,15 @@
                         updateButtonStates('none');
                     }
                 });
-            });
+            }
+
+            // Check status when either employee or date changes
+            employeeSelect.on('change', checkAttendanceStatus);
+            attendanceDate.on('change', checkAttendanceStatus);
 
             function handleAttendance(type) {
                 const employeeId = employeeSelect.val();
+                const date = attendanceDate.val();
                 const button = type === 'checkin' ? checkInBtn : checkOutBtn;
 
                 setLoading(button, true);
@@ -127,30 +141,27 @@
                     data: {
                         employee_id: employeeId,
                         attendance_type: type,
+                        date: date,
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        // Add new record to table
                         const newRow = `
-                        <tr>
-                            <td>${response.data.employee_name}</td>
-                            <td>${response.data.datetime}</td>
-                            <td>${response.data.type}</td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td>${response.data.employee_name}</td>
+                                <td>${response.data.datetime}</td>
+                                <td>${response.data.type}</td>
+                            </tr>
+                        `;
                         attendanceList.prepend(newRow);
-
-                        // Update status message
                         statusMessage.html(
-                            `<div class="alert alert-success">${response.message}</div>`);
-
-                        // Refresh status
-                        employeeSelect.trigger('change');
+                        `<div class="alert alert-success">${response.message}</div>`);
+                        checkAttendanceStatus();
                         setLoading(button, false);
                     },
-                    error: function() {
+                    error: function(xhr) {
                         statusMessage.html(
-                            '<div class="alert alert-danger">Error recording attendance</div>');
+                            `<div class="alert alert-danger">${xhr.responseJSON?.message || 'Error recording attendance'}</div>`
+                            );
                         setLoading(button, false);
                     }
                 });

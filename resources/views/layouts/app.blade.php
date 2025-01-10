@@ -193,7 +193,7 @@
                                     'route' => 'attendance.index',
                                     'children' => [
                                         ['title' => 'View', 'route' => 'attendance.index'],
-                                        ['title' => 'Create', 'route' => 'attendance.create'],
+                                        ['title' => 'Checkin/Checkout', 'route' => 'attendance.create'],
                                         ['title' => 'Time Correction', 'route' => 'attendance.correction'],
                                     ],
                                 ],
