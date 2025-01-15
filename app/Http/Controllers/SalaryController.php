@@ -132,6 +132,7 @@ class SalaryController extends Controller
                     
                     $processor = new AttendanceService($employee);
                     $result = $processor->processAttendance($startDate, $endDate);
+                    $missCount = $processor->getMissScanCount($startDate, $endDate);
                     if (empty(array_filter($result['groupedAttendances'], function ($value) {
                         return !empty($value);
                     }))) {
@@ -143,7 +144,9 @@ class SalaryController extends Controller
                         // dd($salaryData);
         
                         $advance = AdvanceSalary::where('employee_id', $employee->id)->latest()->first();
-        
+                        
+
+
                         $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
                         $loanInstallmentAmount = isset($loan) ? $loan->amount / $loan->months : 0;
         

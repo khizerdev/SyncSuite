@@ -286,17 +286,18 @@ class EmployeeController extends Controller
 
         $period = $request->duration;
 
-        //  check start and end dates
+        $baseDate = Carbon::createFromDate($request->year, $currentMonth, 1);
+
         if ($period === 'first_half') {
-            $startDate = Carbon::parse($month_name)->startOfMonth();
-            $endDate = Carbon::parse($month_name)->startOfMonth()->addDays(14);
+            $startDate = $baseDate->copy()->startOfMonth();
+            $endDate = $baseDate->copy()->startOfMonth()->addDays(14);
         } elseif ($period === 'second_half') {
-            $startDate = Carbon::parse($month_name)->startOfMonth()->addDays(15);
-            $endDate = Carbon::parse($month_name)->endOfMonth();
+            $startDate = $baseDate->copy()->startOfMonth()->addDays(15);
+            $endDate = $baseDate->copy()->endOfMonth();
         } else {
             // full_month
-            $startDate = Carbon::parse($month_name)->startOfMonth();
-            $endDate = Carbon::parse($month_name)->endOfMonth();
+            $startDate = $baseDate->copy()->startOfMonth();
+            $endDate = $baseDate->copy()->endOfMonth();
         }
 
         // $startDate = Carbon::create($request->year, $request->month, 1)->startOfDay();

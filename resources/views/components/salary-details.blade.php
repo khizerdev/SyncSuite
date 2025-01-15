@@ -18,6 +18,8 @@
     'salary',
     'gazattePayAmount',
     'holidayPayAmount',
+    'missDeductDays',
+    'missAmount',
 ])
 
 <div class="col-md-11">
@@ -70,9 +72,12 @@
                     {{ number_format($salary->advance_deducted, 0) }}</td>
 
 
-
             </tr>
             <tr>
+                <td><strong>Miss Scan Days Counted</strong><br>
+                    {{ $missDeductDays }}</td>
+                <td><strong>Miss Scan Deduct Amount</strong><br>PKR
+                    {{ number_format($missAmount, 0) }}</td>
                 <td><strong>Loan Deduction</strong><br>PKR
                     {{ number_format($salary->loan_deducted, 0) }}</td>
                 <td class="table-success"><strong>Final Salary</strong><br>PKR

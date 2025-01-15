@@ -6,6 +6,7 @@ use App\Models\AdvanceSalary;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\Loan;
+use App\Models\Missscan;
 use App\Models\Salary;
 use App\Models\UserInfo;
 use Carbon\Carbon;
@@ -68,7 +69,21 @@ class SalaryService
 
         $gazattePay = ($this->attendanceData['gazatteMinutes'] / 60) * $this->employee->type->holiday_ratio * $salaryPerHour;
 
+        $missScanCount = $this->attendanceData["missScanCount"];
+        
+        $missScanCleared = Missscan::where('employee_id' , $this->employee->id)->where('month' , $this->attendanceData["month"])->where('year' , $this->attendanceData["year"])->first();
+        
         $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount;
+        
+        $missDeductDays = 0;
+        $missAmount =0;
+        $missScanPerDayAmount =0;
+        if(!$missScanCleared){
+            $missScanPerDayAmount = $actualSalary/$this->attendanceData["monthDays"];
+            $missDeductDays = (int)floor($missScanCount/3);
+            $missAmount = $missScanPerDayAmount*$missDeductDays;
+            $actualSalary -= $missAmount;
+        }
 
         return [
             'actualSalaryEarned' => $actualSalary,
@@ -84,6 +99,9 @@ class SalaryService
             'holidayPay' => $holidayPay,
             'normalHolidayPay' => $normalHolidayPay,
             'gazattePay' => $gazattePay,
+            
+            'missDeductDays' => $missDeductDays,
+            'missAmount' => $missAmount,
         ];
     }
 

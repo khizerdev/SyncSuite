@@ -57,6 +57,9 @@ class AttendanceService
 
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
         $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances'],$gazetteHolidays);
+
+        $missScanCount = $this->getMissScanCount($processedAttendances['groupedAttendances']);
+
         return [
             'employee' => $this->employee,
             'dailyMinutes' => $calculatedMinutes['dailyMinutes'],
@@ -74,7 +77,35 @@ class AttendanceService
             'isNightShift' => $this->isNightShift,
             'shift' => $this->shift,
             'groupedAttendances' => $processedAttendances['groupedAttendances'],
+            'missScanCount' => $missScanCount,
+            'month' => $startDate instanceof Carbon ? $startDate->format('m') : Carbon::parse($startDate)->format('m'),
+            'year' => $startDate instanceof Carbon ? $startDate->format('Y') : Carbon::parse($startDate)->format('Y'),
         ];
+    }
+
+    public function getMissScanCount($groupedAttendances){
+        
+        $missScanCount = 0;
+        if (is_array($groupedAttendances)) {
+            
+            foreach ($groupedAttendances as $values) {
+                if (!is_array($values)) {
+                    continue;
+                }
+            
+                foreach ($values as $value) {
+                    if (!is_array($value) || !array_key_exists("is_incomplete", $value)) {
+                        continue;
+                    }
+            
+                    if ($value["is_incomplete"]) {
+                        $missScanCount += 1;
+                    }
+                }
+            }
+        }
+
+        return $missScanCount;
     }
 
     private function getUserInfo()

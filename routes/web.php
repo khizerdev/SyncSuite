@@ -6,6 +6,7 @@ use App\Http\Controllers\GazetteController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanExceptionController;
+use App\Http\Controllers\MissScanController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ShiftController;
@@ -177,6 +178,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/generate-salary/process', [SalaryController::class, 'processSalaryGeneration'])->name('generate-salary.process');
 
         Route::resource('gazette-holidays', GazetteController::class);
+
+        Route::get('/miss-scan', [MissScanController::class, 'index'])->name('miss-scan.index');
+        Route::post('/miss-scan/resolve', [MissScanController::class, 'resolve'])->name('miss-scan.resolve');
     });
 
     Route::middleware(['role:super-admin'])->group(function () {

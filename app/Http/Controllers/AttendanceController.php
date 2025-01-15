@@ -190,6 +190,7 @@ class AttendanceController extends Controller
             $processor = new AttendanceService($employee);
             $record = $processor->processAttendance($startDay,$endDay);
                 $allAttendances [$employee->id] = $record;
+                $missCount = $processor->getMissScanCount($startDay, $endDay);
     
             return view('pages.attendance.show', [
                 'collectiveAttendances' => $allAttendances,
