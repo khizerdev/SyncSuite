@@ -179,28 +179,31 @@ class AttendanceService
     {
         $nestedEntries = [];
         $currentCheckIn = null;
+        $lastCheckOut = null;
 
         foreach ($entries as $entry) {
             $entryTime = Carbon::parse($entry->datetime);
 
-            // Start a new check-in if no active check-in exists
             if (!$currentCheckIn) {
+                // Ensure this is not immediately after the last checkout
+                if ($lastCheckOut && $lastCheckOut->diffInMinutes($entryTime) <= 2) {
+                    continue;
+                }
                 $currentCheckIn = $entryTime;
                 continue;
             }
 
-            // Check time difference with the current check-in
             if ($currentCheckIn->diffInMinutes($entryTime) > 2) {
                 // Treat as a checkout for the current check-in
                 $nestedEntries[] = [
                     'checkIn' => $currentCheckIn,
                     'checkOut' => $entryTime
                 ];
+                $lastCheckOut = $entryTime; // Update last checkout time
                 $currentCheckIn = null;
             }
         }
 
-        // Handle incomplete entries (no checkout for the last check-in)
         if ($currentCheckIn) {
             $nestedEntries[] = [
                 'checkIn' => $currentCheckIn,
@@ -210,6 +213,7 @@ class AttendanceService
 
         return $nestedEntries;
     }
+
 
     private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
     {
