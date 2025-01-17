@@ -6,11 +6,11 @@
     <thead>
         <tr>
             <th>Date</th>
-            <th>Entries</th>
-            <th>Total Working Hours</th>
-            <th>Late Minutes</th>
-            <th>Early Minutes</th>
-            <th>Over Minutes</th>
+            <th class="text-center">Entries</th>
+            <th>Working Hours</th>
+            <th>Late Min</th>
+            <th>Early Min</th>
+            <th>Over Min</th>
             <th>Status</th>
         </tr>
     </thead>
@@ -24,22 +24,26 @@
                 $dayName = \Carbon\Carbon::parse($date)->format('l');
             @endphp
             <tr>
-                <td>{{ \Carbon\Carbon::parse($date)->format('l, F j, Y') }}</td>
+                <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, Y') }}</td>
                 <td>
-                    <ul>
+                    <div class="entries-container">
                         @foreach ($entries as $entry)
-                            <li>
-                                @if ($entry['original_checkin'])
-                                    In: {{ $entry['original_checkin']->format('h:i A') }}
-                                @endif
-                                <br />
-                                @if ($entry['original_checkout'])
-                                    Out: {{ $entry['original_checkout']->format('h:i A') }}
-                                @else
-                                    <span class="text-danger">No Checkout</span>
-                                @endif
-                                <br />
-                            </li>
+                            <div class="entry-card mb-2 @if (!$loop->last) border-bottom pb-2 @endif">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="entry-time">
+                                        @if ($entry['original_checkin'])
+                                            In: {{ $entry['original_checkin']->format('h:i A') }}
+                                        @endif
+                                    </div>
+                                    <div class="entry-time">
+                                        @if ($entry['original_checkout'])
+                                            Out: {{ $entry['original_checkout']->format('h:i A') }}
+                                        @else
+                                            <span class="text-danger"> No Checkout</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                             @php
                                 if (!$entry['is_incomplete']) {
                                     $dailyMinutes += $entry['calculation_checkin']->diffInMinutes(
@@ -48,7 +52,7 @@
                                 }
                             @endphp
                         @endforeach
-                    </ul>
+                    </div>
                 </td>
                 <td>
                     @php
@@ -60,12 +64,15 @@
                 <td>{{ floor($lateMinutes[$date]) ?? 0 }}</td>
                 <td>{{ floor($earlyMinutes[$date]) ?? 0 }}</td>
                 <td>{{ floor($overMinutes[$date]) ?? 0 }}</td>
+                @php
+                    $hasIncomplete = collect($entries)->contains('is_incomplete', true);
+                @endphp
                 <td>
                     @if (in_array($dayName, $holidays))
                         <span class="text-danger">Holiday</span>
                     @elseif(empty($entries))
                         <span class="text-danger">Absent</span>
-                    @elseif($dailyMinutes > 0)
+                    @elseif($dailyMinutes > 0 && !$hasIncomplete)
                         <span class="text-success">Present</span>
                     @else
                         <span class="text-danger">Misscan</span>
@@ -74,12 +81,44 @@
             </tr>
         @endforeach
     </tbody>
-    {{-- <tfoot>
-        <tr>
-            <th colspan="2">Total Working Hours</th>
-            <th colspan="5">
-                {{ sprintf('%02d:%02d', $totalWorkingMinutes / 60, $totalWorkingMinutes % 60) }}
-            </th>
-        </tr>
-    </tfoot> --}}
 </table>
+
+<style>
+    .entries-container {
+        max-height: 150px;
+        overflow-y: auto;
+        padding-right: 5px
+    }
+
+    /* .entry-card {
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        padding: 8px;
+    }
+
+    .entry-card:hover {
+        background-color: #e9ecef;
+    } */
+
+    .entry-time {
+        display: inline-block;
+    }
+
+
+    /* Custom scrollbar for webkit browsers */
+    .entries-container::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .entries-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .entries-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .entries-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
