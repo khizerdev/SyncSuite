@@ -84,7 +84,7 @@ class AttendanceService
     }
 
     public function getMissScanCount($groupedAttendances){
-        
+
         $missScanCount = 0;
         if (is_array($groupedAttendances)) {
             
@@ -92,15 +92,17 @@ class AttendanceService
                 if (!is_array($values)) {
                     continue;
                 }
-            
-                foreach ($values as $value) {
+
+                foreach ($values as $value) { 
                     if (!is_array($value) || !array_key_exists("is_incomplete", $value)) {
-                        continue;
+                        continue; 
                     }
-            
+    
                     if ($value["is_incomplete"]) {
-                        $missScanCount += 1;
+                        $missScanCount++; 
                     }
+    
+                    break; 
                 }
             }
         }

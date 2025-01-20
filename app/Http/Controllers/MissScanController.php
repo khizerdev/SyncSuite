@@ -11,8 +11,6 @@ class MissScanController extends Controller
 {
     protected $attendanceService;
 
-  
-
     public function index(Request $request)
     {
         $employees = Employee::all();
@@ -33,11 +31,12 @@ class MissScanController extends Controller
             $processor = new AttendanceService($employee);
             $record = $processor->processAttendance($startDate,$endDate);
             $missScanCount = $record['missScanCount'];
+            // dd($employee, $missScanCount);
 
             if (in_array($employee->id, $resolvedEmployeeIds)) {
                 return false;
             } else {
-                if ($missScanCount > 3) {
+                if ($missScanCount >= 3) {
                     return [
                         'employee_id' => $employee->id,
                         'employee_name' => $employee->name,
@@ -73,7 +72,7 @@ class MissScanController extends Controller
         }
 
         return redirect()->route('miss-scan.index', ['month' => $request->month, 'year' => $request->year])
-                         ->with('success', 'Miss-scan entries resolved successfully.');
+                         ->with('success', 'Success');
     }
 }
 ?>

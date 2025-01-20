@@ -73,16 +73,18 @@ class SalaryService
         
         $missScanCleared = Missscan::where('employee_id' , $this->employee->id)->where('month' , $this->attendanceData["month"])->where('year' , $this->attendanceData["year"])->first();
         
-        $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount;
+        // $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount;
+        $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay);
         
         $missDeductDays = 0;
-        $missAmount =0;
-        $missScanPerDayAmount =0;
-        if(!$missScanCleared){
-            $missScanPerDayAmount = $actualSalary/$this->attendanceData["monthDays"];
-            $missDeductDays = (int)floor($missScanCount/3);
-            $missAmount = $missScanPerDayAmount*$missDeductDays;
-            $actualSalary -= $missAmount;
+        $missAmount = 0;
+        $missScanPerDayAmount = 0;
+
+        if (!$missScanCleared) {
+            $missScanPerDayAmount = $actualSalary / $this->attendanceData["monthDays"];
+            $extraDays = (int)floor($missScanCount / 3) * 2;
+            $missAmount = $missScanPerDayAmount * $extraDays;
+            $actualSalary += $missAmount;
         }
 
         return [
