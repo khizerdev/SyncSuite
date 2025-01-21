@@ -80,11 +80,16 @@ class SalaryService
         $missAmount = 0;
         $missScanPerDayAmount = 0;
 
-        if (!$missScanCleared) {
-            $missScanPerDayAmount = $actualSalary / $this->attendanceData["monthDays"];
-            $extraDays = (int)floor($missScanCount / 3) * 2;
-            $missAmount = $missScanPerDayAmount * $extraDays;
+        $missDaysAmount = 0;
+
+        if ($missScanCleared) {
+            $missScanPerDayAmount = $this->employee->salary / $this->attendanceData["monthDays"];
+            $dayRatio = (int)floor($missScanCount / 3); // 0.33 => 0
+
+            $missAmount = ($missScanCount-$dayRatio)*$missScanPerDayAmount;
+
             $actualSalary += $missAmount;
+            $missDaysAmount = ($missScanCount * $missScanPerDayAmount) - $missAmount;
         }
 
         return [
@@ -103,7 +108,7 @@ class SalaryService
             'gazattePay' => $gazattePay,
             
             'missDeductDays' => $missDeductDays,
-            'missAmount' => $missAmount,
+            'missAmount' => $missDaysAmount,
         ];
     }
 

@@ -36,7 +36,7 @@ class MissScanController extends Controller
             if (in_array($employee->id, $resolvedEmployeeIds)) {
                 return false;
             } else {
-                if ($missScanCount >= 3) {
+                if ($missScanCount > 0) {
                     return [
                         'employee_id' => $employee->id,
                         'employee_name' => $employee->name,

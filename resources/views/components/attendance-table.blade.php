@@ -16,12 +16,28 @@
     </thead>
     <tbody>
         @php
-            $totalWorkingMinutes = 0;
+            $lateTimeMinutes = 0;
+            $totalMi = 0;
         @endphp
         @foreach ($groupedAttendances as $date => $entries)
             @php
                 $dailyMinutes = 0;
+                $entryCount = count($entries);
                 $dayName = \Carbon\Carbon::parse($date)->format('l');
+                foreach ($entries as $entry) {
+                    if (!$entry['is_incomplete']) {
+                        $entryStart = $entry['calculation_checkin'];
+                        $entryEnd = $entry['calculation_checkout'];
+                        $dailyMinutes +=
+                            $dailyMinutes +
+                            $entryStart->diffInMinutes($entryEnd) -
+                            floor($earlyMinutes[$date]) -
+                            floor($overMinutes[$date]);
+                        $lateTimeMinutes += floor($lateMinutes[$date]);
+                    }
+                }
+                $totalMi += $dailyMinutes;
+                $dailyHours = sprintf('%02d:%02d', $dailyMinutes / 60, $dailyMinutes % 60);
             @endphp
             <tr>
                 <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, Y') }}</td>
@@ -44,21 +60,11 @@
                                     </div>
                                 </div>
                             </div>
-                            @php
-                                if (!$entry['is_incomplete']) {
-                                    $dailyMinutes += $entry['calculation_checkin']->diffInMinutes(
-                                        $entry['calculation_checkout'],
-                                    );
-                                }
-                            @endphp
                         @endforeach
                     </div>
                 </td>
                 <td>
-                    @php
-                        $dailyHours = sprintf('%02d:%02d', $dailyMinutes / 60, $dailyMinutes % 60);
-                        $totalWorkingMinutes += $dailyMinutes;
-                    @endphp
+
                     {{ $dailyHours }}
                 </td>
                 <td>{{ floor($lateMinutes[$date]) ?? 0 }}</td>
@@ -122,3 +128,4 @@
     .entries-container::-webkit-scrollbar-thumb:hover {
         background: #555;
     }
+</style>
