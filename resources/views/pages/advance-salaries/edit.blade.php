@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="content-header">
+    <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/advance-salaries') }}">View List</a></li>
+                        <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/advance-salaries') }}">View
+                                List</a></li>
                         {{-- <li class="breadcrumb-item active">Create</li> --}}
                     </ol>
                 </div>
@@ -30,7 +31,8 @@
                                     <select name="employee_id" id="employee_id" class="form-control" required>
                                         <option value="">Select Employee</option>
                                         @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}" {{ $advanceSalary->employee_id == $employee->id ? 'selected' : '' }}>
+                                            <option value="{{ $employee->id }}"
+                                                {{ $advanceSalary->employee_id == $employee->id ? 'selected' : '' }}>
                                                 {{ $employee->name }}
                                             </option>
                                         @endforeach
@@ -38,13 +40,21 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="earnings">Earnings</label>
-                                    <input type="number" name="earnings" id="earnings" class="form-control" value="" readonly>
+                                    <label for="earnings">Salary</label>
+                                    <input type="number" name="earnings" id="earnings" class="form-control" value=""
+                                        readonly>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="amount">Amount</label>
-                                    <input type="number" name="amount" id="amount" class="form-control" value="{{ $advanceSalary->amount }}" max="{{ $advanceSalary->amount }}" required>
+                                    <input type="number" name="amount" id="amount" class="form-control"
+                                        value="{{ $advanceSalary->amount }}" max="{{ $advanceSalary->amount }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="date">Date</label>
+                                    <input type="date" name="date" id="date" class="form-control"
+                                        value="{{ $advanceSalary->date }}" required>
                                 </div>
 
                                 <div class="form-group">
@@ -63,7 +73,7 @@
         </div>
     </section>
 @endsection
-    
+
 
 @section('script')
     <script>
@@ -72,15 +82,16 @@
             $('#employee_id').change(function() {
                 var employeeId = $(this).val();
 
+                var apiUrl = `{{ url('/employees/calculate-salary-for-advance') }}/${employeeId}`;
+
                 if (employeeId) {
                     $.ajax({
-                        url: `/employees/calculate-salary-for-advance/${employeeId}`,
+                        url: apiUrl,
                         type: 'GET',
                         success: function(response) {
-                            $('#earnings').val(response);
+                            $('#earnings').val(response.actualSalaryEarned);
 
-                            // Update max value for the amount field
-                            $('#amount').attr('max', response);
+                            $('#amount').attr('max', response.actualSalaryEarned);
                         },
                         error: function(xhr, status, error) {
                             console.error('Error fetching earnings:', error);
@@ -93,7 +104,6 @@
                 }
             });
 
-            // Ensure the amount doesn't exceed the earnings value
             $('#amount').on('input', function() {
                 var maxAmount = parseFloat($('#earnings').val());
                 if ($(this).val() > maxAmount) {

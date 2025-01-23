@@ -43,7 +43,20 @@ class AdvanceSalaryController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
+            'date' => 'required'
         ]);
+
+        $currentMonth = now()->month;
+
+        $existingRecord = AdvanceSalary::where('employee_id', $validatedData['employee_id'])
+                                        ->where('month', $currentMonth)
+                                        ->first();
+
+        if ($existingRecord) {
+            return redirect()->back()->with('error', 'Already exists.');
+        }
+
+        $validatedData['month'] = $currentMonth; 
 
         AdvanceSalary::create($validatedData);
 
@@ -63,6 +76,18 @@ class AdvanceSalaryController extends Controller
             'amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
         ]);
+
+        // check if the employee_id has been changed
+        if ($advanceSalary->employee_id != $validatedData['employee_id']) {
+            // check if an advance salary record already exists for the new employee and the current month
+            $existingRecord = AdvanceSalary::where('employee_id', $validatedData['employee_id'])
+                                            ->where('month', $advanceSalary->month) 
+                                            ->first();
+
+            if ($existingRecord) {
+                return redirect()->back()->with('error', 'Already exists.');
+            }
+        }
 
         $advanceSalary->update($validatedData);
 

@@ -143,10 +143,8 @@ class SalaryController extends Controller
                         $salaryData = array_merge($result,$salary);
                         // dd($salaryData);
         
-                        $advance = AdvanceSalary::where('employee_id', $employee->id)->latest()->first();
+                        $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                         
-
-
                         $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
                         $loanInstallmentAmount = isset($loan) ? $loan->amount / $loan->months : 0;
         

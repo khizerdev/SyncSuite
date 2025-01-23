@@ -334,16 +334,16 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($employeeId);
 
 
-        $startDate = Carbon::create(Carbon::now()->year, Carbon::now()->month, 1)->startOfDay();
-        $endDate = Carbon::create(Carbon::now()->year, Carbon::now()->month, 1)->endOfMonth()->endOfDay();
+        // $startDate = Carbon::create(Carbon::now()->year, Carbon::now()->month, 1)->startOfDay();
+        // $endDate = Carbon::create(Carbon::now()->year, Carbon::now()->month, 1)->endOfMonth()->endOfDay();
 
-        $processor = new AttendanceService($employee);
-        $result = $processor->processAttendance($startDate, $endDate);
+        // $processor = new AttendanceService($employee);
+        // $result = $processor->processAttendance($startDate, $endDate);
 
-        $salaryCalculator = new SalaryService($employee, $result);
-        $salaryComponents = $salaryCalculator->calculateSalary();
+        // $salaryCalculator = new SalaryService($employee, $result);
+        // $salaryComponents = $salaryCalculator->calculateSalary();
 
-        return $salaryComponents;
+        return (object) ['actualSalaryEarned' => $employee->salary];
 
     }
 

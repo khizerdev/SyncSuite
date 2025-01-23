@@ -24,24 +24,39 @@
                         <div class="card-body">
                             <form action="{{ route('advance-salaries.store') }}" method="POST">
                                 @csrf
-                                <div class="form-group">
-                                    <label for="employee_id">Employee</label>
-                                    <select name="employee_id" id="employee_id" class="form-control" required>
-                                        <option value="">Select Employee</option>
-                                        @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="earnings">Earnings</label>
-                                    <input type="number" name="earnings" id="earnings" class="form-control" readonly
-                                        required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="amount">Amount</label>
-                                    <input type="number" name="amount" id="amount" class="form-control" max="0"
-                                        required>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="employee_id">Employee</label>
+                                            <select name="employee_id" id="employee_id" class="form-control" required>
+                                                <option value="">Select Employee</option>
+                                                @foreach ($employees as $employee)
+                                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="earnings">Salary</label>
+                                            <input type="number" name="earnings" id="earnings" class="form-control"
+                                                readonly required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="amount">Amount</label>
+                                            <input type="number" name="amount" id="amount" class="form-control"
+                                                max="0" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="date">Date</label>
+                                            <input type="date" name="date" id="date" class="form-control"
+                                                required>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="notes">Notes</label>

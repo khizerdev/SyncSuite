@@ -83,15 +83,17 @@ class SalaryService
         $missDaysAmount = 0;
 
         if ($missScanCleared) {
-            $missScanPerDayAmount = $this->employee->salary / $this->attendanceData["monthDays"];
+            $missScanPerDayAmount = $this->employee->salary / $this->monthDays;
             $dayRatio = (int)floor($missScanCount / 3); // 0.33 => 0
 
             $missAmount = ($missScanCount-$dayRatio)*$missScanPerDayAmount;
+            $missDeductDays = $missScanCount;
 
             $actualSalary += $missAmount;
             $missDaysAmount = ($missScanCount * $missScanPerDayAmount) - $missAmount;
+            
         }
-
+  
         return [
             'actualSalaryEarned' => $actualSalary,
             
