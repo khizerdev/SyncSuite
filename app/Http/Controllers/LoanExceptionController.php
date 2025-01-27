@@ -13,32 +13,32 @@ class LoanExceptionController extends Controller
         $currentMonth = now()->month;
         $currentYear = now()->year;
 
-        // Fetch employees with active loans
-        $employees = Employee::with(['department', 'loans', 'loanExceptions' => function ($query) use ($currentMonth, $currentYear) {
-            $query->where('month', $currentMonth)
-                ->where('year', $currentYear);
-        }])
-        ->whereHas('loans', function ($query) {
-            $query->whereColumn('paid', '<', 'amount');
-        })
-        ->get();
+        // get employees with active loans, excluding those who already have loan exceptions for the current month, year, and salary_duration
+        $employees = Employee::with(['department', 'loans'])
+            ->whereHas('loans', function ($query) {
+                $query->whereColumn('paid', '<', 'amount');
+            })
+            ->whereDoesntHave('loanExceptions', function ($query) use ($currentMonth, $currentYear) {
+                $query->where('month', $currentMonth)
+                    ->where('year', $currentYear)
+                    ->whereIn('salary_duration', ['full_month', 'first_half', 'second_half']);
+            })
+            ->get();
 
         foreach ($employees as $employee) {
             $salaryDuration = $employee->salary_duration;
 
             if ($salaryDuration == 'full_month') {
-                // Ensure a single exception exists for `full_month`
                 if (!$employee->loanExceptions->contains('salary_duration', 'full_month')) {
                     $employee->loanExceptions->push(new \App\Models\LoanException([
                         'employee_id' => $employee->id,
                         'month' => $currentMonth,
                         'year' => $currentYear,
                         'salary_duration' => 'full_month',
-                        'is_approved' => null, // Default state
+                        'is_approved' => null,
                     ]));
                 }
             } elseif ($salaryDuration == 'half_month') {
-                // Ensure two exceptions exist for `half_month` (first and second half)
                 foreach (['first_half', 'second_half'] as $duration) {
                     if (!$employee->loanExceptions->contains('salary_duration', $duration)) {
                         $employee->loanExceptions->push(new \App\Models\LoanException([
@@ -46,7 +46,7 @@ class LoanExceptionController extends Controller
                             'month' => $currentMonth,
                             'year' => $currentYear,
                             'salary_duration' => $duration,
-                            'is_approved' => null, // Default state
+                            'is_approved' => null,
                         ]));
                     }
                 }
@@ -58,34 +58,19 @@ class LoanExceptionController extends Controller
 
     public function bulkUpdate(Request $request)
     {
-        $data = $request->exceptions;
-        foreach ($data as &$item) {
-            foreach ($item as $key => $half) {
-                if (!array_key_exists('approved_status', $half)) {
-                    unset($item[$key]);
-                }
-            }
-        }
-        foreach ($data as $employeeId => $durations) {
+        foreach ($request->selected_exceptions as $record) {
+
+            list($employeeId, $salaryDuration, $month, $year) = explode('|', $record);
             
-            foreach ($durations as $salaryDuration => $exception) {
-                LoanException::updateOrCreate(
-                    [
-                        'employee_id' => $exception['employee_id'],
-                        'month' => $exception['month'],
-                        'year' => $exception['year'],
-                        'salary_duration' => $salaryDuration,
-                    ],
-                    [
-                        'is_approved' => $exception['approved_status'] == 'approved' ? 1 : 0,
-                    ]
-                );
-            }
+            LoanException::create([
+                'employee_id' => $employeeId,
+                'month' => $month,
+                'year' => $year,
+                'salary_duration' => $salaryDuration,
+            ]);
         }
 
-        return redirect()->back()->with('success', 'Loan exceptions updated successfully. Resolved records are now hidden.');
+        return redirect()->back()->with('success', 'Success');
     }
-
-
 
 }

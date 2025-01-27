@@ -93,27 +93,27 @@ class SalaryController extends Controller
 
         $departmentId = $request->input('department_id');
 
-        $unresolvedExceptions = Employee::with(['loans'])
-        ->where('department_id', $departmentId)
-        ->whereHas('loans', function ($query) {
-            $query->whereColumn('paid', '<', 'amount');
-        })
-        ->whereNotExists(function ($query) use ($currentMonth, $currentYear, $period) {
-            $query->select(DB::raw(1))
-                ->from('loan_exceptions')
-                ->whereColumn('loan_exceptions.employee_id', 'employees.id')
-                ->where('loan_exceptions.month', $currentMonth)
-                ->where('loan_exceptions.year', $currentYear)
-                ->where('loan_exceptions.salary_duration', $period);
-        })
-        ->get();
+        // $unresolvedExceptions = Employee::with(['loans'])
+        // ->where('department_id', $departmentId)
+        // ->whereHas('loans', function ($query) {
+        //     $query->whereColumn('paid', '<', 'amount');
+        // })
+        // ->whereNotExists(function ($query) use ($currentMonth, $currentYear, $period) {
+        //     $query->select(DB::raw(1))
+        //         ->from('loan_exceptions')
+        //         ->whereColumn('loan_exceptions.employee_id', 'employees.id')
+        //         ->where('loan_exceptions.month', $currentMonth)
+        //         ->where('loan_exceptions.year', $currentYear)
+        //         ->where('loan_exceptions.salary_duration', $period);
+        // })
+        // ->get();
 
-        if ($unresolvedExceptions->isNotEmpty()) {
-            return redirect()->back()->with(
-                'error',
-                'Salary generation is blocked. There are unresolved loan exceptions for some employees in the selected period.'
-            );
-        }
+        // if ($unresolvedExceptions->isNotEmpty()) {
+        //     return redirect()->back()->with(
+        //         'error',
+        //         'Salary generation is blocked. There are unresolved loan exceptions for some employees in the selected period.'
+        //     );
+        // }
 
         $employees = Employee::where('department_id', $departmentId)
         ->when($period == "first_half" || $period == "second_half", function($query) {
@@ -146,17 +146,15 @@ class SalaryController extends Controller
                         $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                         
                         $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
-                        $loanInstallmentAmount = isset($loan) ? $loan->amount / $loan->months : 0;
+                        $remainingAmount = isset($loan) ? ($loan->amount - $loan->paid) : 0;
+                        $loanInstallmentAmount = isset($loan) ? min($loan->per_month, $remainingAmount) : 0;
         
-                        $loanException = $employee->loanExceptions()->where('month', $month_name)
+                        $loanException = $employee->loanExceptions()->where('month', $currentMonth)
                         ->where('year', $currentYear)
+                        ->where('salary_duration', $employee->salary_duration)
                         ->first();
         
                         DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
-                            if($loan && $loanException && !$loanException->is_approved){
-                                $loan->paid += $loan->amount / $loan->months;
-                                $loan->save();
-                            }
                             
                             $data = [
                                 'employee_id' => $employee->id,
@@ -176,7 +174,7 @@ class SalaryController extends Controller
                                 'period' => $period,
                                 'start_date' => $startDate,
                                 'end_date' => $endDate,
-                                'loan_deducted' => $loanException && $loanException->is_approved ? 0 : $loanInstallmentAmount,
+                                'loan_deducted' => ($loan && $loanException) ? 0 : $loanInstallmentAmount,
                             ];
                             
                             Salary::create($data);
@@ -184,6 +182,11 @@ class SalaryController extends Controller
                             if ($advance) {
                                 $advance->is_paid = 1;
                                 $advance->save();
+                            }
+
+                            if($loan && !$loanException){
+                                $loan->paid += $loan->months;
+                                $loan->save();
                             }
                         });
                     }
