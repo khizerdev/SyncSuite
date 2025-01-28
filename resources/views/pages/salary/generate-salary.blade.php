@@ -18,8 +18,34 @@
                             <form action="{{ route('generate-salary.process') }}" method="POST">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="department">Select Department:</label>
-                                    <select name="department_id" id="department_id" class="form-control mb-2" required>
+                                    <label for="generate_for">Generate Salary For:</label>
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input" value="employee" type="radio"
+                                            id="generateForEmployee" name="generate_for" required onclick="toggleFields()">
+                                        <label for="generateForEmployee" class="custom-control-label">By Employee</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input" value="department" type="radio"
+                                            id="generateForDepartment" name="generate_for" required
+                                            onclick="toggleFields()">
+                                        <label for="generateForDepartment" class="custom-control-label">By
+                                            Department</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="employeeField" style="display: none;">
+                                    <label for="employee_id">Select Employee:</label>
+                                    <select name="employee_id" id="employee_id" class="form-control mb-2">
+                                        <option value="">Select Employee</option>
+                                        @foreach (\App\Models\Employee::all() as $employee)
+                                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group" id="departmentField" style="display: none;">
+                                    <label for="department_id">Select Department:</label>
+                                    <select name="department_id" id="department_id" class="form-control mb-2">
                                         <option value="">Select Department</option>
                                         @foreach ($departments as $department)
                                             <option value="{{ $department->id }}">{{ $department->name }}</option>
@@ -33,13 +59,14 @@
                                         <option value="" disabled selected>Select Month</option>
                                         @foreach (range(1, 12) as $m)
                                             <option value="{{ sprintf('%02d', $m) }}">
-                                                {{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                                                {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="month">Select Year:</label>
+                                    <label for="year">Select Year:</label>
                                     <select class="form-control" name="year" id="year" required>
                                         <option value="" disabled selected>Select Year</option>
                                         <option value="2024">2024</option>
@@ -48,7 +75,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="department">Duration</label>
+                                    <label for="period">Duration:</label>
                                     <div class="custom-control custom-radio">
                                         <input class="custom-control-input" value="first_half" type="radio"
                                             id="customRadio1" name="period" required>
@@ -66,7 +93,7 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Generate </button>
+                                <button type="submit" class="btn btn-primary">Generate</button>
                             </form>
                         </div>
                     </div>
@@ -81,4 +108,20 @@
 @endsection
 
 @section('script')
+    <script>
+        function toggleFields() {
+            const generateForEmployee = document.getElementById('generateForEmployee');
+            const generateForDepartment = document.getElementById('generateForDepartment');
+            const employeeField = document.getElementById('employeeField');
+            const departmentField = document.getElementById('departmentField');
+
+            if (generateForEmployee.checked) {
+                employeeField.style.display = 'block';
+                departmentField.style.display = 'none';
+            } else if (generateForDepartment.checked) {
+                employeeField.style.display = 'none';
+                departmentField.style.display = 'block';
+            }
+        }
+    </script>
 @endsection

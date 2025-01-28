@@ -55,7 +55,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '/advance-salaries/' + id,
+                        url: "{{ route('advance-salaries.destroy', ':id') }}".replace(':id', id),
                         type: 'DELETE',
                         data: {
                             "_token": "{{ csrf_token() }}",
@@ -63,7 +63,7 @@
                         success: function(response) {
                             Swal.fire(
                                 'Deleted!',
-                                'The branch has been deleted.',
+                                '',
                                 'success'
                             );
                             $('#table').DataTable().ajax.reload();
@@ -71,7 +71,7 @@
                         error: function(xhr) {
                             Swal.fire(
                                 'Error!',
-                                'There was an error deleting the branch.',
+                                'There was an error deleting',
                                 'error'
                             );
                         }
