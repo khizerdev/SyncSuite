@@ -38,7 +38,20 @@
                                             <tbody>
                                                 @foreach ($employees as $employee)
                                                     @foreach ($employee->loanExceptions as $exception)
-                                                        @if (is_null($exception->is_approved))
+                                                        @php
+
+                                                            $salary = \App\Models\Salary::where(
+                                                                'employee_id',
+                                                                $employee->id,
+                                                            )
+                                                                ->where('month', $exception->month)
+                                                                ->where('year', $exception->year)
+                                                                ->where('period', $exception->salary_duration)
+                                                                ->first();
+
+                                                        @endphp
+
+                                                        @if (is_null($exception->is_approved) && !$salary)
                                                             <tr>
                                                                 <td>
                                                                     <input type="checkbox" name="selected_exceptions[]"
@@ -49,7 +62,7 @@
                                                                 <td>{{ $employee->name }}</td>
                                                                 <td>{{ $employee->department->name }}</td>
                                                                 <td>{{ $employee->loans->first()->amount ?? 'N/A' }}</td>
-                                                                <td>{{ $employee->loans->first()->months ?? 'N/A' }}
+                                                                <td>{{ $employee->loans->first()->month ?? 'N/A' }}
                                                                 </td>
                                                                 <td>
                                                                     @if ($exception->salary_duration == 'full_month')

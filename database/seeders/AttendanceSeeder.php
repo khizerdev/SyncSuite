@@ -13,14 +13,14 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-       $startDate = '2024-10-01';
+       $startDate = '2024-12-01';
 
-       $endDate = '2024-10-17';
+       $endDate = '2024-12-31';
 
        for ($date = $startDate; $date <= $endDate; $date++) {
             DB::table('attendances')->insert([
-                ['code' => 1002, 'datetime' => $date . ' 08:00:00'],
-                ['code' => 1002, 'datetime' => $date . ' 20:00:00'],
+                ['code' => 649, 'datetime' => $date . ' 20:00:00'],
+                ['code' => 649, 'datetime' => $date . ' 06:00:00'],
             ]);
        }
     }

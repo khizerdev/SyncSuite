@@ -136,13 +136,13 @@ class SalaryController extends Controller
                         
                         $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
                         $remainingAmount = isset($loan) ? ($loan->amount - $loan->paid) : 0;
-                        $loanInstallmentAmount = isset($loan) ? min($loan->per_month, $remainingAmount) : 0;
+                        $loanInstallmentAmount = isset($loan) ? (int) min($loan->month, $remainingAmount) : 0;
         
                         $loanException = $employee->loanExceptions()->where('month', $currentMonth)
                         ->where('year', $currentYear)
                         ->where('salary_duration', $employee->salary_duration)
                         ->first();
-        
+                        
                         DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
                             
                             $data = [
@@ -174,7 +174,7 @@ class SalaryController extends Controller
                             }
 
                             if($loan && !$loanException){
-                                $loan->paid += $loan->months;
+                                $loan->paid += $loan->month;
                                 $loan->save();
                             }
                         });

@@ -117,6 +117,8 @@ class AttendanceService
 
     private function getAttendances($userId, $startDate, $endDate)
     {
+        // dd(Carbon::parse($endDate)->copy()->addDays(3)->format('Y-m-d'));
+        $endDate = $this->isNightShift ? Carbon::parse($endDate)->copy()->addDays(2)->format('Y-m-d') : $endDate;
         return Attendance::where('code', $userId)
             ->whereBetween('datetime', [$startDate, $endDate])
             ->orderBy('datetime')
@@ -164,7 +166,7 @@ class AttendanceService
                 $groupedAttendances[$date] = [];
             }
 
-            $currentDateEntries = $this->getCurrentDateEntries($attendances, $i, $date);
+            $currentDateEntries = $this->getCurrentDateEntries($attendances, $i, $date,$this->isNightShift);
             if (count($currentDateEntries['entries']) > 0) {
                 $nestedEntries = $this->determineDailyEntries($currentDateEntries['entries']);
                 foreach ($nestedEntries as $entry) {
@@ -221,14 +223,45 @@ class AttendanceService
     {
         $entries = [];
         $currentIndex = $startIndex;
+        $targetDateObj = Carbon::parse($targetDate);
+        $isNightShift = $this->isNightShift;
+        if ($isNightShift) {
 
-        while ($currentIndex < count($attendances)) {
-            $entry = Carbon::parse($attendances[$currentIndex]->datetime);
-            if ($entry->format('Y-m-d') == $targetDate) {
-                $entries[] = $attendances[$currentIndex];
-                $currentIndex++;
-            } else {
+            while ($currentIndex < count($attendances)) {
+                $entry = Carbon::parse($attendances[$currentIndex]->datetime);
+                $entryDate = $entry->format('Y-m-d');
+                $entryHour = (int)$entry->format('H');
+                
+                // Case 1: Entry is on target date
+                if ($entryDate === $targetDate) {
+                    if ($entryHour >= 18) { // After 6 PM
+                        $entries[] = $attendances[$currentIndex];
+                    }
+                    $currentIndex++;
+                    continue;
+                }
+                
+                // Case 2: Entry is on next day
+                $nextDay = $targetDateObj->copy()->addDay()->format('Y-m-d');
+                if ($entryDate === $nextDay && $entryHour < 12) {
+                    $entries[] = $attendances[$currentIndex];
+                    $currentIndex++;
+                    continue;
+                }
+                
+                // If we reach here, we're done with this night shift
                 break;
+            }
+        } else {
+            // Regular shift logic remains unchanged
+            while ($currentIndex < count($attendances)) {
+                $entry = Carbon::parse($attendances[$currentIndex]->datetime);
+                if ($entry->format('Y-m-d') == $targetDate) {
+                    $entries[] = $attendances[$currentIndex];
+                    $currentIndex++;
+                } else {
+                    break;
+                }
             }
         }
 
@@ -236,43 +269,6 @@ class AttendanceService
             'entries' => $entries,
             'lastIndex' => $currentIndex
         ];
-    }
-
-    private function determineCheckInOut($dateEntries)
-    {
-        $entries = $dateEntries['entries'];
-        $entriesCount = count($entries);
-        
-        if ($entriesCount == 0) {
-            return ['checkIn' => null, 'checkOut' => null];
-        }
-
-        $checkIn = Carbon::parse($entries[0]->datetime);
-        $checkOut = null;
-
-        if ($entriesCount > 1) {
-            for ($i = 1; $i < $entriesCount; $i++) {
-                $nextEntry = Carbon::parse($entries[$i]->datetime);
-                
-                // Check if the time difference is more than 2 minutes
-                if ($checkIn->diffInMinutes($nextEntry) > 2) {
-                    $checkOut = $nextEntry;
-                    break;
-                }
-            }
-        }
-
-        $shiftEnd = Carbon::parse($this->shift->end_time);
-        if ($this->isNightShift) {
-            $shiftEnd->addDay();
-        }
-        $maxCheckOut = $shiftEnd->copy()->addHours(4);
-
-        if ($checkOut && $checkOut > $maxCheckOut) {
-            $checkOut = null;
-        }
-
-        return ['checkIn' => $checkIn, 'checkOut' => $checkOut];
     }
 
     private function createAttendanceEntry($checkIn, $checkOut)
@@ -335,18 +331,18 @@ class AttendanceService
     private function getShiftTimes($date)
     {
         $shiftStartTime = Carbon::parse($this->shift->start_time)
-            ->addHours($this->isNightShift ? 5 : 0)
+            // ->addHours($this->isNightShift ? 5 : 0)
             ->format('H:i:s');
         $shiftEndTime = Carbon::parse($this->shift->end_time)
-            ->addHours($this->isNightShift ? 5 : 0)
+            // ->addHours($this->isNightShift ? 5 : 0)
             ->format('H:i:s');
 
         $shiftStart = Carbon::parse($date . ' ' . $shiftStartTime);
         $shiftEnd = Carbon::parse($date . ' ' . $shiftEndTime);
 
-        if ($this->isNightShift) {
-            $shiftEnd->addDay();
-        }
+        // if ($this->isNightShift) {
+        //     $shiftEnd->addDay();
+        // }
 
         return ['start' => $shiftStart, 'end' => $shiftEnd];
     }
@@ -438,5 +434,43 @@ class AttendanceService
         
 
         return ['worked' => 0, 'overtime' => 0,'earlyCheckin' => $earlyCheckinMinutes, 'late' => 0];
+    }
+
+    
+    private function determineCheckInOut($dateEntries)
+    {
+        $entries = $dateEntries['entries'];
+        $entriesCount = count($entries);
+        
+        if ($entriesCount == 0) {
+            return ['checkIn' => null, 'checkOut' => null];
+        }
+
+        $checkIn = Carbon::parse($entries[0]->datetime);
+        $checkOut = null;
+
+        if ($entriesCount > 1) {
+            for ($i = 1; $i < $entriesCount; $i++) {
+                $nextEntry = Carbon::parse($entries[$i]->datetime);
+                
+                // Check if the time difference is more than 2 minutes
+                if ($checkIn->diffInMinutes($nextEntry) > 2) {
+                    $checkOut = $nextEntry;
+                    break;
+                }
+            }
+        }
+
+        $shiftEnd = Carbon::parse($this->shift->end_time);
+        if ($this->isNightShift) {
+            $shiftEnd->addDay();
+        }
+        $maxCheckOut = $shiftEnd->copy()->addHours(4);
+
+        if ($checkOut && $checkOut > $maxCheckOut) {
+            $checkOut = null;
+        }
+
+        return ['checkIn' => $checkIn, 'checkOut' => $checkOut];
     }
 }
