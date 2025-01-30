@@ -17,6 +17,43 @@
 
                         <div class="card-body">
                             <div class="container">
+                                <form action="{{ url()->current() }}" method="GET" class="mb-3">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="year" class="form-label">Select Year</label>
+                                            <select name="year" id="year" class="form-control">
+                                                @php
+                                                    $currentYear = now()->year;
+                                                @endphp
+                                                @for ($i = $currentYear - 5; $i <= $currentYear; $i++)
+                                                    <option value="{{ $i }}"
+                                                        {{ request('year') == $i ? 'selected' : '' }}>
+                                                        {{ $i }}
+                                                    </option>
+                                                @endfor
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="month" class="form-label">Select Month</label>
+                                            <select name="month" id="month" class="form-control">
+                                                @foreach (range(1, 12) as $m)
+                                                    @php
+                                                        $monthName = \Carbon\Carbon::create()->month($m)->format('F');
+                                                    @endphp
+                                                    <option value="{{ $m }}"
+                                                        {{ request('month') == $m ? 'selected' : '' }}>
+                                                        {{ $monthName }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary">Filter</button>
+                                        </div>
+                                    </div>
+                                </form>
                                 <form id="loan-exceptions-form" action="{{ route('loan-exception.bulk-update') }}"
                                     method="POST">
                                     @csrf

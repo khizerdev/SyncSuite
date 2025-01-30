@@ -8,10 +8,10 @@ use App\Models\Employee;
 
 class LoanExceptionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
+        $currentMonth = (int) $request->month ?? now()->month;
+        $currentYear = (int) $request->year ?? now()->year;
 
         // get employees with active loans, excluding those who already have loan exceptions for the current month, year, and salary_duration
         $employees = Employee::with(['department', 'loans'])

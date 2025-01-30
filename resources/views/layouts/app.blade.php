@@ -223,6 +223,12 @@
                                     'children' => [['title' => 'View', 'route' => 'loans.index']],
                                 ],
                                 [
+                                    'title' => 'Loan Exceptions',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'loan-exception.index',
+                                    'children' => [['title' => 'View', 'route' => 'loan-exception.index']],
+                                ],
+                                [
                                     'title' => 'Advance',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'advance-salaries.index',
@@ -233,12 +239,6 @@
                                     'icon' => 'fas fa-circle',
                                     'route' => 'leaves.index',
                                     'children' => [['title' => 'View', 'route' => 'leaves.index']],
-                                ],
-                                [
-                                    'title' => 'Loan Exceptions',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'loan-exception.index',
-                                    'children' => [['title' => 'View', 'route' => 'loan-exception.index']],
                                 ],
                                 [
                                     'title' => 'Generate Salary',
