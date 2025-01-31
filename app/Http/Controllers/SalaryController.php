@@ -142,7 +142,7 @@ class SalaryController extends Controller
                         ->where('year', $currentYear)
                         ->where('salary_duration', $employee->salary_duration)
                         ->first();
-                        
+
                         DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
                             
                             $data = [

@@ -23,9 +23,9 @@
                                             <label for="year" class="form-label">Select Year</label>
                                             <select name="year" id="year" class="form-control">
                                                 @php
-                                                    $currentYear = now()->year;
+                                                    $selectedYear = now()->year;
                                                 @endphp
-                                                @for ($i = $currentYear - 5; $i <= $currentYear; $i++)
+                                                @for ($i = $selectedYear - 5; $i <= $selectedYear; $i++)
                                                     <option value="{{ $i }}"
                                                         {{ request('year') == $i ? 'selected' : '' }}>
                                                         {{ $i }}
@@ -58,6 +58,8 @@
                                     method="POST">
                                     @csrf
                                     @method('PUT')
+                                    <input type="hidden" name="month" value="{{ $currentMonth }}" />
+                                    <input type="hidden" name="year" value="{{ $currentYear }}" />
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
                                             <thead>
@@ -93,7 +95,7 @@
                                                                 <td>
                                                                     <input type="checkbox" name="selected_exceptions[]"
                                                                         class="row-checkbox"
-                                                                        value="{{ $employee->id }}|{{ $exception->salary_duration }}|{{ $exception->month }}|{{ $exception->year }}">
+                                                                        value="{{ $employee->id }}|{{ $exception->salary_duration }}">
 
                                                                 </td>
                                                                 <td>{{ $employee->name }}</td>

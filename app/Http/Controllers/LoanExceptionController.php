@@ -60,12 +60,12 @@ class LoanExceptionController extends Controller
     {
         foreach ($request->selected_exceptions as $record) {
 
-            list($employeeId, $salaryDuration, $month, $year) = explode('|', $record);
+            list($employeeId, $salaryDuration) = explode('|', $record);
             
             LoanException::create([
                 'employee_id' => $employeeId,
-                'month' => $month,
-                'year' => $year,
+                'month' => $request->month,
+                'year' => $request->year,
                 'salary_duration' => $salaryDuration,
             ]);
         }
