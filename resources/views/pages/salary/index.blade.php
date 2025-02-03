@@ -14,24 +14,20 @@
                         </div>
 
                         <div class="card-body">
-                            @role('super-admin')
+                            @role('hr|super-admin')
                                 <div class="table-responsive">
                                     <table class="table table-bordered" id="table">
                                         <thead>
                                             <tr>
                                                 <th>Id</th>
                                                 <th>Name</th>
-                                                <th>Code</th>
                                                 <th>Overtime</th>
                                                 <th>Late Amount</th>
                                                 <th>Loan</th>
                                                 <th>Advance</th>
                                                 <th>Salary</th>
                                                 <th>Period</th>
-                                                <th>Start Date</th>
-                                                <th>Start End</th>
-                                                <th>Month</th>
-                                                <th>Year</th>
+                                                <th>Month/Year</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -65,7 +61,7 @@
 @endsection
 
 @section('script')
-    @role('super-admin')
+    @role('hr|super-admin')
         <script type="text/javascript">
             $(document).ready(function() {
                 var dataTable = $('#table').DataTable({
@@ -79,10 +75,6 @@
                         {
                             data: 'employee_name',
                             name: 'employee_name'
-                        },
-                        {
-                            data: 'code',
-                            name: 'code'
                         },
                         {
                             data: 'overtime',
@@ -109,20 +101,8 @@
                             name: 'period'
                         },
                         {
-                            data: 'start_date',
-                            name: 'start_date'
-                        },
-                        {
-                            data: 'end_date',
-                            name: 'end_date'
-                        },
-                        {
-                            data: 'month',
-                            name: 'month'
-                        },
-                        {
-                            data: 'year',
-                            name: 'year'
+                            data: 'month_year',
+                            name: 'month_year'
                         },
                         {
                             data: 'action',

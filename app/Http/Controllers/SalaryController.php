@@ -53,12 +53,15 @@ class SalaryController extends Controller
             ->addColumn('advance', function ($row) {
                 return $row->advance_deducted;
             })
+            ->addColumn('month_year', function ($row) {
+                return $row->month. '-' . $row->year;
+            })
             ->addColumn('salary', function ($row) {
                 $processor = new AttendanceService($row->employee);
                 $result = $processor->processAttendance($row->start_date, $row->end_date);
                 $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
                 $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
-                return 'PKR '.floor($salary['actualSalaryEarned']);
+                return 'PKR '.floor($salary['actualSalaryEarned']-$row->advance_deducted-$row->loan_deducted);
             })
             ->addColumn('action', function($row) use($request){
                 
@@ -73,7 +76,7 @@ class SalaryController extends Controller
 
                 // $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
                 $btn = '';
-                if($request->user()->hasRole('super-admin')){
+                if($request->user()->hasRole('hr|super-admin')){
                     $btn .= '<a href="'.$salaryUrl.'" class="edit btn btn-primary btn-sm mr-2 mb-1">View</a> ';
                 }
                 $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/salaries/\', \'DELETE\')" class="delete btn btn-danger btn-sm">Delete</button>';
