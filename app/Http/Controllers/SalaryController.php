@@ -30,12 +30,53 @@ class SalaryController extends Controller
             ->addColumn('employee_name', function ($row) {
                 return $row->employee->name;
             })
-            ->addColumn('action', function($row){
-                // $editUrl = route('shifts.edit', $row->id);
+            ->addColumn('code', function ($row) {
+                return $row->employee->code;
+            })
+            ->addColumn('overtime', function ($row) {
+                $processor = new AttendanceService($row->employee);
+                $result = $processor->processAttendance($row->start_date, $row->end_date);
+                $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+                $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+                return 'PKR '.$salary['totalOvertimePay'];
+            })
+            ->addColumn('late', function ($row) {
+                $processor = new AttendanceService($row->employee);
+                $result = $processor->processAttendance($row->start_date, $row->end_date);
+                $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+                $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+                return 'PKR '.floor($salary['lateCutAmount']);
+            })
+            ->addColumn('loan', function ($row) {
+                return $row->loan_deducted;
+            })
+            ->addColumn('advance', function ($row) {
+                return $row->advance_deducted;
+            })
+            ->addColumn('salary', function ($row) {
+                $processor = new AttendanceService($row->employee);
+                $result = $processor->processAttendance($row->start_date, $row->end_date);
+                $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+                $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+                return 'PKR '.floor($salary['actualSalaryEarned']);
+            })
+            ->addColumn('action', function($row) use($request){
+                
+                $salaryUrl = route('employees.attd', [
+                    'id' => $row->employee->id,
+                ]) . '?' . http_build_query([
+                    'year' => $row->year,
+                    'month' => $row->month,
+                    'duration' => $row->period
+                ]);
                 // $deleteUrl = route('shifts.destroy', $row->id);
 
                 // $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
-                $btn = '<button onclick="deleteData(\'' . $row->id . '\', \'/salaries/\', \'DELETE\')" class="delete btn btn-danger btn-sm">Delete</button>';
+                $btn = '';
+                if($request->user()->hasRole('super-admin')){
+                    $btn .= '<a href="'.$salaryUrl.'" class="edit btn btn-primary btn-sm mr-2 mb-1">View</a> ';
+                }
+                $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/salaries/\', \'DELETE\')" class="delete btn btn-danger btn-sm">Delete</button>';
                 return $btn;
             })
             ->rawColumns(['action'])
@@ -121,7 +162,6 @@ class SalaryController extends Controller
                     
                     $processor = new AttendanceService($employee);
                     $result = $processor->processAttendance($startDate, $endDate);
-                    $missCount = $processor->getMissScanCount($startDate, $endDate);
                     if (empty(array_filter($result['groupedAttendances'], function ($value) {
                         return !empty($value);
                     }))) {
@@ -140,9 +180,9 @@ class SalaryController extends Controller
         
                         $loanException = $employee->loanExceptions()->where('month', $currentMonth)
                         ->where('year', $currentYear)
-                        ->where('salary_duration', $employee->salary_duration)
+                        ->where('salary_duration', $request->period)
                         ->first();
-
+                        
                         DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
                             
                             $data = [

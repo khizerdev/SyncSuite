@@ -43,7 +43,7 @@ class LoanController extends Controller
         $validatedData = $request->validate([
             'amount' => 'required|numeric|min:0',
             'employee_id' => 'required|exists:employees,id',
-            'months' => 'required|integer|min:1',
+            'month' => 'required|integer|min:1',
         ]);
 
         Loan::create($validatedData);
@@ -62,7 +62,7 @@ class LoanController extends Controller
         $validatedData = $request->validate([
             'amount' => 'required|numeric|min:0',
             'employee_id' => 'required|exists:employees,id',
-            'months' => 'required|integer|min:1',
+            'month' => 'required|integer|min:1',
         ]);
 
         $loan->update($validatedData);

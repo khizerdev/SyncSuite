@@ -111,6 +111,7 @@ class SalaryService
             
             'missDeductDays' => $missDeductDays,
             'missAmount' => $missDaysAmount,
+            'lateCutAmount' => $lateCutAmount,
         ];
     }
 

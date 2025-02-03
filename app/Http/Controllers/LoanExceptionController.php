@@ -10,8 +10,9 @@ class LoanExceptionController extends Controller
 {
     public function index(Request $request)
     {
-        $currentMonth = (int) $request->month ?? now()->month;
-        $currentYear = (int) $request->year ?? now()->year;
+        $currentMonth = (int) $request->month ? (int) $request->month : now()->month;
+        $currentYear = (int) $request->year ? (int) $request->year : now()->year;
+        
 
         // get employees with active loans, excluding those who already have loan exceptions for the current month, year, and salary_duration
         $employees = Employee::with(['department', 'loans'])
@@ -58,6 +59,7 @@ class LoanExceptionController extends Controller
 
     public function bulkUpdate(Request $request)
     {
+        
         foreach ($request->selected_exceptions as $record) {
 
             list($employeeId, $salaryDuration) = explode('|', $record);
