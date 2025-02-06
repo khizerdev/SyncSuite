@@ -59,6 +59,8 @@ class SalaryService
         $regularPay = (int) floor($this->attendanceData['totalHoursWorked']) * $salaryPerHour;
         
         $holidayPay = $this->attendanceData['totalHolidayHoursWorked'] * $salaryPerHour * $this->employee->type->holiday_ratio;
+        $sandWhichViolations = $this->countSandwichRuleViolations($this->attendanceData['groupedAttendances'], $this->attendanceData['gazatteHolidays']);
+        dd($sandWhichViolations,$this->attendanceData,$this->attendanceData['gazatteHolidays']);
 
         $overtimePay = ($this->attendanceData['totalOvertimeMinutes'] / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
         
@@ -108,11 +110,45 @@ class SalaryService
             'holidayPay' => $holidayPay,
             'normalHolidayPay' => $normalHolidayPay,
             'gazattePay' => $gazattePay,
+            'gazatteHolidays' => $this->attendanceData['gazatteHolidays'],
             
             'missDeductDays' => $missDeductDays,
             'missAmount' => $missDaysAmount,
             'lateCutAmount' => $lateCutAmount,
         ];
+    }
+
+    private function countSandwichRuleViolations($groupedAttendances, $gazatteHolidays) {
+        $violations = 0;
+        $dates = array_keys($groupedAttendances);
+        $gazetteHolidayDates = $gazatteHolidays->pluck('holiday_date')->toArray();
+    
+        foreach ($dates as $date) {
+
+            // skip if it's not a leave day
+            if (count($groupedAttendances[$date]) < 1) {
+                continue;
+            }
+    
+            if (in_array($date, $gazetteHolidayDates)) {
+                continue;
+            }
+    
+            // previous day
+            $prevDay = date('Y-m-d', strtotime($date . ' -1 day'));
+            $prevDayIsWorkingOrHoliday = isset($groupedAttendances[$prevDay]) && (count($groupedAttendances[$prevDay]) < 1 || in_array($prevDay, $gazetteHolidayDates));
+    
+            // next day
+            $nextDay = date('Y-m-d', strtotime($date . ' +1 day'));
+            $nextDayIsWorkingOrHoliday = isset($groupedAttendances[$nextDay]) && (count($groupedAttendances[$nextDay]) < 1 || in_array($nextDay, $gazetteHolidayDates));
+    
+            // if both previous and next days are working days or holidays, it's a violation
+            if ($prevDayIsWorkingOrHoliday && $nextDayIsWorkingOrHoliday) {
+                $violations++;
+            }
+        }
+    
+        return $violations;
     }
 
     

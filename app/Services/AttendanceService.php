@@ -67,6 +67,7 @@ class AttendanceService
             'lateMinutes' => $calculatedMinutes['lateMinutes'],
             'overMinutes' => $calculatedMinutes['overMinutes'],
             'gazatteMinutes' => $calculatedMinutes['gazatteMinutes'],
+            'gazatteHolidays' => $gazetteHolidays,
             'totalHoursWorked' => $calculatedMinutes['totalMinutesWorked'] / 60,
             'workingDays' => $workingDays,
             'monthDays' => $monthDays,
@@ -80,6 +81,7 @@ class AttendanceService
             'missScanCount' => $missScanCount,
             'month' => $startDate instanceof Carbon ? $startDate->format('m') : Carbon::parse($startDate)->format('m'),
             'year' => $startDate instanceof Carbon ? $startDate->format('Y') : Carbon::parse($startDate)->format('Y'),
+            
         ];
     }
 
