@@ -52,14 +52,15 @@ class SalaryController extends Controller
             })
             ->addColumn('overtime', function ($row) {
                 $processor = new AttendanceService($row->employee);
-                $result = $processor->processAttendance($row->start_date, $row->end_date);
+                $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
                 $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
                 $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+                // dd(Carbon::parse($row->end_date)->copy()->subMinute());
                 return 'PKR '.$salary['totalOvertimePay'];
             })
             ->addColumn('late', function ($row) {
                 $processor = new AttendanceService($row->employee);
-                $result = $processor->processAttendance($row->start_date, $row->end_date);
+                $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
                 $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
                 $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
                 return 'PKR '.floor($salary['lateCutAmount']);
@@ -75,7 +76,7 @@ class SalaryController extends Controller
             })
             ->addColumn('salary', function ($row) {
                 $processor = new AttendanceService($row->employee);
-                $result = $processor->processAttendance($row->start_date, $row->end_date);
+                $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
                 $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
                 $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
                 return 'PKR '.floor($salary['actualSalaryEarned']-$row->advance_deducted-$row->loan_deducted);
