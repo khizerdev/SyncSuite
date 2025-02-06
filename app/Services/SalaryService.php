@@ -60,7 +60,6 @@ class SalaryService
         
         $holidayPay = $this->attendanceData['totalHolidayHoursWorked'] * $salaryPerHour * $this->employee->type->holiday_ratio;
         $sandWhichViolations = $this->countSandwichRuleViolations($this->attendanceData['groupedAttendances'], $this->attendanceData['gazatteHolidays']);
-        dd($sandWhichViolations,$this->attendanceData,$this->attendanceData['gazatteHolidays']);
 
         $overtimePay = ($this->attendanceData['totalOvertimeMinutes'] / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
         
@@ -93,7 +92,12 @@ class SalaryService
 
             $actualSalary += $missAmount;
             $missDaysAmount = ($missScanCount * $missScanPerDayAmount) - $missAmount;
-            
+        }
+
+        $perDayAmount = $this->employee->salary / $this->monthDays;
+        if($sandWhichViolations > 0){
+            $sanwichDeductedAmount = $perDayAmount * $sandWhichViolations;
+            $actualSalary -= $sanwichDeductedAmount;
         }
   
         return [
@@ -113,6 +117,7 @@ class SalaryService
             'gazatteHolidays' => $this->attendanceData['gazatteHolidays'],
             
             'missDeductDays' => $missDeductDays,
+            'sandwichDeduct' => $sandWhichViolations. " Days - Amount ".$perDayAmount*$sandWhichViolations,
             'missAmount' => $missDaysAmount,
             'lateCutAmount' => $lateCutAmount,
         ];

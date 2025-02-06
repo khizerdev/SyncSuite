@@ -20,6 +20,7 @@
     'holidayPayAmount',
     'missDeductDays',
     'missAmount',
+    'sandWich',
 ])
 
 <div class="col-md-11">
@@ -80,6 +81,12 @@
                     {{ number_format($missAmount, 0) }}</td>
                 <td><strong>Loan Deduction</strong><br>PKR
                     {{ number_format($salary->loan_deducted, 0) }}</td>
+                <td><strong>Sandwich Leave</strong><br>
+                    {{ $sandWich }}</td>
+
+                </td>
+            </tr>
+            <tr>
                 <td class="table-success"><strong>Final Salary</strong><br>PKR
                     {{ number_format(max($actualSalaryEarned - $salary->advance_deducted - $salary->loan_deducted, 0), 2) }}
                 </td>

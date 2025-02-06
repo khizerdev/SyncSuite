@@ -190,7 +190,7 @@ class SalaryController extends Controller
                         $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
                         
                         $salaryData = array_merge($result,$salary);
-                        dd($salaryData);
+                        // dd($salaryData);
         
                         $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                         
