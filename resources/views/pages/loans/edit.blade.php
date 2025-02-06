@@ -49,8 +49,8 @@
                                 </div>
                                 <div class="mb-3 col-3">
                                     <label for="months" class="form-label">Deduction Amount (Per Month)</label>
-                                    <input type="number" class="form-control" id="months" name="months" required
-                                        min="1" value="{{ old('months', $loan->months) }}">
+                                    <input type="number" class="form-control" id="month" name="month" required
+                                        min="1" value="{{ old('month', $loan->month) }}">
                                 </div>
                                 <button type="submit" class="btn btn-primary mr-2">Update Loan</button>
                                 <a href="{{ route('loans.index') }}" class="btn btn-secondary">Cancel</a>

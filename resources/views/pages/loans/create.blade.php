@@ -46,7 +46,7 @@
                                 </div>
                                 <div class="mb-3 col-3">
                                     <label for="months" class="form-label">Deduction Amount (Per Month)</label>
-                                    <input type="number" class="form-control" id="months" name="months" required
+                                    <input type="number" class="form-control" id="month" name="month" required
                                         min="1">
                                 </div>
                                 <button type="submit" class="btn btn-primary">Submit</button>

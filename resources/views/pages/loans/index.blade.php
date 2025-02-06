@@ -99,8 +99,8 @@
                         name: 'amount'
                     },
                     {
-                        data: 'months',
-                        name: 'months'
+                        data: 'month',
+                        name: 'month'
                     },
                     {
                         data: 'action',
