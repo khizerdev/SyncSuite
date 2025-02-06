@@ -25,7 +25,24 @@ class SalaryController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Salary::all();
+            $data = Salary::query();
+
+            if ($request->has('department') && $request->department != '') {
+                $data->whereHas('employee', function($query) use ($request) {
+                    $query->where('department_id', $request->department);
+                });
+            }
+
+            if ($request->has('month') && $request->month != '') {
+                $data->where('month', $request->month);
+            }
+
+            if ($request->has('year') && $request->year != '') {
+                $data->where('year', $request->year);
+            }
+
+            $data = $data->get();
+
             return DataTables::of($data)
             ->addColumn('employee_name', function ($row) {
                 return $row->employee->name;

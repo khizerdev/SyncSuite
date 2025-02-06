@@ -14,49 +14,81 @@
                         </div>
 
                         <div class="card-body">
-                            @role('hr|super-admin')
-                                <div class="table-responsive">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <select id="department" class="form-control">
+                                        <option value="">Select Department</option>
+                                        @foreach (\App\Models\Department::all() as $department)
+                                            <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="month" class="form-control">
+                                        <option value="">Select Month</option>
+                                        @for ($i = 1; $i <= 12; $i++)
+                                            <option value="{{ $i }}">{{ date('F', mktime(0, 0, 0, $i, 10)) }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="year" class="form-control">
+                                        <option value="">Select Year</option>
+                                        @for ($i = date('Y'); $i >= 2019; $i--)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button id="filter" class="btn btn-primary">Filter</button>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                @role('hr|super-admin')
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Id</th>
+                                                    <th>Name</th>
+                                                    <th>Overtime</th>
+                                                    <th>Late Amount</th>
+                                                    <th>Loan</th>
+                                                    <th>Advance</th>
+                                                    <th>Salary</th>
+                                                    <th>Period</th>
+                                                    <th>Month/Year</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                @else
                                     <table class="table table-bordered" id="table">
                                         <thead>
                                             <tr>
                                                 <th>Id</th>
                                                 <th>Name</th>
-                                                <th>Overtime</th>
-                                                <th>Late Amount</th>
-                                                <th>Loan</th>
-                                                <th>Advance</th>
-                                                <th>Salary</th>
                                                 <th>Period</th>
-                                                <th>Month/Year</th>
+                                                <th>Start Date</th>
+                                                <th>Start End</th>
+                                                <th>Month</th>
+                                                <th>Year</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                     </table>
-                                </div>
-                            @else
-                                <table class="table table-bordered" id="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Id</th>
-                                            <th>Name</th>
-                                            <th>Period</th>
-                                            <th>Start Date</th>
-                                            <th>Start End</th>
-                                            <th>Month</th>
-                                            <th>Year</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            @endrole
+                                @endrole
+                            </div>
+
                         </div>
 
                     </div>
-
                 </div>
-            </div>
 
-        </div>
+            </div>
     </section>
 @endsection
 
@@ -67,7 +99,14 @@
                 var dataTable = $('#table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('salaries.index') }}",
+                    ajax: {
+                        url: "{{ route('salaries.index') }}",
+                        data: function(d) {
+                            d.department = $('#department').val();
+                            d.month = $('#month').val();
+                            d.year = $('#year').val();
+                        }
+                    },
                     columns: [{
                             data: 'id',
                             name: 'id'
@@ -112,7 +151,9 @@
                         }
                     ]
                 });
-
+                $('#filter').on('click', function() {
+                    dataTable.ajax.reload();
+                });
             });
         </script>
     @else
@@ -121,7 +162,14 @@
                 var dataTable = $('#table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: "{{ route('salaries.index') }}",
+                    ajax: {
+                        url: "{{ route('salaries.index') }}",
+                        data: function(d) {
+                            d.department = $('#department').val();
+                            d.month = $('#month').val();
+                            d.year = $('#year').val();
+                        }
+                    },
                     columns: [{
                             data: 'id',
                             name: 'id'
@@ -158,7 +206,9 @@
                         }
                     ]
                 });
-
+                $('#filter').on('click', function() {
+                    dataTable.ajax.reload();
+                });
             });
         </script>
     @endrole
