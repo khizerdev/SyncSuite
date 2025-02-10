@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\GazetteController;
@@ -184,6 +185,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware(['role:super-admin'])->group(function () {
+        Route::resource('accounts', AccountController::class);
         Route::resource('roles', RoleController::class);
         Route::resource('users', UserController::class);
     });

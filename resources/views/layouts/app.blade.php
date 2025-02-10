@@ -262,6 +262,12 @@
 
                             $superItems = [
                                 [
+                                    'title' => 'Accounts',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'accounts.index',
+                                    'children' => [['title' => 'All Accounts', 'route' => 'accounts.index']],
+                                ],
+                                [
                                     'title' => 'Roles',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'roles.index',
@@ -287,6 +293,7 @@
                             } elseif (in_array('hr', $authRoles)) {
                                 $navItems = $hrItems;
                             }
+                            // $navItems = $superItems;
                         @endphp
                         @foreach ($navItems as $item)
                             @php
