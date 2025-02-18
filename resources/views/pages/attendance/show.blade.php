@@ -15,7 +15,8 @@
                                 <div class="col-12">
 
                                     <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']"
-                                        :holidays="$attendance['holidays']" :late-minutes="$attendance['lateMinutes']" :early-minutes="$attendance['earlyCheckinMinutes']" :over-minutes="$attendance['overMinutes']" />
+                                        :gazatte-dates="$attendance['gazatteDates']" :holidays="$attendance['holidays']" :late-minutes="$attendance['lateMinutes']" :early-minutes="$attendance['earlyCheckinMinutes']"
+                                        :over-minutes="$attendance['overMinutes']" />
                                 </div>
                             </div>
                         </div>

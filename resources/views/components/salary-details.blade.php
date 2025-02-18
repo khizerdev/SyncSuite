@@ -3,6 +3,7 @@
     'employee',
     'holidays',
     'workingDays',
+    'workedDays',
     'totalExpectedWorkingDays',
     'totalHoursWorked',
     'totalHolidayHoursWorked',
@@ -38,7 +39,7 @@
                 <td><strong>Total Working Days</strong><br>{{ $workingDays }} days</td>
                 <td><strong>Expected Working Hours</strong><br>{{ $totalExpectedWorkingDays }} hours
                 </td>
-                <td><strong>Hours Worked</strong><br>{{ number_format($totalHoursWorked, 2) }} hours
+                <td><strong>Hours Worked</strong><br>{{ $totalHoursWorked }} hours
                 </td>
                 <td><strong>Salary Per Hour</strong><br>PKR {{ number_format($salaryPerHour, 2) }}</td>
 
@@ -46,7 +47,7 @@
             <tr>
                 <td><strong>Employee Holidays</strong> <br>{{ implode(', ', $holidays) }}
                 </td>
-                <td><strong>Holiday Hours</strong><br>{{ number_format($totalHolidayHoursWorked, 2) }}
+                <td><strong>Holiday Hours</strong><br>{{ $totalHolidayHoursWorked }}
                     hours</td>
                 <td><strong>Holiday Pay Ratio</strong><br>{{ $holidayRatio }}x</td>
                 <td><strong>Holiday Pay</strong><br>PKR {{ $holidayPayAmount }}</td>
@@ -62,7 +63,7 @@
 
             </tr>
             <tr>
-                <td><strong>Holiday Amount (Including Paid)</strong><br>PKR {{ number_format($paidHolidayAmount, 0) }}
+                <td><strong>Paid Holiday</strong><br>PKR {{ number_format($paidHolidayAmount, 0) }}
                 </td>
                 <td><strong>Late Minutes</strong><br>{{ $lateMinutes }} mins</td>
 
@@ -87,6 +88,7 @@
                 </td>
             </tr>
             <tr>
+                <td><strong>Total Worked Days</strong><br>{{ $workedDays }} days</td>
                 <td class="table-success"><strong>Final Salary</strong><br>PKR
                     {{ number_format(max($actualSalaryEarned - $salary->advance_deducted - $salary->loan_deducted, 0), 2) }}
                 </td>

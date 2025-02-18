@@ -51,19 +51,29 @@ class SalaryController extends Controller
                 return $row->employee->code;
             })
             ->addColumn('overtime', function ($row) {
-                $processor = new AttendanceService($row->employee);
+                try {
+                    $processor = new AttendanceService($row->employee);
                 $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
                 $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
                 $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
                 // dd(Carbon::parse($row->end_date)->copy()->subMinute());
                 return 'PKR '.$salary['totalOvertimePay'];
+                } catch (Exception $e) {
+                    dd($e);
+                }
+                
             })
             ->addColumn('late', function ($row) {
-                $processor = new AttendanceService($row->employee);
-                $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
-                $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
-                $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
-                return 'PKR '.floor($salary['lateCutAmount']);
+                try {
+                    $processor = new AttendanceService($row->employee);
+                    $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
+                    $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+                    $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+                    return 'PKR '.floor($salary['lateCutAmount']);
+                } catch (Exception $e) {
+                    dd($e);
+                }
+                
             })
             ->addColumn('loan', function ($row) {
                 return $row->loan_deducted;
@@ -174,7 +184,7 @@ class SalaryController extends Controller
             })
             ->get();
         }
-
+        
         foreach ($employees as $employee) {
             $salary = Salary::where('employee_id' , $employee->id)->where('month', $request->month)
             ->where('year', $currentYear)->where('period' , $period)->first();
@@ -212,7 +222,7 @@ class SalaryController extends Controller
                                 'year' => $currentYear,
                                 'current_salary' => $employee->salary,
                                 'expected_hours' => $salaryData['totalExpectedWorkingHours'],
-                                'normal_hours' => $salaryData['totalHoursWorked'],
+                                'normal_hours' => $salaryData['actualHoursWorked'],
                                 'holiday_hours' => $salaryData['totalHolidayHoursWorked'],
                                 'overtime_hours' => $salaryData['totalOvertimeMinutes']/60,
                                 'salary_per_hour' => $employee->salary/$salaryData['totalExpectedWorkingHours'],

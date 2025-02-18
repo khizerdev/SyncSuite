@@ -25,20 +25,18 @@
                                         'December',
                                     ];
                                     $month = $months[$salary->month - 1];
-                                    $absoluteMinutes = array_map(function ($minute) {
-                                        return is_numeric($minute) ? floor($minute) : 0;
-                                    }, $attendance['lateMinutes']);
 
                                     $overMinutes = array_map(function ($minute) {
                                         return is_numeric($minute) ? floor($minute) : 0;
                                     }, $attendance['overMinutes']);
+
                                 @endphp
                                 <x-salary-details :employee="$result['employee']" :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']"
-                                    :total-expected-working-days="$salary->expected_hours" :total-hours-worked="$salary->normal_hours" :total-holiday-hours-worked="$salary->holiday_hours" :salary-per-hour="$result['salaryPerHour']"
-                                    :paid-holiday-amount="$result['normalHolidayPay']" :gazatte-pay-amount="$result['gazattePay']" :holiday-pay-amount="$result['holidayPay']" :holiday-ratio="$salary->holiday_pay_ratio"
-                                    :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="array_sum($overMinutes)" :total-overtime-pay="$result['totalOvertimePay']"
-                                    :late-minutes="array_sum($absoluteMinutes)" :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary" :miss-deduct-days="$result['missDeductDays']"
-                                    :miss-amount="$result['missAmount']" :sand-wich="$result['sandwichDeduct']" />
+                                    :worked-days="$result['totalWorkedDays']" :total-expected-working-days="$salary->expected_hours" :total-hours-worked="$result['totalHoursWorked']" :total-holiday-hours-worked="$result['holidayHours']"
+                                    :salary-per-hour="$result['salaryPerHour']" :paid-holiday-amount="$result['normalHolidayPay']" :gazatte-pay-amount="$result['gazattePay']" :holiday-pay-amount="$result['holidayPay']"
+                                    :holiday-ratio="$salary->holiday_pay_ratio" :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="$result['totalOvertimeMinutes']"
+                                    :total-overtime-pay="$result['totalOvertimePay']" :late-minutes="array_sum($attendance['lateMinutes'])" :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary"
+                                    :miss-deduct-days="$result['missDeductDays']" :miss-amount="$result['missAmount']" :sand-wich="$result['sandwichDeduct']" />
 
                                 <div class="col-md-1 text-right">
                                     <button type="button" class="btn btn-primary d-print-none"
@@ -52,9 +50,10 @@
                         <div class="card-header">
                             <h3>Attendance Details for {{ $month }} 2024</h3>
                         </div>
+
                         <div class="card-body">
-                            <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']" :holidays="$attendance['holidays']"
-                                :late-minutes="$attendance['lateMinutes']" :early-minutes="$attendance['earlyCheckinMinutes']" :over-minutes="$attendance['overMinutes']" />
+                            <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']" :late-minutes="$attendance['lateMinutes']"
+                                :early-minutes="$attendance['earlyCheckinMinutes']" :over-minutes="$attendance['overMinutes']" :gazatte-dates="$attendance['gazatteDates']" />
                         </div>
                     </div>
                 </div>

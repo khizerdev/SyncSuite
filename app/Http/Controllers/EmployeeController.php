@@ -318,12 +318,11 @@ class EmployeeController extends Controller
             return redirect()->back()->with('error', 'Unable to process attendance');
         }
 
-        // Calculate salary components
         $salaryCalculator = new SalaryService($employee, $attendance,$period,intval($request->month));
         $salaryComponent = $salaryCalculator->calculateSalary();
         
         $result = collect(array_merge($attendance,$salaryComponent));
-        // dd($result);
+        // dd(array_sum($result['dailyMinutes']/60));
         
         return view('pages.employees.payroll', compact('attendance', 'result', 'salary'));
         

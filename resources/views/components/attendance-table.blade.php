@@ -1,4 +1,4 @@
-@props(['groupedAttendances', 'employee', 'holidays', 'lateMinutes', 'earlyMinutes', 'overMinutes'])
+@props(['groupedAttendances', 'employee', 'holidays', 'lateMinutes', 'earlyMinutes', 'overMinutes', 'gazatteDates'])
 
 
 
@@ -29,15 +29,16 @@
                         $entryStart = $entry['calculation_checkin'];
                         $entryEnd = $entry['calculation_checkout'];
                         $dailyMinutes +=
-                            $dailyMinutes +
+                            floor($dailyMinutes) +
                             $entryStart->diffInMinutes($entryEnd) -
                             floor($earlyMinutes[$date]) -
                             floor($overMinutes[$date]);
-                        $lateTimeMinutes += floor($lateMinutes[$date]);
+
+                        $lateTimeMinutes += $lateMinutes[$date];
                     }
                 }
                 $totalMi += $dailyMinutes;
-                $dailyHours = sprintf('%02d:%02d', $dailyMinutes / 60, $dailyMinutes % 60);
+                $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes) / 60, $dailyMinutes % 60);
             @endphp
             <tr>
                 <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, Y') }}</td>
@@ -67,14 +68,16 @@
 
                     {{ $dailyHours }}
                 </td>
-                <td>{{ floor($lateMinutes[$date]) ?? 0 }}</td>
-                <td>{{ floor($earlyMinutes[$date]) ?? 0 }}</td>
-                <td>{{ floor($overMinutes[$date]) ?? 0 }}</td>
+                <td>{{ $lateMinutes[$date] ?? 0 }}</td>
+                <td>{{ $earlyMinutes[$date] ?? 0 }}</td>
+                <td>{{ $overMinutes[$date] ?? 0 }}</td>
                 @php
                     $hasIncomplete = collect($entries)->contains('is_incomplete', true);
                 @endphp
                 <td>
-                    @if (in_array($dayName, $holidays))
+
+                    @if (in_array($dayName, $holidays) ||
+                            in_array(\Carbon\Carbon::parse($date)->format('Y-m-d'), array_values($gazatteDates)))
                         <span class="text-danger">Holiday</span>
                     @elseif(empty($entries))
                         <span class="text-danger">Absent</span>

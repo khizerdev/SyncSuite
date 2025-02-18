@@ -26,20 +26,21 @@ class SalaryService
         $this->attendanceData = $attendanceData;
         $this->period = $period;
         $this->currentMonth = $currentMonth;
-        
+        $this->shift = $employee->timings;
+        $this->isNightShift = Carbon::parse($this->shift->start_time)->greaterThan(Carbon::parse($this->shift->end_time));
         $this->monthDays = cal_days_in_month(CAL_GREGORIAN, $currentMonth, now()->year);
+        $this->holidays = array_map('trim', explode(',', $employee->type->holidays));
     }
 
     public function calculateTimeDifference($data) 
     {
         $startTime = Carbon::parse($data['start_time']);
-        $endTime = Carbon::parse($data['end_time']);
+        $endTime = !$this->isNightShift ? Carbon::parse($data['end_time']) : Carbon::parse($data['end_time'])->copy()->addDay();
         
-        // Calculate the difference
         $diffInHours = $startTime->diffInHours($endTime);
         $diffInMinutes = $startTime->diffInMinutes($endTime) % 60;
         
-        // Format the difference
+        // format difference
         $difference = [
             'hours' => $diffInHours,
             'minutes' => $diffInMinutes,
@@ -52,30 +53,128 @@ class SalaryService
 
     public function calculateSalary()
     {
+        $totalHoursWorked = $this->attendanceData['totalMinutesWorked'] / 60;
+        
+        $gazatteDates = [];
+        foreach($this->attendanceData['gazatteHolidays']->toArray() as $gazatteDate){
+            // dd(Carbon::parse($gazatteDate["holiday_date"])->format('Y-m-d'));
+            array_push($gazatteDates,Carbon::parse($gazatteDate["holiday_date"])->format('Y-m-d'));
+        }
+        
+        $originalWorkingMinutes = 0;
+        foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
+            
+            if (!in_array(Carbon::parse($date)->format('l'), $this->holidays) && !in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && !empty($value[0])) {
+                if($value){
+                    
+                $originalWorkingMinutes += $value[0]['dailyMinutes'];
+                }
+            }
+        }
+        
+        $totalHoursWorked = $originalWorkingMinutes/60;
+        
         $timings = $this->calculateTimeDifference($this->employee->timings);
         $hoursPerDay = intval($timings['formatted']);
         $salaryPerHour = ($this->employee->salary / $this->monthDays) / $hoursPerDay;
-
-        $regularPay = (int) floor($this->attendanceData['totalHoursWorked']) * $salaryPerHour;
+        // dd($this->attendanceData['gazatteHolidays']);
+        $regularPay = $totalHoursWorked * $salaryPerHour;
         
-        $holidayPay = $this->attendanceData['totalHolidayHoursWorked'] * $salaryPerHour * $this->employee->type->holiday_ratio;
+        $minutesWorkedInHoliday = 0;
+        foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
+            
+            if (in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
+                $minutesWorkedInHoliday += $value;
+            }
+        }
+        
+        $totalHolidayMinutesWorked = $this->attendanceData['totalHolidayMinutesWorked'];
+        
+        
+        
+        // $holidayPay = ($totalHolidayMinutesWorked/60) * $salaryPerHour * $this->employee->type->holiday_ratio;
+        
+        $holidayWorkingMinutes = 0;
+        foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
+            
+            if (in_array(Carbon::parse($date)->format('l'), $this->holidays) || in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && !empty($value[0])) {
+                if($value){
+                    
+                $holidayWorkingMinutes += $value[0]['dailyMinutes']+$value[0]['overMinutes']+$value[0]['earlyMinutes'];
+                }
+            }
+        }
+        
+        // dd($holidayWorkingMinutes);
+        
+        $holidayPay = ($holidayWorkingMinutes/60) * $salaryPerHour * $this->employee->type->holiday_ratio;
+        
         $sandWhichViolations = $this->countSandwichRuleViolations($this->attendanceData['groupedAttendances'], $this->attendanceData['gazatteHolidays']);
-
-        $overtimePay = ($this->attendanceData['totalOvertimeMinutes'] / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
+        
+        $overMintuesWithoutHoliday = 0;
+      
+        foreach ($this->attendanceData['overMinutes'] as $date => $value) {
+            if (!in_array(Carbon::parse($date)->format('l'), $this->holidays) && !in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates)) {
+                $overMintuesWithoutHoliday += $value;
+            }
+        }
+        
+        
+        
+        foreach ($this->attendanceData['overMinutes'] as $date => $value) {
+            if (in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
+            
+                $this->attendanceData['overMinutes'][$date] = 0;
+            }
+        }
+        
+        $overtimePay = ($overMintuesWithoutHoliday / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
         
         $lateMinutes = array_sum($this->attendanceData['lateMinutes']);
+        // dd($lateMinutes);
         $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
         
-        $normalHolidayPay = $this->attendanceData['holidayDays'] * $salaryPerHour * $hoursPerDay;
+        
+        
+        $holidayWorkedDays = 0;
+        foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
+            
+            if (in_array(Carbon::parse($date)->format('l'),$this->holidays) && $value >0) {
+                $holidayWorkedDays += 1;
+            }
+        }
+        // dd($holidayWorkedDays);
+        $normalHolidayPay = ($this->attendanceData['holidayDays']-$holidayWorkedDays) * $salaryPerHour * $hoursPerDay;
 
-        $gazattePay = ($this->attendanceData['gazatteMinutes'] / 60) * $this->employee->type->holiday_ratio * $salaryPerHour;
+        
+        $gazatteDaysWithoutWorked = 0;
+        foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
+            
+            if (in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && empty($value)) {
+                // dd($this->attendanceData['dailyMinutes'][$date]);
+                $gazatteDaysWithoutWorked += 1;
+            }
+        }
+        
+        // dd($gazatteDaysWithoutWorked);
+        
+        $gazattePay = $gazatteDaysWithoutWorked * $hoursPerDay * $salaryPerHour;
+        // dd($this->attendanceData['gazatteMinutes']);
 
         $missScanCount = $this->attendanceData["missScanCount"];
-        
         $missScanCleared = Missscan::where('employee_id' , $this->employee->id)->where('month' , $this->attendanceData["month"])->where('year' , $this->attendanceData["year"])->first();
         
-        // $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay) - $lateCutAmount;
-        $actualSalary = ($regularPay + $holidayPay + $overtimePay+$normalHolidayPay);
+        $actualSalary = ($regularPay + $holidayPay + $normalHolidayPay+$gazattePay);
+        
+        if(!$this->employee->type->adjust_hours){
+            $actualSalary  += $overtimePay;
+            
+        } else {
+            $check = (($overtimePay - $lateCutAmount) >= 0) ? $actualSalary += $lateCutAmount : $actualSalary += $overtimePay;
+            // dd($actualSalary,$lateCutAmount);
+        }
+        
+        
         
         $missDeductDays = 0;
         $missAmount = 0;
@@ -99,27 +198,63 @@ class SalaryService
             $sanwichDeductedAmount = $perDayAmount * $sandWhichViolations;
             $actualSalary -= $sanwichDeductedAmount;
         }
-  
+        
+        $workedDays = 0;
+        foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
+            
+            if (!empty($value)) {
+                // dd($this->attendanceData['dailyMinutes'][$date]);
+                $workedDays += 1;
+            }
+        }
+        
+        
+        
+        // dd($originalWorkingMinutes);
+        
         return [
-            'actualSalaryEarned' => $actualSalary,
-            
+           
+            'actualSalaryEarned'        => $actualSalary,
+            'salaryPerHour'             => $salaryPerHour,
+            'totalBaseSalary'           => $this->employee->salary,
+            'totalAdjustedSalary'       => $actualSalary,
+        
+            'holidayHours'       => number_format($holidayWorkingMinutes/60,2),
             'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * $hoursPerDay, 2),
-
-            'totalOverTimeHoursWorked' => $this->attendanceData['totalOvertimeMinutes'] / 60,
-            'totalOvertimeMinutes' => $this->attendanceData['totalOvertimeMinutes'],
+            // 'totalHoursWorked'          => $this->attendanceData['totalMinutesWorked'] / 60,
+            'totalHoursWorked'          => number_format($originalWorkingMinutes/60,2),
+            'totalWorkingDays'          => $this->attendanceData['workingDays'],
+            'totalWorkedDays'          => $workedDays,
+            // 'totalPresentDays'          => $this->attendanceData['presentDays'],
+            // 'totalAbsentDays'           => $this->attendanceData['workingDays'] - $this->attendanceData['presentDays'],
+        
+            'totalOverTimeHoursWorked'  => array_sum($this->attendanceData['overMinutes']) / 60,
+            'totalOvertimeMinutes'      => $overMintuesWithoutHoliday,
             'totalOvertimeMinutesArray' => $this->attendanceData['overMinutes'],
-            'totalOvertimePay' => number_format($overtimePay, 2, '.', ''),
-
-            'salaryPerHour' => $salaryPerHour,
-            'holidayPay' => $holidayPay,
-            'normalHolidayPay' => $normalHolidayPay,
-            'gazattePay' => $gazattePay,
-            'gazatteHolidays' => $this->attendanceData['gazatteHolidays'],
-            
-            'missDeductDays' => $missDeductDays,
-            'sandwichDeduct' => $sandWhichViolations. " Days - Amount ".$perDayAmount*$sandWhichViolations,
-            'missAmount' => $missDaysAmount,
-            'lateCutAmount' => $lateCutAmount,
+            'totalOvertimePay'          => number_format($overtimePay, 2, '.', ''),
+            'overtimeEligibility'       => $overMintuesWithoutHoliday > 0 ? 'Eligible' : 'Not Eligible',
+        
+            'holidayPay'                => number_format($holidayPay,2),
+            'normalHolidayPay'          => $normalHolidayPay,
+            'gazattePay'                => $gazattePay,
+            'gazatteHolidays'           => $this->attendanceData['gazatteHolidays'],
+            'totalHolidayHoursWorked'   => $this->attendanceData['totalHolidayHoursWorked'],
+            'totalHolidayDays'          => $this->attendanceData['holidayDays'],
+        
+            'lateCutAmount'             => $lateCutAmount,
+            'totalLateMinutes'          => $lateMinutes,
+            'totalLateDays'             => count($this->attendanceData['lateMinutes']),
+            'missDeductDays'            => $missDeductDays,
+            'missAmount'                => $missDaysAmount,
+            'missScanCount'             => $missScanCount,
+            'missScanCleared'           => $missScanCleared ? 'Yes' : 'No',
+            'sandwichDeduct'            => $sandWhichViolations . " Days - Amount " . $perDayAmount * $sandWhichViolations,
+            'totalSandwichViolations'   => $sandWhichViolations,
+        
+            // 'attendancePercentage'      => number_format(($this->attendanceData['presentDays'] / $this->attendanceData['workingDays']) * 100, 2) . '%',
+            'effectiveHourlyRate'       => number_format($actualSalary / ($this->attendanceData['totalMinutesWorked'] / 60), 2),
+            'totalDeductions'           => $lateCutAmount + $missDaysAmount + ($perDayAmount * $sandWhichViolations),
+            'netSalaryAfterDeductions'  => $actualSalary - ($lateCutAmount + $missDaysAmount + ($perDayAmount * $sandWhichViolations)),
         ];
     }
 
