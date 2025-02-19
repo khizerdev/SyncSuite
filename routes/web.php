@@ -11,6 +11,7 @@ use App\Http\Controllers\MissScanController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
@@ -186,6 +187,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:super-admin'])->group(function () {
         Route::resource('accounts', AccountController::class);
+        Route::resource('accounts-transfers', TransferController::class);
         Route::resource('roles', RoleController::class);
         Route::resource('users', UserController::class);
     });

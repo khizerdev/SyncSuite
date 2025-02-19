@@ -265,7 +265,10 @@
                                     'title' => 'Accounts',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'accounts.index',
-                                    'children' => [['title' => 'All Accounts', 'route' => 'accounts.index']],
+                                    'children' => [
+                                        ['title' => 'All Accounts', 'route' => 'accounts.index'],
+                                        ['title' => 'Transfers', 'route' => 'accounts-transfers.index'],
+                                    ],
                                 ],
                                 [
                                     'title' => 'Roles',
