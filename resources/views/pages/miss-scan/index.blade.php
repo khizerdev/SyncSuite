@@ -55,6 +55,7 @@
                                             <th><input type="checkbox" id="select-all"></th>
                                             <th>Employee</th>
                                             <th>Miss-Scan Count</th>
+                                            <th>Duration</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -62,15 +63,21 @@
                                             <tr>
                                                 <td>
                                                     <input type="checkbox" name="employee_ids[]"
-                                                        value="{{ $data['employee_id'] }}">
+                                                        value="{{ $data['employee_id'] }}{{ isset($data['duration']) ? ':' . $data['duration'] : '' }}">
                                                 </td>
                                                 <td>{{ $data['employee_name'] }}</td>
                                                 <td>{{ $data['miss_scan_count'] }}</td>
+                                                <td>
+                                                    @if (isset($data['duration']))
+                                                        {{ ucfirst(str_replace('_', ' ', $data['duration'])) }}
+                                                    @else
+                                                        Full Month
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="text-center">No miss-scan entries found for the
-                                                    selected month and year.</td>
+                                                <td colspan="4" class="text-center">No miss-scan entries found.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

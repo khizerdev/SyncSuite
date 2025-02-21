@@ -162,19 +162,16 @@ class SalaryService
         // dd($this->attendanceData['gazatteMinutes']);
 
         $missScanCount = $this->attendanceData["missScanCount"];
-        $missScanCleared = Missscan::where('employee_id' , $this->employee->id)->where('month' , $this->attendanceData["month"])->where('year' , $this->attendanceData["year"])->first();
-        
+        $missScanCleared = Missscan::where('employee_id' , $this->employee->id)->where('month' , $this->attendanceData["month"])->where('year' , $this->attendanceData["year"])->where('duration' , $this->period)->first();
+
         $actualSalary = ($regularPay + $holidayPay + $normalHolidayPay+$gazattePay);
         
         if(!$this->employee->type->adjust_hours){
             $actualSalary  += $overtimePay;
-            
         } else {
             $check = (($overtimePay - $lateCutAmount) >= 0) ? $actualSalary += $lateCutAmount : $actualSalary += $overtimePay;
             // dd($actualSalary,$lateCutAmount);
         }
-        
-        
         
         $missDeductDays = 0;
         $missAmount = 0;
