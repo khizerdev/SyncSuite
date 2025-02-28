@@ -322,7 +322,7 @@ class EmployeeController extends Controller
         $salaryComponent = $salaryCalculator->calculateSalary();
         
         $result = collect(array_merge($attendance,$salaryComponent));
-        // dd(array_sum($result['dailyMinutes']/60));
+        // dd($result);
         
         return view('pages.employees.payroll', compact('attendance', 'result', 'salary'));
         

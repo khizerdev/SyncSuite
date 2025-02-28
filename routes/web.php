@@ -11,6 +11,7 @@ use App\Http\Controllers\MissScanController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\ShiftTransferController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorPayableController;
@@ -153,6 +154,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('shifts', ShiftController::class)->only([
             'index','edit','destroy'
         ]);
+
+        Route::resource('shift-transfers', ShiftTransferController::class);
 
         Route::post('/import-excel', [AttendanceController::class, 'import'])->name('import.excel');
         Route::get('/calculate-hours/{employeeId}', [AttendanceController::class, 'calculateHours'])->name('calculate.hours');

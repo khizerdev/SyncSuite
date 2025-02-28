@@ -68,9 +68,9 @@
 
                     {{ $dailyHours }}
                 </td>
-                <td>{{ $lateMinutes[$date] ?? 0 }}</td>
-                <td>{{ $earlyMinutes[$date] ?? 0 }}</td>
-                <td>{{ $overMinutes[$date] ?? 0 }}</td>
+                <td>{{ round($lateMinutes[$date]) ?? 0 }}</td>
+                <td>{{ round($earlyMinutes[$date]) ?? 0 }}</td>
+                <td>{{ round($overMinutes[$date]) ?? 0 }}</td>
                 @php
                     $hasIncomplete = collect($entries)->contains('is_incomplete', true);
                 @endphp

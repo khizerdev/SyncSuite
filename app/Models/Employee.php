@@ -64,4 +64,9 @@ class Employee extends Model
     {
         return $this->hasOne(UserInfo::class, 'code', 'code');
     }
+
+    public function shiftTransfers()
+    {
+        return $this->hasMany(ShiftTransfer::class);
+    }
 }

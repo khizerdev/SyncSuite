@@ -211,6 +211,12 @@
                                     'children' => [['title' => 'View', 'route' => 'shifts.index']],
                                 ],
                                 [
+                                    'title' => 'Shift Transfer',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'shift-transfers.index',
+                                    'children' => [['title' => 'View', 'route' => 'shift-transfers.index']],
+                                ],
+                                [
                                     'title' => 'Employee Types',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'employee-types.index',

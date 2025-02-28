@@ -72,14 +72,14 @@ class AttendanceService
             }
         }
         
-        
+        // dd($calculatedMinutes['dailyMinutes']);
         foreach ($processedAttendances['groupedAttendances'] as $date => &$entries) {
             $dailyMinutes = 0;
             foreach ($entries as &$entry) {
                 if (!$entry['is_incomplete']) {
-                    $entryStart = $entry['calculation_checkin'];
-                    $entryEnd = $entry['calculation_checkout'];
-                    $dailyMinutes += $entryStart->diffInMinutes($entryEnd) - $calculatedMinutes['earlyCheckinMinutes'][$date] - $calculatedMinutes['overMinutes'][$date];
+                    $entryStart = $entry['original_checkin'];
+                    $entryEnd = $entry['original_checkout'];
+                    $dailyMinutes += $calculatedMinutes['dailyMinutes'][$date] - $calculatedMinutes['earlyCheckinMinutes'][$date] - $calculatedMinutes['overMinutes'][$date];
                 }
             }
             // Add dailyMinutes to each entry for the date
@@ -130,6 +130,34 @@ class AttendanceService
         ];
     }
 
+    public function getShiftDetails($date)
+    {
+        // Get the shift for the given date
+        $shift = $this->getShiftForDate($date) ? $this->getShiftForDate($date) : $this->shift;
+        
+        // Determine if it's a night shift
+        $isNightShift = Carbon::parse($shift->start_time)->greaterThan(Carbon::parse($shift->end_time));
+
+        return [
+            'shift' => $shift,
+            'is_night_shift' => $isNightShift,
+        ];
+    }
+
+    public function getShiftForDate($date)
+    {
+        $date = Carbon::parse($date);
+
+        // Find the most recent shift transfer for the given date
+        $shiftTransfer = $this->employee->shiftTransfers()
+            ->where('from_date', '<=', $date)
+            ->orderBy('from_date', 'desc')
+            ->first();
+
+        // If a shift transfer exists, return the new shift; otherwise, return the default shift
+        return $shiftTransfer ? $shiftTransfer->shift : null;
+    }
+
     public function getMissScanCount($groupedAttendances){
 
         $missScanCount = 0;
@@ -163,21 +191,21 @@ class AttendanceService
     }
 
     private function getAttendances($userId, $startDate, $endDate)
-{
+    {
+        $shiftDetails = $this->getShiftDetails($endDate);
+        $isNightShift = $shiftDetails['is_night_shift'];
+
+        if ($isNightShift) {
+            $endDate = Carbon::parse($endDate)->copy()->addDays(1)->setTime(12, 0, 0)->format('Y-m-d H:i:s');
+        } else {
+            $endDate = Carbon::parse($endDate)->copy()->endOfDay()->format('Y-m-d H:i:s');
+        }
     
-    if ($this->isNightShift) {
-        
-        $endDate = Carbon::parse($endDate)->copy()->addDays(1)->setTime(12, 0, 0)->format('Y-m-d H:i:s');
-    } else {
-       
-        $endDate = Carbon::parse($endDate)->copy()->endOfDay()->format('Y-m-d H:i:s');
+        return Attendance::where('code', $userId)
+            ->whereBetween('datetime', [$startDate, $endDate])
+            ->orderBy('datetime')
+            ->get();
     }
-  
-    return Attendance::where('code', $userId)
-        ->whereBetween('datetime', [$startDate, $endDate])
-        ->orderBy('datetime')
-        ->get();
-}
 
     private function initializeDates($startDate, $endDate)
     {
@@ -220,11 +248,11 @@ class AttendanceService
                 $groupedAttendances[$date] = [];
             }
 
-            $currentDateEntries = $this->getCurrentDateEntries($attendances, $i, $date,$this->isNightShift);
+            $currentDateEntries = $this->getCurrentDateEntries($attendances, $i, $date);
             if (count($currentDateEntries['entries']) > 0) {
                 $nestedEntries = $this->determineDailyEntries($currentDateEntries['entries']);
                 foreach ($nestedEntries as $entry) {
-                    $groupedAttendances[$date][] = $this->createAttendanceEntry($entry['checkIn'], $entry['checkOut'],$entry);
+                    $groupedAttendances[$date][] = $this->createAttendanceEntry($entry['checkIn'], $entry['checkOut'],$entry,$date);
                     
                 }
                 $i = $currentDateEntries['lastIndex'] - 1;
@@ -280,7 +308,9 @@ class AttendanceService
         $entries = [];
         $currentIndex = $startIndex;
         $targetDateObj = Carbon::parse($targetDate);
-        $isNightShift = $this->isNightShift;
+        $shiftDetails = $this->getShiftDetails($targetDate);
+        $isNightShift = $shiftDetails['is_night_shift'];
+
         if ($isNightShift) {
 
             while ($currentIndex < count($attendances)) {
@@ -327,9 +357,12 @@ class AttendanceService
         ];
     }
 
-    private function createAttendanceEntry($checkIn, $checkOut)
+    private function createAttendanceEntry($checkIn, $checkOut,$entry, $date)
     {
-        if ($this->isNightShift) {
+        $shiftDetails = $this->getShiftDetails($date);
+        $isNightShift = $shiftDetails['is_night_shift'];
+
+        if ($isNightShift) {
             $calculationCheckIn = $checkIn ? $checkIn->copy()->addHours(5) : null;
             $calculationCheckOut = $checkOut ? $checkOut->copy()->addHours(5) : null;
         } else {
@@ -386,10 +419,11 @@ class AttendanceService
 
     private function getShiftTimes($date)
     {
-        $shiftStartTime = Carbon::parse($this->shift->start_time)
+        $currentShift = $this->getShiftDetails($date);
+        $shiftStartTime = Carbon::parse($currentShift['shift']->start_time)
             // ->addHours($this->isNightShift ? 5 : 0)
             ->format('H:i:s');
-        $shiftEndTime = Carbon::parse($this->shift->end_time)
+        $shiftEndTime = Carbon::parse($currentShift['shift']->end_time)
             // ->addHours($this->isNightShift ? 5 : 0)
             ->format('H:i:s');
 
@@ -418,9 +452,11 @@ class AttendanceService
 
         foreach ($entries as $key => $entry) {
             if (!$entry['is_incomplete']) {
-                $minutes = $this->calculateEntryMinutes($entry, $shiftTimes);
+                $minutes = $this->calculateEntryMinutes($entry, $shiftTimes, $date);
                 $totalMinutes += $minutes['worked'];
-                // dd($minutes['worked']);
+                // if($date == "2024-12-07"){
+                //     dd($totalMinutes);
+                // }
                 
                 if (in_array(Carbon::parse($date)->format('l'), $this->holidays) || in_array($date, $gazetteDays)) {
                     // var_dump($minutes['worked']);
@@ -449,54 +485,59 @@ class AttendanceService
         ];
     }
 
-    private function calculateEntryMinutes($entry, $shiftTimes)
+    private function calculateEntryMinutes($entry, $shiftTimes, $date)
     {
         
         $startTime = $entry['calculation_checkin']->max($shiftTimes['start']);
         $endTime = $entry['calculation_checkout']->min($shiftTimes['end']);
         // dd($startTime,$endTime,$entry,$shiftTimes['start'],$shiftTimes['end']);
+        $shiftDetails = $this->getShiftDetails($date);
+        $isNightShift = $shiftDetails['is_night_shift'];
 
         $earlyCheckinMinutes = 0;
-        if($this->isNightShift){
+        if($isNightShift){
             $earlyCheckinMinutes = $entry['original_checkin']->lt($shiftTimes['start']) 
             ? $entry['original_checkin']->diffInMinutes($shiftTimes['start']) 
             : 0;
         } else {
-            $earlyCheckinMinutes = $entry['calculation_checkin']->lt($shiftTimes['start']) 
-            ? $entry['calculation_checkin']->diffInMinutes($shiftTimes['start']) 
+            $earlyCheckinMinutes = $entry['original_checkin']->lt($shiftTimes['start']) 
+            ? $entry['original_checkout']->diffInMinutes($shiftTimes['start']) 
             : 0;
         }
         
         $lateMinutes = 0;
-        if($this->isNightShift){
+        if($isNightShift){
             $lateMinutes = $entry['original_checkin']->gt($shiftTimes['start']) 
             ? abs($entry['original_checkin']->diffInMinutes($shiftTimes['start']) )
             : 0;
         } else {
-            $lateMinutes = $entry['calculation_checkin']->gt($shiftTimes['start']) 
-            ? abs($entry['calculation_checkin']->diffInMinutes($shiftTimes['start']) )
+            $lateMinutes = $entry['original_checkin']->gt($shiftTimes['start']) 
+            ? abs($entry['original_checkout']->diffInMinutes($shiftTimes['start']) )
             : 0;
         }
         
         $overtimeMinutes = 0;
-        if($this->isNightShift){
+        if($isNightShift){
             $overtimeMinutes = $entry['original_checkout']->gt($shiftTimes['end']->copy()->addDay()) 
             ? abs($entry['original_checkout']->diffInMinutes($shiftTimes['end']->copy()->addDay()))
             : 0;
         } else {
-            $overtimeMinutes = $entry['calculation_checkout']->gt($shiftTimes['end']) 
-            ? abs($entry['calculation_checkout']->diffInMinutes($shiftTimes['end'])) 
+            $overtimeMinutes = $entry['original_checkout']->gt($shiftTimes['end']) 
+            ? abs($entry['original_checkout']->diffInMinutes($shiftTimes['end'])) 
             : 0;
+            if($date == "2024-12-07"){
+                // dd($entry['original_checkout'], $shiftTimes['start']);
+                // dd($entry['original_checkin']);
+            }
         }
         
-        
-        
-        if (!$this->isNightShift) {
+        if (!$isNightShift) {
             $minutesWorked = $startTime->diffInMinutes($endTime);
-            $totalWorkedMinutes = $entry['calculation_checkin']->diffInMinutes($entry['calculation_checkout']);
-        
+            // $minutesWorked = $startTime->diffInMinutes($endTime);
+            $totalWorkedMinutes = $entry['original_checkin']->diffInMinutes($entry['original_checkout']);
+            // dd($totalWorkedMinutes);
             return [
-                'worked' => $minutesWorked,
+                'worked' => $totalWorkedMinutes,
                 'overtime' => $overtimeMinutes,
                 'earlyCheckin' => $earlyCheckinMinutes,
                 'late' => $lateMinutes

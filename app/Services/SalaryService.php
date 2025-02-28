@@ -90,8 +90,6 @@ class SalaryService
         
         $totalHolidayMinutesWorked = $this->attendanceData['totalHolidayMinutesWorked'];
         
-        
-        
         // $holidayPay = ($totalHolidayMinutesWorked/60) * $salaryPerHour * $this->employee->type->holiday_ratio;
         
         $holidayWorkingMinutes = 0;
@@ -100,7 +98,8 @@ class SalaryService
             if (in_array(Carbon::parse($date)->format('l'), $this->holidays) || in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && !empty($value[0])) {
                 if($value){
                     
-                $holidayWorkingMinutes += $value[0]['dailyMinutes']+$value[0]['overMinutes']+$value[0]['earlyMinutes'];
+                // $holidayWorkingMinutes += $value[0]['dailyMinutes']+$value[0]['overMinutes']+$value[0]['earlyMinutes'];
+                $holidayWorkingMinutes += $value[0]['dailyMinutes'];
                 }
             }
         }
@@ -119,8 +118,6 @@ class SalaryService
             }
         }
         
-        
-        
         foreach ($this->attendanceData['overMinutes'] as $date => $value) {
             if (in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
             
@@ -134,8 +131,6 @@ class SalaryService
         // dd($lateMinutes);
         $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
         
-        
-        
         $holidayWorkedDays = 0;
         foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
             
@@ -145,7 +140,6 @@ class SalaryService
         }
         // dd($holidayWorkedDays);
         $normalHolidayPay = ($this->attendanceData['holidayDays']-$holidayWorkedDays) * $salaryPerHour * $hoursPerDay;
-
         
         $gazatteDaysWithoutWorked = 0;
         foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
@@ -204,8 +198,6 @@ class SalaryService
                 $workedDays += 1;
             }
         }
-        
-        
         
         // dd($originalWorkingMinutes);
         
