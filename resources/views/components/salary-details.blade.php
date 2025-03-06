@@ -22,6 +22,10 @@
     'missDeductDays',
     'missAmount',
     'sandWich',
+    'holidayOverMins',
+    'earlyMinutes',
+    'earlyOutMinutes',
+    'earlyCutAmount',
 ])
 
 <div class="col-md-11">
@@ -65,7 +69,7 @@
             <tr>
                 <td><strong>Paid Holiday</strong><br>PKR {{ number_format($paidHolidayAmount, 0) }}
                 </td>
-                <td><strong>Late Minutes</strong><br>{{ $lateMinutes }} mins</td>
+                <td><strong>Late Minutes</strong><br>{{ number_format($lateMinutes, 2) }} mins</td>
 
                 <td><strong>Late Cut</strong><br>PKR {{ number_format(($lateMinutes / 60) * $salaryPerHour, 0) }}</td>
                 {{-- <td><strong>Initial Salary</strong><br>PKR
@@ -89,6 +93,14 @@
             </tr>
             <tr>
                 <td><strong>Total Worked Days</strong><br>{{ $workedDays }} days</td>
+                <td><strong>Holiday Over Mins</strong><br>{{ $holidayOverMins }} mins</td>
+                <td><strong>Early In Mins</strong><br>{{ number_format(array_sum($earlyMinutes), 2) }} mins</td>
+                <td><strong>Early Out Mins</strong><br>{{ number_format(array_sum($earlyOutMinutes), 2) }} mins</td>
+
+
+            </tr>
+            <tr>
+                <td><strong>Early Cut Amount</strong><br>PKR {{ number_format($earlyCutAmount, 2) }}</td>
                 <td class="table-success"><strong>Final Salary</strong><br>PKR
                     {{ number_format(max($actualSalaryEarned - $salary->advance_deducted - $salary->loan_deducted, 0), 2) }}
                 </td>

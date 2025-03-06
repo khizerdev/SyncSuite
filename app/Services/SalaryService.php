@@ -93,6 +93,7 @@ class SalaryService
         // $holidayPay = ($totalHolidayMinutesWorked/60) * $salaryPerHour * $this->employee->type->holiday_ratio;
         
         $holidayWorkingMinutes = 0;
+        $holidayOverMins = 0;
         foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
             
             if (in_array(Carbon::parse($date)->format('l'), $this->holidays) || in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && !empty($value[0])) {
@@ -100,6 +101,7 @@ class SalaryService
                     
                 // $holidayWorkingMinutes += $value[0]['dailyMinutes']+$value[0]['overMinutes']+$value[0]['earlyMinutes'];
                 $holidayWorkingMinutes += $value[0]['dailyMinutes'];
+                $holidayOverMins += $value[0]['overMinutes'];
                 }
             }
         }
@@ -134,21 +136,30 @@ class SalaryService
         $holidayWorkedDays = 0;
         foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
             
-            if (in_array(Carbon::parse($date)->format('l'),$this->holidays) && $value >0) {
+            if (in_array(Carbon::parse($date)->format('l'),$this->holidays) && $value > 0) {
                 $holidayWorkedDays += 1;
             }
         }
+        // dd($this->attendanceData['holidayDays']);
         // dd($holidayWorkedDays);
         $normalHolidayPay = ($this->attendanceData['holidayDays']-$holidayWorkedDays) * $salaryPerHour * $hoursPerDay;
+        // dd($normalHolidayPay);
         
         $gazatteDaysWithoutWorked = 0;
-        foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
+        foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
             
-            if (in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && empty($value)) {
-                // dd($this->attendanceData['dailyMinutes'][$date]);
+            if (in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && !in_array(Carbon::parse($date)->format('l'),$this->holidays) && $value ==  0) {
                 $gazatteDaysWithoutWorked += 1;
             }
         }
+        // foreach ($this->attendanceData['groupedAttendances'] as $date => $value) {
+        //     dd($this->attendanceData['groupedAttendances']);
+        //     if (in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && empty($value)) {
+            
+        //         // dd($this->attendanceData['dailyMinutes'][$date]);
+        //         $gazatteDaysWithoutWorked += 1;
+        //     }
+        // }
         
         // dd($gazatteDaysWithoutWorked);
         
@@ -160,10 +171,16 @@ class SalaryService
 
         $actualSalary = ($regularPay + $holidayPay + $normalHolidayPay+$gazattePay);
         
+        // $earlyOutCutAmount = $this->attendanceDate['earlyCheckoutMinutes'];
+        
+        $earlyOutMins = array_sum($this->attendanceData['earlyCheckoutMinutes']);
+        // dd($lateMinutes);
+        $earlyOutCutAmount = ($earlyOutMins / 60) * $salaryPerHour;
+        
         if(!$this->employee->type->adjust_hours){
             $actualSalary  += $overtimePay;
         } else {
-            $check = (($overtimePay - $lateCutAmount) >= 0) ? $actualSalary += $lateCutAmount : $actualSalary += $overtimePay;
+            $check = (($overtimePay - $lateCutAmount-$earlyOutCutAmount) >= 0) ? $actualSalary += $lateCutAmount+$earlyOutCutAmount : $actualSalary += $overtimePay;
             // dd($actualSalary,$lateCutAmount);
         }
         
@@ -198,9 +215,15 @@ class SalaryService
                 $workedDays += 1;
             }
         }
+        // foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
+            
+        //     if (in_array(Carbon::parse($date)->format('Y-m-d'),$gazatteDates) && $value ==  0) {
+        //         $gazatteDaysWithoutWorked += 1;
+        //     }
+        // }
         
-        // dd($originalWorkingMinutes);
-        
+        // dd($this->attendanceData['workingDays']);
+        // dd($hoursPerDay);
         return [
            
             'actualSalaryEarned'        => $actualSalary,
@@ -218,20 +241,22 @@ class SalaryService
             // 'totalAbsentDays'           => $this->attendanceData['workingDays'] - $this->attendanceData['presentDays'],
         
             'totalOverTimeHoursWorked'  => array_sum($this->attendanceData['overMinutes']) / 60,
-            'totalOvertimeMinutes'      => $overMintuesWithoutHoliday,
+            'totalOvertimeMinutes'      => number_format($overMintuesWithoutHoliday,2),
             'totalOvertimeMinutesArray' => $this->attendanceData['overMinutes'],
             'totalOvertimePay'          => number_format($overtimePay, 2, '.', ''),
             'overtimeEligibility'       => $overMintuesWithoutHoliday > 0 ? 'Eligible' : 'Not Eligible',
         
             'holidayPay'                => number_format($holidayPay,2),
             'normalHolidayPay'          => $normalHolidayPay,
-            'gazattePay'                => $gazattePay,
+            'holidayOverMins'          => $holidayOverMins,
+            'gazattePay'                => number_format($gazattePay,2),
             'gazatteHolidays'           => $this->attendanceData['gazatteHolidays'],
             'totalHolidayHoursWorked'   => $this->attendanceData['totalHolidayHoursWorked'],
             'totalHolidayDays'          => $this->attendanceData['holidayDays'],
         
+            'earlyOutCutAmount'        => $earlyOutCutAmount,
             'lateCutAmount'             => $lateCutAmount,
-            'totalLateMinutes'          => $lateMinutes,
+            'totalLateMinutes'          => number_format($lateMinutes,2),
             'totalLateDays'             => count($this->attendanceData['lateMinutes']),
             'missDeductDays'            => $missDeductDays,
             'missAmount'                => $missDaysAmount,
@@ -247,36 +272,56 @@ class SalaryService
         ];
     }
 
-    private function countSandwichRuleViolations($groupedAttendances, $gazatteHolidays) {
+    private function countSandwichRuleViolations($groupedAttendances, $gazatteHolidays) { 
         $violations = 0;
         $dates = array_keys($groupedAttendances);
         $gazetteHolidayDates = $gazatteHolidays->pluck('holiday_date')->toArray();
-    
+        
+        $gazatteDates = array_map(function ($item) {
+    return $item->toDateString();
+}, $gazetteHolidayDates);
+        
+        // dd($gazatteDates);
+        
+        // dd($gazetteHolidayDates);
+            $counter = 0;
         foreach ($dates as $date) {
-
-            // skip if it's not a leave day
-            if (count($groupedAttendances[$date]) < 1) {
-                continue;
-            }
+            // Skip the 5th iteration
+            $counter++;
+    if ($counter == 1) {
+        continue;
+    }
+            // Skip if it's a gazette holiday or a normal holiday
+            // if (in_array($date, $gazetteHolidayDates) || in_array(date('l', strtotime($date)), $this->holidays)) {
+            //     continue;
+            // }
+            
+            
+// $dateCarbon = \Carbon\Carbon::parse($date);
     
-            if (in_array($date, $gazetteHolidayDates)) {
-                continue;
-            }
-    
-            // previous day
+        
+            // Check previous day
             $prevDay = date('Y-m-d', strtotime($date . ' -1 day'));
-            $prevDayIsWorkingOrHoliday = isset($groupedAttendances[$prevDay]) && (count($groupedAttendances[$prevDay]) < 1 || in_array($prevDay, $gazetteHolidayDates));
-    
-            // next day
+            $prevDayIsAbsentOrHoliday = !isset($groupedAttendances[$prevDay]) || count($groupedAttendances[$prevDay]) < 1 || in_array($prevDay, $gazatteDates) || in_array(date('l', strtotime($prevDay)), $this->holidays);
+        
+            // Check next day
             $nextDay = date('Y-m-d', strtotime($date . ' +1 day'));
-            $nextDayIsWorkingOrHoliday = isset($groupedAttendances[$nextDay]) && (count($groupedAttendances[$nextDay]) < 1 || in_array($nextDay, $gazetteHolidayDates));
-    
-            // if both previous and next days are working days or holidays, it's a violation
-            if ($prevDayIsWorkingOrHoliday && $nextDayIsWorkingOrHoliday) {
-                $violations++;
+            $nextDayIsAbsentOrHoliday = !isset($groupedAttendances[$nextDay]) || count($groupedAttendances[$nextDay]) < 1 || in_array($nextDay, $gazatteDates) || in_array(date('l', strtotime($nextDay)), $this->holidays);
+        
+            // Check if the current day is absent
+            $currentDayIsAbsent = !isset($groupedAttendances[$date]) || count($groupedAttendances[$date]) < 1;
+            // dd(in_array($date, $gazetteHolidayDates),$date);
+            // Check if the middle day (current day) is a holiday
+            $middleDayIsHoliday = in_array($date, $gazatteDates) || in_array(date('l', strtotime($date)), $this->holidays);
+            // dd($prevDayIsAbsentOrHoliday,$nextDayIsAbsentOrHoliday,$currentDayIsAbsent);
+            // If 3 consecutive days are absent/holiday and the middle day is a holiday, increment violations
+            // dd($middleDayIsHoliday);
+            if ($prevDayIsAbsentOrHoliday && $middleDayIsHoliday && $nextDayIsAbsentOrHoliday) {
+                // var_dump($prevDay,$date,$nextDay);
+                $violations += 1;
             }
         }
-    
+        
         return $violations;
     }
 

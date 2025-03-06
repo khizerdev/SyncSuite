@@ -101,13 +101,12 @@ class MissScanController extends Controller
             $parts = explode(':', $composite);
             $employeeId = $parts[0];
             $duration = count($parts) > 1 ? $parts[1] : null;
-
-            // Validate employee exists
+            // dd($duration);
+            
             if (!Employee::where('id', $employeeId)->exists()) {
                 continue;
             }
 
-            // Mark as resolved
             MissScan::updateOrCreate(
                 [
                     'employee_id' => $employeeId,

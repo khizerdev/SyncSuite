@@ -63,7 +63,7 @@
                                             <tr>
                                                 <td>
                                                     <input type="checkbox" name="employee_ids[]"
-                                                        value="{{ $data['employee_id'] }}{{ isset($data['duration']) ? ':' . $data['duration'] : '' }}">
+                                                        value="{{ $data['employee_id'] }}{{ isset($data['duration']) ? ':' . $data['duration'] : ':full_month' }}">
                                                 </td>
                                                 <td>{{ $data['employee_name'] }}</td>
                                                 <td>{{ $data['miss_scan_count'] }}</td>

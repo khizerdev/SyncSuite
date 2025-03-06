@@ -1,4 +1,13 @@
-@props(['groupedAttendances', 'employee', 'holidays', 'lateMinutes', 'earlyMinutes', 'overMinutes', 'gazatteDates'])
+@props([
+    'groupedAttendances',
+    'employee',
+    'holidays',
+    'lateMinutes',
+    'earlyMinutes',
+    'earlyOutMinutes',
+    'overMinutes',
+    'gazatteDates',
+])
 
 
 
@@ -10,6 +19,7 @@
             <th>Working Hours</th>
             <th>Late Min</th>
             <th>Early Min</th>
+            <th>Early Out</th>
             <th>Over Min</th>
             <th>Status</th>
         </tr>
@@ -24,20 +34,24 @@
                 $dailyMinutes = 0;
                 $entryCount = count($entries);
                 $dayName = \Carbon\Carbon::parse($date)->format('l');
+                $dailyMinutesCalculated = false;
+
                 foreach ($entries as $entry) {
                     if (!$entry['is_incomplete']) {
                         $entryStart = $entry['calculation_checkin'];
                         $entryEnd = $entry['calculation_checkout'];
-                        $dailyMinutes +=
-                            floor($dailyMinutes) +
-                            $entryStart->diffInMinutes($entryEnd) -
-                            floor($earlyMinutes[$date]) -
-                            floor($overMinutes[$date]);
+
+                        if (!$dailyMinutesCalculated) {
+                            $dailyMinutes += floor($dailyMinutes) + $entry['dailyMinutes'];
+
+                            $dailyMinutesCalculated = true;
+                        }
 
                         $lateTimeMinutes += $lateMinutes[$date];
                     }
                 }
                 $totalMi += $dailyMinutes;
+
                 $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes) / 60, $dailyMinutes % 60);
             @endphp
             <tr>
@@ -70,6 +84,7 @@
                 </td>
                 <td>{{ round($lateMinutes[$date]) ?? 0 }}</td>
                 <td>{{ round($earlyMinutes[$date]) ?? 0 }}</td>
+                <td>{{ round($earlyOutMinutes[$date]) ?? 0 }}</td>
                 <td>{{ round($overMinutes[$date]) ?? 0 }}</td>
                 @php
                     $hasIncomplete = collect($entries)->contains('is_incomplete', true);
