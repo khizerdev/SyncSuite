@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\CustomerReceivableController;
 use App\Http\Controllers\GazetteController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LoanController;
@@ -192,6 +193,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super-admin'])->group(function () {
         Route::resource('accounts', AccountController::class);
         Route::resource('accounts-transfers', TransferController::class);
+        Route::resource('accounts-customersreceivables', CustomerReceivableController::class);
+        Route::get('customer-balance', [CustomerReceivableController::class, 'getBalance'])->name('customer-balance');
 
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');

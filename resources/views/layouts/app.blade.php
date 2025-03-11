@@ -275,6 +275,10 @@
                                         ['title' => 'All Accounts', 'route' => 'accounts.index'],
                                         ['title' => 'Transfers', 'route' => 'accounts-transfers.index'],
                                         ['title' => 'Vendor Payables', 'route' => 'accounts-vendors-payables.index'],
+                                        [
+                                            'title' => 'Customer Receivables',
+                                            'route' => 'accounts-customersreceivables.index',
+                                        ],
                                     ],
                                 ],
                                 [
