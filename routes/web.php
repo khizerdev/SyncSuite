@@ -13,6 +13,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ShiftTransferController;
+use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorPayableController;
@@ -196,6 +197,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('accounts-customersreceivables', CustomerReceivableController::class);
         Route::get('customer-balance', [CustomerReceivableController::class, 'getBalance'])->name('customer-balance');
 
+        Route::resource('stock-adjustments', StockAdjustmentController::class);
+        
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');
 

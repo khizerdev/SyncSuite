@@ -282,6 +282,12 @@
                                     ],
                                 ],
                                 [
+                                    'title' => 'Adjustments',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'stock-adjustments.index',
+                                    'children' => [['title' => 'Stock', 'route' => 'stock-adjustments.index']],
+                                ],
+                                [
                                     'title' => 'Roles',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'roles.index',
