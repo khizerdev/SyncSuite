@@ -19,7 +19,8 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="employee_id">Employee</label>
-                                        <select name="employee_id" id="employee_id" class="form-control" required>
+                                        <select name="employee_ids[]" id="employee_id" class="form-control" multiple
+                                            required>
                                             @foreach ($employees as $employee)
                                                 <option value="{{ $employee->id }}">{{ $employee->name }}</option>
                                             @endforeach
@@ -74,6 +75,10 @@
 
 @section('script')
     <script type="text/javascript">
+        $(document).ready(function() {
+            $('#employee_id').select2();
+        });
+
         $(document).ready(function() {
             var dataTable = $('#table').DataTable({
                 processing: true,
