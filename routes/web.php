@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountAdjustmentController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
@@ -198,6 +199,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('customer-balance', [CustomerReceivableController::class, 'getBalance'])->name('customer-balance');
 
         Route::resource('stock-adjustments', StockAdjustmentController::class);
+        Route::resource('account-adjustments', AccountAdjustmentController::class);
         
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');
