@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountAdjustmentController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\VendorAdjustmentController;
 use App\Http\Controllers\AdvanceSalaryController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CustomerReceivableController;
@@ -200,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::resource('stock-adjustments', StockAdjustmentController::class);
         Route::resource('account-adjustments', AccountAdjustmentController::class);
+        Route::resource('vendor-adjustments', VendorAdjustmentController::class);
         
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');

@@ -288,6 +288,7 @@
                                     'children' => [
                                         ['title' => 'Stock', 'route' => 'stock-adjustments.index'],
                                         ['title' => 'Account Adjustments', 'route' => 'account-adjustments.index'],
+                                        ['title' => 'Vendor Adjustments', 'route' => 'vendor-adjustments.index'],
                                     ],
                                 ],
                                 [
@@ -303,47 +304,99 @@
                                     'children' => [['title' => 'View', 'route' => 'users.index']],
                                 ],
                             ];
-
                         @endphp
                         @php
                             $authRoles = auth()->user()->roles->pluck('name')->toArray();
                             $navItems = [];
 
+                            // Define parent menus
+                            $erpParent = [
+                                'title' => 'ERP',
+                                'icon' => 'fas fa-cogs',
+                                'children' => $erpItems,
+                            ];
+
+                            $hrParent = [
+                                'title' => 'HR',
+                                'icon' => 'fas fa-users',
+                                'children' => $hrItems,
+                            ];
+
+                            $superParent = [
+                                'title' => 'Super',
+                                'icon' => 'fas fa-user-shield',
+                                'children' => $superItems,
+                            ];
+
+                            // Role-based logic to determine which parent menus to include
                             if (in_array('hr', $authRoles) && in_array('erp', $authRoles)) {
-                                $navItems = array_merge($erpItems, $hrItems, $superItems);
+                                $navItems = [$erpParent, $hrParent, $superParent];
                             } elseif (in_array('erp', $authRoles)) {
-                                $navItems = $erpItems;
+                                $navItems = [$erpParent];
                             } elseif (in_array('hr', $authRoles)) {
-                                $navItems = $hrItems;
+                                $navItems = [$hrParent];
                             }
-                            // $navItems = $superItems;
+
+                            // If the user has the "super" role, include the Super menu
+                            if (in_array('super', $authRoles)) {
+                                $navItems[] = $superParent;
+                            }
                         @endphp
-                        @foreach ($navItems as $item)
+                        @foreach ($navItems as $parentItem)
                             @php
-                                $isActive = false;
-                                foreach ($item['children'] as $child) {
+                                // Check if any child route matches the current route
+                                $isParentActive = false;
+                                foreach ($parentItem['children'] as $child) {
                                     if (Str::startsWith($currentRouteName, Str::beforeLast($child['route'], '.'))) {
-                                        $isActive = true;
+                                        $isParentActive = true;
                                         break;
+                                    }
+                                    // Check nested children (if any)
+                                    if (isset($child['children'])) {
+                                        foreach ($child['children'] as $subChild) {
+                                            if (
+                                                Str::startsWith(
+                                                    $currentRouteName,
+                                                    Str::beforeLast($subChild['route'], '.'),
+                                                )
+                                            ) {
+                                                $isParentActive = true;
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
                             @endphp
-                            <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
-                                <a href="{{ route($item['route']) }}"
-                                    class="nav-link {{ $isActive ? 'active' : '' }}">
-                                    <i class="nav-icon {{ $item['icon'] }}"></i>
+                            <li class="nav-item {{ $isParentActive ? 'menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ $isParentActive ? 'active' : '' }}">
+                                    <i class="nav-icon {{ $parentItem['icon'] }}"></i>
                                     <p>
-                                        {{ $item['title'] }}
+                                        {{ $parentItem['title'] }}
                                         <i class="right fas fa-angle-left"></i>
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @foreach ($item['children'] as $child)
+                                    @foreach ($parentItem['children'] as $child)
                                         @php
+                                            // Check if the child route matches the current route
                                             $isChildActive = Str::startsWith(
                                                 $currentRouteName,
                                                 Str::beforeLast($child['route'], '.'),
                                             );
+                                            // Check nested children (if any)
+                                            if (isset($child['children'])) {
+                                                foreach ($child['children'] as $subChild) {
+                                                    if (
+                                                        Str::startsWith(
+                                                            $currentRouteName,
+                                                            Str::beforeLast($subChild['route'], '.'),
+                                                        )
+                                                    ) {
+                                                        $isChildActive = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                         @endphp
                                         <li class="nav-item">
                                             <a href="{{ route($child['route']) }}"
@@ -351,6 +404,25 @@
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>{{ $child['title'] }}</p>
                                             </a>
+                                            @if (isset($child['children']))
+                                                <ul class="nav nav-treeview">
+                                                    @foreach ($child['children'] as $subChild)
+                                                        @php
+                                                            $isSubChildActive = Str::startsWith(
+                                                                $currentRouteName,
+                                                                Str::beforeLast($subChild['route'], '.'),
+                                                            );
+                                                        @endphp
+                                                        <li class="nav-item">
+                                                            <a href="{{ route($subChild['route']) }}"
+                                                                class="nav-link {{ $isSubChildActive ? 'active' : '' }}">
+                                                                <i class="far fa-dot-circle nav-icon"></i>
+                                                                <p>{{ $subChild['title'] }}</p>
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
                                         </li>
                                     @endforeach
                                 </ul>
