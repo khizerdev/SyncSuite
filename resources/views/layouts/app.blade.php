@@ -289,6 +289,7 @@
                                         ['title' => 'Stock', 'route' => 'stock-adjustments.index'],
                                         ['title' => 'Account Adjustments', 'route' => 'account-adjustments.index'],
                                         ['title' => 'Vendor Adjustments', 'route' => 'vendor-adjustments.index'],
+                                        ['title' => 'Customer Adjustments', 'route' => 'customer-adjustments.index'],
                                     ],
                                 ],
                                 [
