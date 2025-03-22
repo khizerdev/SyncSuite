@@ -15,6 +15,7 @@ use App\Http\Controllers\MissScanController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\SaleOrderController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ShiftTransferController;
 use App\Http\Controllers\StockAdjustmentController;
@@ -206,6 +207,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('vendor-adjustments', VendorAdjustmentController::class);
         Route::resource('customer-adjustments', CustomerAdjustmentController::class);
         Route::resource('raw-materials', RawMaterialController::class);
+        Route::resource('sale-orders', SaleOrderController::class);
         
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');

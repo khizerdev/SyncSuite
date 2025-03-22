@@ -98,8 +98,16 @@ class RawMaterialController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(RawMaterial $rawMaterial)
+    public function destroy($id)
     {
-        //
+        try {
+            $item = RawMaterial::findOrFail($id);
+           
+            $item->delete();
+    
+            return response()->json(['message' => 'Deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
+        }
     }
 }

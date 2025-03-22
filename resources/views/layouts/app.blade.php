@@ -182,7 +182,10 @@
                                     'title' => 'Productions',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'raw-materials.index',
-                                    'children' => [['title' => 'Raw Materials', 'route' => 'raw-materials.index']],
+                                    'children' => [
+                                        ['title' => 'Raw Materials', 'route' => 'raw-materials.index'],
+                                        ['title' => 'Sale Orders', 'route' => 'sale-orders.index'],
+                                    ],
                                 ],
                             ];
 
