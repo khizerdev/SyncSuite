@@ -178,6 +178,12 @@
                                         ['title' => 'Inward General', 'route' => 'inward-general.index'],
                                     ],
                                 ],
+                                [
+                                    'title' => 'Productions',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'raw-materials.index',
+                                    'children' => [['title' => 'Raw Materials', 'route' => 'raw-materials.index']],
+                                ],
                             ];
 
                             $hrItems = [
