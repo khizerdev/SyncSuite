@@ -185,6 +185,7 @@
                                     'children' => [
                                         ['title' => 'Raw Materials', 'route' => 'raw-materials.index'],
                                         ['title' => 'Sale Orders', 'route' => 'sale-orders.index'],
+                                        ['title' => 'Fabric Measurement', 'route' => 'fabric-measurements.index'],
                                     ],
                                 ],
                             ];
