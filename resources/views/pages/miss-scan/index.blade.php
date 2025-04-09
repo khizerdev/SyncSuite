@@ -42,6 +42,21 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="col-md-3">
+                                        <label for="duration">Select Duration:</label>
+                                        <select name="duration" id="duration" class="form-control"
+                                            onchange="this.form.submit()">
+                                            <option value="full_month"
+                                                {{ $selectedDuration == 'full_month' ? 'selected' : '' }}>Full Month
+                                            </option>
+                                            <option value="first_half"
+                                                {{ $selectedDuration == 'first_half' ? 'selected' : '' }}>First Half
+                                            </option>
+                                            <option value="second_half"
+                                                {{ $selectedDuration == 'second_half' ? 'selected' : '' }}>Second Half
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                             </form>
                             <form method="POST" action="{{ route('miss-scan.resolve') }}">
