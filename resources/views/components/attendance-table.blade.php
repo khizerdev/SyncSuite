@@ -51,8 +51,12 @@
                     }
                 }
                 $totalMi += $dailyMinutes;
+                if ($dailyMinutes > 1) {
+                    $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes) / 60, $dailyMinutes % 60);
+                } else {
+                    $dailyHours = sprintf('%02d:%02d', floor(0) / 60, 0 % 60);
+                }
 
-                $dailyHours = sprintf('%02d:%02d', floor($dailyMinutes) / 60, $dailyMinutes % 60);
             @endphp
             <tr>
                 <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, Y') }}</td>

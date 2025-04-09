@@ -186,69 +186,73 @@ class SalaryController extends Controller
         }
         
         foreach ($employees as $employee) {
-            $salary = Salary::where('employee_id' , $employee->id)->where('month', $request->month)
+            $salary = Salary::where('employee_id' , $employee->id)->where('month', (int) $request->month)
             ->where('year', $currentYear)->where('period' , $period)->first();
+            // dd($salary,$employee->id,$request->month,$currentYear,$period);
             if(!$salary) {
                 try {
                     
                     $processor = new AttendanceService($employee);
                     $result = $processor->processAttendance($startDate, $endDate);
-                    if (empty(array_filter($result['groupedAttendances'], function ($value) {
-                        return !empty($value);
-                    }))) {
-                    } else {
-                        $salaryService = new SalaryService($employee, $result,$period,$currentMonth);
-                        $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
+                    if($result){
                         
-                        $salaryData = array_merge($result,$salary);
-                        // dd($salaryData);
-        
-                        $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
-                        
-                        $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
-                        $remainingAmount = isset($loan) ? ($loan->amount - $loan->paid) : 0;
-                        $loanInstallmentAmount = isset($loan) ? (int) min($loan->month, $remainingAmount) : 0;
-        
-                        $loanException = $employee->loanExceptions()->where('month', $currentMonth)
-                        ->where('year', $currentYear)
-                        ->where('salary_duration', $request->period)
-                        ->first();
-                        
-                        DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
+                        if (empty(array_filter($result['groupedAttendances'], function ($value) {
+                            return !empty($value);
+                        }))) {
+                        } else {
+                            $salaryService = new SalaryService($employee, $result,$period,$currentMonth);
+                            $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
                             
-                            $data = [
-                                'employee_id' => $employee->id,
-                                'month' => $currentMonth,
-                                'year' => $currentYear,
-                                'current_salary' => $employee->salary,
-                                'expected_hours' => $salaryData['totalExpectedWorkingHours'],
-                                'normal_hours' => $salaryData['actualHoursWorked'],
-                                'holiday_hours' => $salaryData['totalHolidayHoursWorked'],
-                                'overtime_hours' => $salaryData['totalOvertimeMinutes']/60,
-                                'salary_per_hour' => $employee->salary/$salaryData['totalExpectedWorkingHours'],
-                                'holiday_pay_ratio' => $employee->type->holiday_ratio,
-                                'overtime_pay_ratio' => $employee->type->overtime_ratio,
-                                'overtime_hours' => $salaryData['totalOverTimeHoursWorked'],
-                                'holidays' => $employee->type->holidays,
-                                'advance_deducted' => $advance ? $advance->amount : 0,
-                                'period' => $period,
-                                'start_date' => $startDate,
-                                'end_date' => $endDate,
-                                'loan_deducted' => ($loan && $loanException) ? 0 : $loanInstallmentAmount,
-                            ];
+                            $salaryData = array_merge($result,$salary);
+                            // dd($salaryData);
+            
+                            $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                             
-                            Salary::create($data);
+                            $loan = Loan::where('employee_id', $employee->id)->whereColumn('paid', '<', 'amount')->first();
+                            $remainingAmount = isset($loan) ? ($loan->amount - $loan->paid) : 0;
+                            $loanInstallmentAmount = isset($loan) ? (int) min($loan->month, $remainingAmount) : 0;
+            
+                            $loanException = $employee->loanExceptions()->where('month', $currentMonth)
+                            ->where('year', $currentYear)
+                            ->where('salary_duration', $request->period)
+                            ->first();
                             
-                            if ($advance) {
-                                $advance->is_paid = 1;
-                                $advance->save();
-                            }
-
-                            if($loan && !$loanException){
-                                $loan->paid += $loan->month;
-                                $loan->save();
-                            }
-                        });
+                            DB::transaction(function () use ($loan, $loanException, $employee, $salaryData, $advance, $loanInstallmentAmount, $currentMonth, $currentYear, $period, $startDate, $endDate) {
+                                
+                                $data = [
+                                    'employee_id' => $employee->id,
+                                    'month' => $currentMonth,
+                                    'year' => $currentYear,
+                                    'current_salary' => $employee->salary,
+                                    'expected_hours' => $salaryData['totalExpectedWorkingHours'],
+                                    'normal_hours' => $salaryData['actualHoursWorked'],
+                                    'holiday_hours' => $salaryData['totalHolidayHoursWorked'],
+                                    'overtime_hours' => ((int) $salaryData['totalOvertimeMinutes'])/60,
+                                    'salary_per_hour' => $employee->salary/$salaryData['totalExpectedWorkingHours'],
+                                    'holiday_pay_ratio' => $employee->type->holiday_ratio,
+                                    'overtime_pay_ratio' => $employee->type->overtime_ratio,
+                                    'overtime_hours' => $salaryData['totalOverTimeHoursWorked'],
+                                    'holidays' => $employee->type->holidays,
+                                    'advance_deducted' => $advance ? $advance->amount : 0,
+                                    'period' => $period,
+                                    'start_date' => $startDate,
+                                    'end_date' => $endDate,
+                                    'loan_deducted' => ($loan && $loanException) ? 0 : $loanInstallmentAmount,
+                                ];
+                                
+                                Salary::create($data);
+                                
+                                if ($advance) {
+                                    $advance->is_paid = 1;
+                                    $advance->save();
+                                }
+    
+                                if($loan && !$loanException){
+                                    $loan->paid += $loan->month;
+                                    $loan->save();
+                                }
+                            });
+                        }
                     }
     
                 } catch (Exception $e){

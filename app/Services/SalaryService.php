@@ -266,7 +266,7 @@ class SalaryService
             'totalSandwichViolations'   => $sandWhichViolations,
         
             // 'attendancePercentage'      => number_format(($this->attendanceData['presentDays'] / $this->attendanceData['workingDays']) * 100, 2) . '%',
-            'effectiveHourlyRate'       => number_format($actualSalary / ($this->attendanceData['totalMinutesWorked'] / 60), 2),
+            // 'effectiveHourlyRate'       => number_format($actualSalary / ($this->attendanceData['totalMinutesWorked'] / 60), 2),
             'totalDeductions'           => $lateCutAmount + $missDaysAmount + ($perDayAmount * $sandWhichViolations),
             'netSalaryAfterDeductions'  => $actualSalary - ($lateCutAmount + $missDaysAmount + ($perDayAmount * $sandWhichViolations)),
         ];

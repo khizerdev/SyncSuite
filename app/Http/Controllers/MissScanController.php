@@ -15,7 +15,7 @@ class MissScanController extends Controller
     {
         $employees = Employee::all();
         
-        $selectedMonth = $request->input('month', now()->format('m'));
+        $selectedMonth = (int) $request->input('month', now()->format('m'));
         $selectedYear = $request->input('year', now()->format('Y'));
         
         // Fetch resolved entries with duration
@@ -29,6 +29,8 @@ class MissScanController extends Controller
                 ? $entry->employee_id . ':' . $entry->duration 
                 : $entry->employee_id;
         })->toArray();
+        
+        // dd($resolvedEmployeeIds);
 
         // Process miss-scan data
         $missScanData = $employees->map(function ($employee) use ($selectedMonth, $selectedYear, $resolvedEmployeeIds) {
@@ -41,14 +43,17 @@ class MissScanController extends Controller
                 $firstStart = date('Y-m-d', strtotime("$selectedYear-$selectedMonth-01"));
                 $firstEnd = date('Y-m-15', strtotime("$selectedYear-$selectedMonth-01"));
                 $firstRecord = $processor->processAttendance($firstStart, $firstEnd);
-                
-                if ($firstRecord['missScanCount'] > 0 && !in_array("{$employee->id}:first_half", $resolvedEmployeeIds)) {
-                    $data[] = [
-                        'employee_id' => $employee->id,
-                        'employee_name' => $employee->name,
-                        'miss_scan_count' => $firstRecord['missScanCount'],
-                        'duration' => 'first_half',
-                    ];
+                // dd($resolvedEmployeeIds);
+                if($firstRecord){
+                    
+                    if ($firstRecord['missScanCount'] > 0 && !in_array("{$employee->id}:first_half", $resolvedEmployeeIds)) {
+                        $data[] = [
+                            'employee_id' => $employee->id,
+                            'employee_name' => $employee->name,
+                            'miss_scan_count' => $firstRecord['missScanCount'],
+                            'duration' => 'first_half',
+                        ];
+                    }
                 }
 
                 // Second half (16th to month end)
@@ -56,28 +61,34 @@ class MissScanController extends Controller
                 $secondEnd = date('Y-m-t', strtotime("$selectedYear-$selectedMonth-01"));
                 $secondRecord = $processor->processAttendance($secondStart, $secondEnd);
                 
-                if ($secondRecord['missScanCount'] > 0 && !in_array("{$employee->id}:second_half", $resolvedEmployeeIds)) {
-                    $data[] = [
-                        'employee_id' => $employee->id,
-                        'employee_name' => $employee->name,
-                        'miss_scan_count' => $secondRecord['missScanCount'],
-                        'duration' => 'second_half',
-                    ];
+                if($secondRecord){
+                    
+                    if ($secondRecord['missScanCount'] > 0 && !in_array("{$employee->id}:second_half", $resolvedEmployeeIds)) {
+                        $data[] = [
+                            'employee_id' => $employee->id,
+                            'employee_name' => $employee->name,
+                            'miss_scan_count' => $secondRecord['missScanCount'],
+                            'duration' => 'second_half',
+                        ];
+                    }
                 }
             } 
             // For full-month employees
             else {
+                // dd($employee);
                 $startDate = date('Y-m-01', strtotime("$selectedYear-$selectedMonth-01"));
                 $endDate = date('Y-m-t', strtotime("$selectedYear-$selectedMonth-01"));
                 $record = $processor->processAttendance($startDate, $endDate);
-
-                if ($record['missScanCount'] > 0 && !in_array($employee->id, $resolvedEmployeeIds)) {
-                    $data[] = [
-                        'employee_id' => $employee->id,
-                        'employee_name' => $employee->name,
-                        'miss_scan_count' => $record['missScanCount'],
-                        'duration' => null, // No duration for full-month
-                    ];
+                if($record){
+                    
+                    if ($record['missScanCount'] > 0 && !in_array("{$employee->id}:full_month", $resolvedEmployeeIds)) {
+                        $data[] = [
+                            'employee_id' => $employee->id,
+                            'employee_name' => $employee->name,
+                            'miss_scan_count' => $record['missScanCount'],
+                            'duration' => null, // No duration for full-month
+                        ];
+                    }
                 }
             }
 

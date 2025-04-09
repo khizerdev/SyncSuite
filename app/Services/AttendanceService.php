@@ -45,6 +45,7 @@ class AttendanceService
     {
         $userInfo = $this->getUserInfo();
         if (!$userInfo) {
+            // dd($this->employee);
             return null;
         }
         $gazetteHolidays = $this->getGazatteHolidays($startDate,$endDate);
