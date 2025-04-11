@@ -50,31 +50,31 @@ class SalaryController extends Controller
             ->addColumn('code', function ($row) {
                 return $row->employee->code;
             })
-            ->addColumn('overtime', function ($row) {
-                try {
-                    $processor = new AttendanceService($row->employee);
-                $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
-                $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
-                $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
-                // dd(Carbon::parse($row->end_date)->copy()->subMinute());
-                return 'PKR '.$salary['totalOvertimePay'];
-                } catch (Exception $e) {
-                    dd($e);
-                }
+            // ->addColumn('overtime', function ($row) {
+            //     try {
+            //         $processor = new AttendanceService($row->employee);
+            //     $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
+            //     $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+            //     $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+            //     // dd(Carbon::parse($row->end_date)->copy()->subMinute());
+            //     return 'PKR '.$salary['totalOvertimePay'];
+            //     } catch (Exception $e) {
+            //         dd($e);
+            //     }
                 
-            })
-            ->addColumn('late', function ($row) {
-                try {
-                    $processor = new AttendanceService($row->employee);
-                    $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
-                    $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
-                    $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
-                    return 'PKR '.floor($salary['lateCutAmount']);
-                } catch (Exception $e) {
-                    dd($e);
-                }
+            // })
+            // ->addColumn('late', function ($row) {
+            //     try {
+            //         $processor = new AttendanceService($row->employee);
+            //         $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
+            //         $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+            //         $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+            //         return 'PKR '.floor($salary['lateCutAmount']);
+            //     } catch (Exception $e) {
+            //         dd($e);
+            //     }
                 
-            })
+            // })
             ->addColumn('loan', function ($row) {
                 return $row->loan_deducted;
             })
@@ -84,13 +84,13 @@ class SalaryController extends Controller
             ->addColumn('month_year', function ($row) {
                 return $row->month. '-' . $row->year;
             })
-            ->addColumn('salary', function ($row) {
-                $processor = new AttendanceService($row->employee);
-                $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
-                $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
-                $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
-                return 'PKR '.floor($salary['actualSalaryEarned']-$row->advance_deducted-$row->loan_deducted);
-            })
+            // ->addColumn('salary', function ($row) {
+            //     $processor = new AttendanceService($row->employee);
+            //     $result = $processor->processAttendance($row->start_date, Carbon::parse($row->end_date)->addDay()->copy()->subMinute());
+            //     $salaryService = new SalaryService($row->employee, $result,$row->period,$row->month);
+            //     $salary = $salaryService->calculateSalary($row->employee->id, $row->start_date, $row->end_date, $row->period, $row->month);
+            //     return 'PKR '.floor($salary['actualSalaryEarned']-$row->advance_deducted-$row->loan_deducted);
+            // })
             ->addColumn('action', function($row) use($request){
                 
                 $salaryUrl = route('employees.attd', [

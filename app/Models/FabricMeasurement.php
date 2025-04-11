@@ -9,10 +9,5 @@ class FabricMeasurement extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'unit_of_measure',
-        'design_stitch',
-        'front_yarn',
-        'back_yarn',
-    ];
+    protected $guarded = [];
 }

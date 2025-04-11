@@ -121,8 +121,6 @@ class EmployeeController extends Controller
                 ]);
             }
 
-            
-            
             // Handle Documents
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $document) {

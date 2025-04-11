@@ -14,18 +14,32 @@ class FabricMeasurementController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'unit_of_measure' => 'required|string|max:255',
-            'design_stitch' => 'required|string|max:255',
-            'front_yarn' => 'required|string|max:255',
-            'back_yarn' => 'required|string|max:255',
-        ]);
+{
+    $request->validate([
+        'unit_of_measure' => 'required|string|max:255',
+        'design_code' => 'required|string',
+        'design_picture' => 'nullable',
+        'design_stitch' => 'required|string|max:255',
+        'front_yarn' => 'required|string|max:255',
+        'back_yarn' => 'required|string|max:255',
+    ]);
 
-        FabricMeasurement::create($request->all());
+    $data = $request->all(); // Don't exclude design_picture here
 
-        return redirect()->route('fabric-measurements.index')->with('success', 'Record created successfully.');
+    // Handle image upload
+    if ($request->hasFile('design_picture')) {
+        $imagePath = $request->file('design_picture')->store('designs', 'public');
+        $data['design_picture'] = $imagePath;
+    } else {
+        $data['design_picture'] = null; // or whatever default value you want
     }
+
+
+    FabricMeasurement::create($data);
+
+    return redirect()->route('fabric-measurements.index')
+                    ->with('success', 'Record created successfully.');
+}
 
     public function index(Request $request)
     {

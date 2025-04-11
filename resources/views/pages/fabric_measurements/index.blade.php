@@ -10,7 +10,7 @@
                         <div class="card-header row align-items-center">
                             <div class="col-6">
 
-                                <h3 class="card-title">Fabric Measurements</h3>
+                                <h3 class="card-title">Master Design</h3>
                             </div>
                             <div class="col-6 text-right">
 

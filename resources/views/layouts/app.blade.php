@@ -185,7 +185,7 @@
                                     'children' => [
                                         ['title' => 'Raw Materials', 'route' => 'raw-materials.index'],
                                         ['title' => 'Sale Orders', 'route' => 'sale-orders.index'],
-                                        ['title' => 'Fabric Measurement', 'route' => 'fabric-measurements.index'],
+                                        ['title' => 'Master Design', 'route' => 'fabric-measurements.index'],
                                         ['title' => 'Color Code', 'route' => 'color-codes.index'],
                                     ],
                                 ],
@@ -513,26 +513,34 @@
 
     @if ($message = Session::get('success'))
         <script>
-            toastr.success(' {{ $message }} ');
+            toastr.success('{{ $message }}');
         </script>
     @endif
 
     @if ($message = Session::get('error'))
         <script>
-            toastr.error(' {{ $message }} ');
+            toastr.error('{{ $message }}');
         </script>
     @endif
 
     @if ($message = Session::get('warning'))
         <script>
-            toastr.warning(' {{ $message }} ');
+            toastr.warning('{{ $message }}');
         </script>
     @endif
 
-
     @if ($message = Session::get('info'))
         <script>
-            toastr.info(' {{ $message }} ');
+            toastr.info('{{ $message }}');
+        </script>
+    @endif
+
+    {{-- Handle validation errors --}}
+    @if ($errors->any())
+        <script>
+            @foreach ($errors->all() as $error)
+                toastr.error('{{ $error }}');
+            @endforeach
         </script>
     @endif
 

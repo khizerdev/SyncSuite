@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SaleOrder;
 use App\Models\Customer;
+use App\Models\SaleOrderItem;
 use Illuminate\Http\Request;
 use DataTables;
 
@@ -51,7 +52,22 @@ class SaleOrderController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        SaleOrder::create($request->all());
+        $saleOrder = SaleOrder::create($request->only('customer_id','order_status','order_reference','advance_payment','delivery_date','payment_terms','description'));
+        foreach ($request->design_name as $index => $designName) {
+            SaleOrderItem::create([
+                'sale_order_id'   => $saleOrder->id,
+                'design_id'  => $request->design_name[$index],
+                'colour'       => $request->colour[$index],
+                'qty'       => $request->qty[$index],
+                'lace_qty'       => $request->lace_qty[$index],
+                'rate'       => $request->rate[$index],
+                'stitch'       => $request->stitch[$index],
+                'stitch_rate'       => $request->stitch_rate[$index],
+                'calculate_stitch'       => $request->calculate_stitch[$index],
+                'length_factor'       => $request->length_factor[$index],
+                'amount'       => $request->amount[$index],
+            ]);
+        }
 
         return redirect()->route('sale-orders.index')->with('success', 'Created successfully.');
     }
@@ -74,7 +90,28 @@ class SaleOrderController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $saleOrder->update($request->all());
+        // Update the sale order
+        $saleOrder->update($request->only('customer_id','order_status','order_reference','advance_payment','delivery_date','payment_terms','description'));
+
+        // Delete all existing items
+        $saleOrder->items()->delete();
+
+        // Create new items
+        foreach ($request->design_name as $index => $designName) {
+            SaleOrderItem::create([
+                'sale_order_id'   => $saleOrder->id,
+                'design_id'  => $request->design_name[$index],
+                'colour'       => $request->colour[$index],
+                'qty'       => $request->qty[$index],
+                'lace_qty'       => $request->lace_qty[$index],
+                'rate'       => $request->rate[$index],
+                'stitch'       => $request->stitch[$index],
+                'stitch_rate'       => $request->stitch_rate[$index],
+                'calculate_stitch'       => $request->calculate_stitch[$index],
+                'length_factor'       => $request->length_factor[$index],
+                'amount'       => $request->amount[$index],
+            ]);
+        }
 
         return redirect()->route('sale-orders.index')->with('success', 'Updated successfully.');
     }

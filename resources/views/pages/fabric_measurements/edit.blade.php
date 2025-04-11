@@ -19,16 +19,22 @@
                 <div class="col-md-12">
                     <div class="card card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title">Edit Fabric Measurement</h3>
+                            <h3 class="card-title">Edit Master Design</h3>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('fabric-measurements.update', $measurement->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 <div class="form-group">
-                                    <label for="unit_of_measure">Unit of Measure</label>
-                                    <input type="text" name="unit_of_measure" class="form-control"
-                                        value="{{ $measurement->unit_of_measure }}" required>
+                                    <label for="unit_of_measure">Select Unit of Measure</label>
+                                    <select name="unit_of_measure" id="unit_of_measure" class="form-control">
+                                        <option value="Lace" @if ($measurement->unit_of_measure == 'Lace') {{ 'selected' }} @endif>
+                                            Lace</option>
+                                        <option value="Yard" @if ($measurement->unit_of_measure == 'Yard') {{ 'selected' }} @endif>
+                                            Yard</option>
+                                        <option value="Meter" @if ($measurement->unit_of_measure == 'Meter') {{ 'selected' }} @endif>
+                                            Meter</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="design_stitch">Design Stitch</label>

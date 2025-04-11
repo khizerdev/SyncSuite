@@ -53,11 +53,11 @@
                                                 <tr>
                                                     <th>Id</th>
                                                     <th>Name</th>
-                                                    <th>Overtime</th>
-                                                    <th>Late Amount</th>
+                                                    {{-- <th>Overtime</th>
+                                                    <th>Late Amount</th> --}}
                                                     <th>Loan</th>
                                                     <th>Advance</th>
-                                                    <th>Salary</th>
+                                                    {{-- <th>Salary</th> --}}
                                                     <th>Period</th>
                                                     <th>Month/Year</th>
                                                     <th>Action</th>
@@ -115,14 +115,14 @@
                             data: 'employee_name',
                             name: 'employee_name'
                         },
-                        {
-                            data: 'overtime',
-                            name: 'overtime'
-                        },
-                        {
-                            data: 'late',
-                            name: 'late'
-                        },
+                        // {
+                        //     data: 'overtime',
+                        //     name: 'overtime'
+                        // },
+                        // {
+                        //     data: 'late',
+                        //     name: 'late'
+                        // },
                         {
                             data: 'loan',
                             name: 'loan'
@@ -131,10 +131,10 @@
                             data: 'advance',
                             name: 'advance'
                         },
-                        {
-                            data: 'salary',
-                            name: 'salary'
-                        },
+                        // {
+                        //     data: 'salary',
+                        //     name: 'salary'
+                        // },
                         {
                             data: 'period',
                             name: 'period'

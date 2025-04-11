@@ -19,15 +19,20 @@
                 <div class="col-md-12">
                     <div class="card card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title">Create Fabric Measurement</h3>
+                            <h3 class="card-title">Create Master Design</h3>
                         </div>
                         <div class="card-body">
 
-                            <form action="{{ route('fabric-measurements.store') }}" method="POST">
+                            <form action="{{ route('fabric-measurements.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="unit_of_measure">Unit of Measure</label>
-                                    <input type="text" name="unit_of_measure" class="form-control" required>
+                                    <label for="unit_of_measure">Select Unit of Measure</label>
+                                    <select name="unit_of_measure" id="unit_of_measure" class="form-control">
+                                        <option value="Lace">Lace</option>
+                                        <option value="Yard">Yard</option>
+                                        <option value="Meter">Meter</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="design_stitch">Design Stitch</label>
@@ -40,6 +45,17 @@
                                 <div class="form-group">
                                     <label for="back_yarn">Back Yarn</label>
                                     <input type="text" name="back_yarn" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="design_code">Design Code</label>
+                                    <input type="text" name="design_code" id="design_code" class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="design_picture">Design Picture</label>
+                                    <input type="file" name="design_picture" id="design_picture"
+                                        class="form-control-file" accept="image/*">
+
                                 </div>
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </form>
