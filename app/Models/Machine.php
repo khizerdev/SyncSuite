@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\DailyProduction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,5 +34,10 @@ class Machine extends Model
     public function manufacturer()
     {
         return $this->belongsTo(Manufacturer::class);
+    }
+
+    public function dailyProductions()
+    {
+        return $this->hasMany(DailyProduction::class);
     }
 }

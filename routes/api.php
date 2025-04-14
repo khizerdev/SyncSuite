@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\GazetteController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ParticularController;
 use App\Http\Controllers\SaleOrderController;
+use App\Models\DailyProduction;
 
 Route::get('/products/count', [ProductController::class, 'count']);
 Route::get('/departments', [ResourceController::class, 'getDepartments']);
@@ -40,3 +41,13 @@ Route::post('/gazette-holidays', [GazetteController::class, 'store']);
 Route::get('/gazette-holidays/check/{year}/{month}', [GazetteController::class, 'checkMonthlyHolidays']);
 
 Route::get('/sale-orders/search', [SaleOrderController::class, 'search'])->name('sale-orders.search');
+
+Route::get('/get-previous-stitch/{machineId}', function ($machineId) {
+    $previousRecord = DailyProduction::where('machine_id', $machineId)
+        ->latest()
+        ->first();
+    
+    return response()->json([
+        'previous_stitch' => $previousRecord ? $previousRecord->actual_stitch : 0
+    ]);
+});

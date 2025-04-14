@@ -8,6 +8,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ColorCodeController;
 use App\Http\Controllers\CustomerAdjustmentController;
 use App\Http\Controllers\CustomerReceivableController;
+use App\Http\Controllers\DailyProductionController;
 use App\Http\Controllers\FabricMeasurementController;
 use App\Http\Controllers\GazetteController;
 use App\Http\Controllers\LeaveController;
@@ -216,6 +217,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('fabric-measurements', FabricMeasurementController::class);
         Route::resource('color-codes', ColorCodeController::class);
         Route::resource('production-plannings', ProductionPlanningController::class);
+        Route::resource('daily-productions', DailyProductionController::class);
         
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');

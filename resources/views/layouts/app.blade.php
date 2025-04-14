@@ -188,6 +188,7 @@
                                         ['title' => 'Master Design', 'route' => 'fabric-measurements.index'],
                                         ['title' => 'Color Code', 'route' => 'color-codes.index'],
                                         ['title' => 'Production Planning', 'route' => 'production-plannings.index'],
+                                        ['title' => 'Daily Production', 'route' => 'daily-productions.index'],
                                     ],
                                 ],
                             ];
