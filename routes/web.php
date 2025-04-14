@@ -14,6 +14,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanExceptionController;
 use App\Http\Controllers\MissScanController;
+use App\Http\Controllers\ProductionPlanningController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalaryController;
@@ -209,9 +210,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('vendor-adjustments', VendorAdjustmentController::class);
         Route::resource('customer-adjustments', CustomerAdjustmentController::class);
         Route::resource('raw-materials', RawMaterialController::class);
+
         Route::resource('sale-orders', SaleOrderController::class);
+
         Route::resource('fabric-measurements', FabricMeasurementController::class);
         Route::resource('color-codes', ColorCodeController::class);
+        Route::resource('production-plannings', ProductionPlanningController::class);
         
         Route::resource('accounts-vendors-payables', VendorPayableController::class);
         Route::get('vendor-balance/{id}', [VendorPayableController::class, 'getBalance'])->name('vendor.balance');

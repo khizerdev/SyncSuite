@@ -128,4 +128,25 @@ class SaleOrderController extends Controller
             return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('q');
+        
+        $saleOrders = SaleOrder::with(['customer', 'items.design'])
+            ->where(function($query) use ($searchTerm) {
+                // Search by sale order ID
+                $query->where('id', 'like', "%{$searchTerm}%")
+                    // Or search by fabric design code in items
+                    ->orWhereHas('items.design', function($q) use ($searchTerm) {
+                        $q->where('design_code', 'like', "%{$searchTerm}%");
+                    });
+            })
+            ->withCount('items')
+            ->limit(10)
+            ->get();
+        
+        return response()->json($saleOrders);
+    }
+
 }
