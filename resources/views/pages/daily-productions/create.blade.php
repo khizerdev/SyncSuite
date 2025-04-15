@@ -105,11 +105,11 @@
 @section('script')
     <script>
         $(document).ready(function() {
-
+            const baseUrl = "{{ env('APP_URL') }}"
             $('select[name="machine_id"]').change(function() {
                 var machineId = $(this).val();
                 if (machineId) {
-                    $.get('/api/get-previous-stitch/' + machineId, function(data) {
+                    $.get(`${baseUrl}/api/get-previous-stitch/` + machineId, function(data) {
                         $('#previous_stitch').val(data.previous_stitch || 0);
                         calculateActualStitch();
                     });
