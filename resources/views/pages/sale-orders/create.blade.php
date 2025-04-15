@@ -107,8 +107,14 @@
                                         <div class="col-md-1">
                                             <div class="form-group">
                                                 <label>Colour</label>
-                                                <input type="text" class="form-control colour" name="colour[]" required>
-
+                                                <select class="form-control" name="colour_id[]" required>
+                                                    <option value="">Select Color</option>
+                                                    @foreach (\App\Models\ColorCode::all() as $color)
+                                                        <option value="{{ $color->id }}">
+                                                            {{ $color->title }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -128,8 +134,8 @@
                                         <div class="col-md-1">
                                             <div class="form-group">
                                                 <label>Rate</label>
-                                                <input type="number" class="form-control rate" name="rate[]"
-                                                    min="0" step="0.01" required>
+                                                <input type="number" class="form-control rate" name="rate[]" readonly
+                                                    required>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -143,7 +149,8 @@
                                             <div class="form-group">
                                                 <label>Stitch Rate</label>
                                                 <input type="number" class="form-control stitch-rate"
-                                                    name="stitch_rate[]" min="0" step="0.01" required>
+                                                    name="stitch_rate[]" value={{ \App\Models\Setting::find(2)->value }}
+                                                    readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -155,9 +162,10 @@
                                         </div>
                                         <div class="col-md-1">
                                             <div class="form-group">
-                                                <label>Length Factor</label>
+                                                <label>L/F</label>
                                                 <input type="number" class="form-control length-factor"
-                                                    name="length_factor[]" min="0" step="0.01" required>
+                                                    name="length_factor[]" value={{ \App\Models\Setting::find(1)->value }}
+                                                    readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -199,6 +207,11 @@
 
                 var calculatedStitch = (stitchValue / 1000).toFixed(4);
                 section.find('.stitch').val(stitchValue);
+                section.find('.rate').val(
+                    (stitchValue / 1000) * {{ \App\Models\Setting::find(2)->value }} *
+                    {{ \App\Models\Setting::find(1)->value }}
+                    .toFixed(2));
+
                 calculateSectionAmount(section);
             });
 
@@ -231,7 +244,7 @@
 
 
             // Auto calculate amount when relevant fields change
-            $(document).on('input', '.rate, .stitch-rate, .length-factor, .lace-qty', function() {
+            $(document).on('input', '.stitch-rate, .length-factor, .lace-qty', function() {
                 var section = $(this).closest('.form-section');
                 calculateSectionAmount(section);
             });

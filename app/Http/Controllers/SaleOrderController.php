@@ -57,7 +57,7 @@ class SaleOrderController extends Controller
             SaleOrderItem::create([
                 'sale_order_id'   => $saleOrder->id,
                 'design_id'  => $request->design_name[$index],
-                'colour'       => $request->colour[$index],
+                'color_id'       => $request->colour_id[$index],
                 'qty'       => $request->qty[$index],
                 'lace_qty'       => $request->lace_qty[$index],
                 'rate'       => $request->rate[$index],
@@ -101,7 +101,7 @@ class SaleOrderController extends Controller
             SaleOrderItem::create([
                 'sale_order_id'   => $saleOrder->id,
                 'design_id'  => $request->design_name[$index],
-                'colour'       => $request->colour[$index],
+                'color_id'       => $request->colour_id[$index],
                 'qty'       => $request->qty[$index],
                 'lace_qty'       => $request->lace_qty[$index],
                 'rate'       => $request->rate[$index],
@@ -133,7 +133,7 @@ class SaleOrderController extends Controller
     {
         $searchTerm = $request->input('q');
         
-        $saleOrders = SaleOrder::with(['customer', 'items.design'])
+        $saleOrders = SaleOrder::with(['customer', 'items.design','items.color'])
             ->where(function($query) use ($searchTerm) {
                 // Search by sale order ID
                 $query->where('id', 'like', "%{$searchTerm}%")

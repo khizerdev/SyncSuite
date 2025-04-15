@@ -51,6 +51,18 @@
                                     <input type="text" name="back_yarn" class="form-control"
                                         value="{{ $measurement->back_yarn }}" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="design_code">Design Code</label>
+                                    <input type="text" name="design_code" id="design_code" class="form-control"
+                                        value="{{ $measurement->design_code }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="design_picture">Design Picture</label>
+                                    <input type="file" name="design_picture" id="design_picture"
+                                        class="form-control-file" accept="image/*">
+
+                                </div>
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </form>
                         </div>

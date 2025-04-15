@@ -103,8 +103,7 @@
                                                     <select class="form-control design-name" name="design_name[]" required>
                                                         @foreach (\App\Models\FabricMeasurement::all() as $design)
                                                             <option value="{{ $design->id }}"
-                                                                data-stitch="{{ $design->design_stitch }}"
-                                                                @if ($item->design_id == $design->id) {{ 'selected' }} @endif>
+                                                                data-stitch="{{ $design->design_stitch }}">
                                                                 {{ $design->design_code }}
                                                             </option>
                                                         @endforeach
@@ -114,9 +113,15 @@
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     <label>Colour</label>
-                                                    <input type="text" value={{ $item->colour }}
-                                                        class="form-control colour" name="colour[]" required>
-
+                                                    <select class="form-control" name="colour_id[]" required>
+                                                        <option value="">Select Color</option>
+                                                        @foreach (\App\Models\ColorCode::all() as $color)
+                                                            <option value="{{ $color->id }}"
+                                                                @if ($item->color_id == $color->id) {{ 'selected' }} @endif>
+                                                                {{ $color->title }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-md-1">

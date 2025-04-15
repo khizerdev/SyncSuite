@@ -78,7 +78,7 @@ class FabricMeasurementController extends Controller
         ]);
 
         $measurement = FabricMeasurement::findOrFail($id);
-        $measurement->update($request->all());
+        $measurement->update($request->only('unit_of_measure','design_stitch','front_yarn','back_yarn', 'design_code'));
 
         return redirect()->route('fabric-measurements.index')->with('success', 'Record updated successfully.');
     }

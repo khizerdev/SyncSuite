@@ -50,9 +50,18 @@ class DailyProductionController extends Controller
             'date' => 'required|date',
             'machine_id' => 'required|exists:machines,id',
             'current_stitch' => 'required|integer',
+            'saleorder_id' => 'required'
         ]);
 
-        DailyProduction::create($request->all());
+        DailyProduction::create([
+            'shift_id' => $request->shift_id,
+            'date' => $request->date,
+            'machine_id' => $request->machine_id,
+            'current_stitch' => $request->current_stitch,
+            'description' => $request->description,
+            'needles' => json_encode($request->needle),
+            'sale_order_id' => $request->saleorder_id,
+        ]);
 
         return redirect()->route('daily-productions.index')
                          ->with('success', 'Daily Production created successfully.');

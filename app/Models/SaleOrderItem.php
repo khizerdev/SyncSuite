@@ -20,6 +20,10 @@ class SaleOrderItem extends Model
     {
         return $this->belongsTo(FabricMeasurement::class);
     }
+    public function color()
+    {
+        return $this->belongsTo(ColorCode::class);
+    }
 
     public function customer()
     {

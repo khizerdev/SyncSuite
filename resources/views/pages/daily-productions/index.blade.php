@@ -30,7 +30,7 @@
                                         <th>Previous Stitch</th>
                                         <th>Current Stitch</th>
                                         <th>Actual Stitch</th>
-                                        <th width="280px">Action</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                             </table>
