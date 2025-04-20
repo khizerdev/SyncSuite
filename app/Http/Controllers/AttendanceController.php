@@ -180,6 +180,10 @@ class AttendanceController extends Controller
                 $allAttendances [$employee->id] = $record;
             }
             
+            if(empty($allAttendances)){
+                return back()->with('error', 'No attendance found');
+            }
+            
             return view('pages.attendance.show', [
                 'collectiveAttendances' => $allAttendances,
             ]);

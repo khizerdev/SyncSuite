@@ -9,14 +9,17 @@
                         <div class="card mb-4">
                             <div class="card-body">
                                 <div class="col-12">
-                                    <h2 class="mb-4">Attendance for Employee: {{ $attendance['employee']->name }}
-                                        {{ $attendance['employee']->code }}</h2>
+                                    <h2 class="mb-4">Attendance for Employee: {{ $attendance['employee']->name ?? 'N/A' }}
+                                        {{ $attendance['employee']->code ?? '' }}</h2>
                                 </div>
                                 <div class="col-12">
-
-                                    <x-attendance-table :grouped-attendances="$attendance['groupedAttendances']" :employee="$attendance['employee']" :holidays="$attendance['holidays']"
-                                        :gazatte-dates="$attendance['gazatteDates']" :holidays="$attendance['holidays']" :late-minutes="$attendance['lateMinutes']" :early-out-minutes="$attendance['earlyCheckoutMinutes']"
-                                        :early-minutes="$attendance['earlyCheckinMinutes']" :over-minutes="$attendance['overMinutes']" />
+                                    @if (isset($attendance['groupedAttendances']) && isset($attendance['employee']))
+                                        <x-attendance-table :grouped-attendances="$attendance['groupedAttendances'] ?? []" :employee="$attendance['employee'] ?? null" :holidays="$attendance['holidays'] ?? []"
+                                            :gazatte-dates="$attendance['gazatteDates'] ?? []" :late-minutes="$attendance['lateMinutes'] ?? 0" :early-out-minutes="$attendance['earlyCheckoutMinutes'] ?? 0" :early-minutes="$attendance['earlyCheckinMinutes'] ?? 0"
+                                            :over-minutes="$attendance['overMinutes'] ?? 0" />
+                                    @else
+                                        <p class="text-danger">No attendance data available for this employee.</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
