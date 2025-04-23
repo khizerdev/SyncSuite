@@ -157,7 +157,7 @@
             });
 
             function fetchSaleOrders(searchTerm) {
-                fetch(`/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
+                fetch(`/paramount/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
                     .then(response => response.json())
                     .then(data => {
                         displayResults(data);

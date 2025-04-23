@@ -26,6 +26,7 @@
     'earlyMinutes',
     'earlyOutMinutes',
     'earlyCutAmount',
+    'overMinutesAuto',
 ])
 
 <div class="col-md-11">
@@ -101,6 +102,7 @@
             </tr>
             <tr>
                 <td><strong>Early Cut Amount</strong><br>PKR {{ number_format($earlyCutAmount, 2) }}</td>
+                <td><strong>Over Minutes Auto</strong><br>{{ number_format(array_sum($overMinutesAuto), 2) }} mins</td>
                 <td class="table-success"><strong>Final Salary</strong><br>PKR
                     {{ number_format(max($actualSalaryEarned - $salary->advance_deducted - $salary->loan_deducted, 0), 2) }}
                 </td>

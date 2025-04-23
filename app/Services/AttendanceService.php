@@ -101,6 +101,14 @@ class AttendanceService
                 $entry['earlyOutMinutes'] = $calculatedMinutes['earlyCheckoutMinutes'][$date];
             }
         }
+        
+        $cappedOverMinutes = array_map(
+            function($value) {
+                return $value > 150 ? 150 : $value;
+            },
+            $calculatedMinutes['overMinutes']
+        );
+        
         // dd($processedAttendances['groupedAttendances']);
         return [
             'employee' => $this->employee,
@@ -113,6 +121,7 @@ class AttendanceService
             'earlyCheckoutMinutes' => $calculatedMinutes['earlyCheckoutMinutes'],
             'lateMinutes' => $calculatedMinutes['lateMinutes'],
             'overMinutes' => $calculatedMinutes['overMinutes'],
+            'overMinutesOfAutoShift' => $cappedOverMinutes,
             'totalMinutesWorked' => $calculatedMinutes['totalMinutesWorked'],
             'totalWorkingHours' => $calculatedMinutes['totalMinutesWorked'] / 60, // Insightful
             'totalOvertimeMinutes' => number_format($calculatedMinutes['totalOvertimeMinutes'],2),
@@ -163,7 +172,7 @@ class AttendanceService
             ->where('from_date', '<=', $date)
             ->orderBy('from_date', 'desc')
             ->first();
-
+        
         return $shiftTransfer ? $shiftTransfer->shift : null;
     }
 
@@ -209,7 +218,10 @@ class AttendanceService
         } else {
             $endDate = Carbon::parse($endDate)->copy()->endOfDay()->format('Y-m-d H:i:s');
         }
-    
+        // dd(Attendance::where('code', $userId)
+        //     ->whereBetween('datetime', [$startDate, $endDate])
+        //     ->orderBy('datetime')
+        //     ->get());
         return Attendance::where('code', $userId)
             ->whereBetween('datetime', [$startDate, $endDate])
             ->orderBy('datetime')
@@ -283,29 +295,31 @@ class AttendanceService
     $nestedEntries = [];
     $currentCheckIn = null;
     $lastCheckOut = null;
-
+   
     foreach ($entries as $entry) {
         $entryTime = Carbon::parse($entry->datetime);
+        
 
         // Handle special case for shift ID 2
-        if ($this->shift->id == 12) {
-            $entryHour = (int)$entryTime->format('H');
+        // if ($this->shift->id == 12) {
+        //     $entryHour = (int)$entryTime->format('H');
             
-            // If entry is before 7 AM, it belongs to previous day
-            if ($entryHour < 7) {
-                // If we have an open check-in, close it first
-                if ($currentCheckIn) {
-                    $nestedEntries[] = [
-                        'checkIn' => $currentCheckIn,
-                        'checkOut' => $entryTime
-                    ];
-                    $lastCheckOut = $entryTime;
-                    $currentCheckIn = null;
-                }
-                // Skip this entry as it belongs to previous day
-                continue;
-            }
-        }
+            
+        //     if ($entryHour < 7) {
+        //         // dd($entry);
+                
+        //         if ($currentCheckIn) {
+        //             $nestedEntries[] = [
+        //                 'checkIn' => $currentCheckIn,
+        //                 'checkOut' => $entryTime
+        //             ];
+        //             $lastCheckOut = $entryTime;
+        //             $currentCheckIn = null;
+        //         }
+                
+        //         continue;
+        //     }
+        // }
 
         if (!$currentCheckIn) {
             // Ensure this is not immediately after the last checkout
@@ -352,22 +366,16 @@ private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
             $entry = Carbon::parse($attendances[$currentIndex]->datetime);
             $entryDate = $entry->format('Y-m-d');
             $entryHour = (int)$entry->format('H');
-            
+            // dd($targetDate);
             // Only consider entries from 7 AM to 11:59 PM on the target date
             if ($entryDate === $targetDate && $entryHour >= 7) {
                 $entries[] = $attendances[$currentIndex];
                 $currentIndex++;
                 continue;
             }
-            
-            // If entry is on target date but before 7 AM, it belongs to previous day
-            // $nextDay = \Carbon\Carbon::parse($targetDate)->copy()->addDay()->format('Y-m-d');
-            // if ($entryDate === $nextDay && $entryHour < 7) {
-            //     $currentIndex++;
-            //     continue;
-            // }
-
+        
             $nextDay = $targetDateObj->copy()->addDay()->format('Y-m-d');
+               
             if ($entryDate === $nextDay && $entryHour < 7) {
                 $entries[] = $attendances[$currentIndex];
                 $currentIndex++;
@@ -375,9 +383,9 @@ private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
             }
             
             // If we reach a different date, we're done
-            if ($entryDate !== $targetDate) {
+            // if ($entryDate !== $targetDate) {
                 break;
-            }
+            // }
         }
     } 
     elseif ($isNightShift) {
@@ -587,6 +595,7 @@ private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
             ? $entry['original_checkout']->diffInMinutes($shiftTimes['end']) 
             : 0;
         } else {
+            // dd($entry);
             $earlyCheckoutMinutes = $entry['original_checkout']->lt($shiftTimes['end']) 
             ? $entry['original_checkout']->diffInMinutes($shiftTimes['end']) 
             : 0;

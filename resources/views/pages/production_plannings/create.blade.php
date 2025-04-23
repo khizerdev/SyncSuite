@@ -97,7 +97,7 @@
             });
 
             function fetchSaleOrders(searchTerm) {
-                fetch(`/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
+                fetch(`/paramount/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
                     .then(response => response.json())
                     .then(data => {
                         displayResults(data);
@@ -188,7 +188,7 @@
                     html += `
             <tr>
                 <td>${item.design.design_code}</td>
-                <td>${item.colour}</td>
+                <td>${item.color.title}</td>
                 <td>${item.qty}</td>
                 <td>${item.rate}</td>
                 <td>${item.amount}</td>

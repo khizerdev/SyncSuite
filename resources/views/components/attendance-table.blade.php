@@ -28,12 +28,17 @@
         @php
             $lateTimeMinutes = 0;
             $totalMi = 0;
+            $dates = array_keys($groupedAttendances);
+            $gazatteDatesArray = array_map(function ($date) {
+                return $date->format('Y-m-d');
+            }, $gazatteDates);
         @endphp
         @foreach ($groupedAttendances as $date => $entries)
             @php
                 $dailyMinutes = 0;
                 $entryCount = count($entries);
                 $dayName = \Carbon\Carbon::parse($date)->format('l');
+                $dateFormatted = \Carbon\Carbon::parse($date)->format('Y-m-d');
                 $dailyMinutesCalculated = false;
 
                 foreach ($entries as $entry) {
@@ -43,7 +48,6 @@
 
                         if (!$dailyMinutesCalculated) {
                             $dailyMinutes += floor($dailyMinutes) + $entry['dailyMinutes'];
-
                             $dailyMinutesCalculated = true;
                         }
 
@@ -57,6 +61,27 @@
                     $dailyHours = sprintf('%02d:%02d', floor(0) / 60, 0 % 60);
                 }
 
+                // Check for sandwich leave condition (only for holidays)
+                $isSandwichHoliday = false;
+                if (in_array($dayName, $holidays) || in_array($dateFormatted, $gazatteDatesArray)) {
+                    // Check previous day is absent
+                    $prevDay = \Carbon\Carbon::parse($date)->subDay()->format('Y-m-d');
+                    $prevDayIsAbsent =
+                        isset($groupedAttendances[$prevDay]) &&
+                        count($groupedAttendances[$prevDay]) < 1 &&
+                        !in_array(\Carbon\Carbon::parse($prevDay)->format('l'), $holidays) &&
+                        !in_array($prevDay, $gazatteDatesArray);
+
+                    // Check next day is absent
+                    $nextDay = \Carbon\Carbon::parse($date)->addDay()->format('Y-m-d');
+                    $nextDayIsAbsent =
+                        isset($groupedAttendances[$nextDay]) &&
+                        count($groupedAttendances[$nextDay]) < 1 &&
+                        !in_array(\Carbon\Carbon::parse($nextDay)->format('l'), $holidays) &&
+                        !in_array($nextDay, $gazatteDatesArray);
+
+                    $isSandwichHoliday = $prevDayIsAbsent && $nextDayIsAbsent;
+                }
             @endphp
             <tr>
                 <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, Y') }}</td>
@@ -83,7 +108,6 @@
                     </div>
                 </td>
                 <td>
-
                     {{ $dailyHours }}
                 </td>
                 <td>{{ round($lateMinutes[$date]) ?? 0 }}</td>
@@ -94,10 +118,12 @@
                     $hasIncomplete = collect($entries)->contains('is_incomplete', true);
                 @endphp
                 <td>
-
-                    @if (in_array($dayName, $holidays) ||
-                            in_array(\Carbon\Carbon::parse($date)->format('Y-m-d'), array_values($gazatteDates)))
-                        <span class="text-danger">Holiday</span>
+                    @if (in_array($dayName, $holidays) || in_array($dateFormatted, $gazatteDatesArray))
+                        @if ($isSandwichHoliday)
+                            <span class="text-danger">Sandwich Leave</span>
+                        @else
+                            <span class="text-danger">Holiday</span>
+                        @endif
                     @elseif(empty($entries))
                         <span class="text-danger">Absent</span>
                     @elseif($dailyMinutes > 0 && !$hasIncomplete)

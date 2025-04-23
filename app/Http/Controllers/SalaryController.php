@@ -189,7 +189,7 @@ class SalaryController extends Controller
             $salary = Salary::where('employee_id' , $employee->id)->where('month', (int) $request->month)
             ->where('year', $currentYear)->where('period' , $period)->first();
             // dd($salary,$employee->id,$request->month,$currentYear,$period);
-            if($salary) {
+            if(!$salary) {
                 try {
                     
                     $processor = new AttendanceService($employee);
@@ -198,13 +198,14 @@ class SalaryController extends Controller
                         
                         if (empty(array_filter($result['groupedAttendances'], function ($value) {
                             return !empty($value);
+                            // dd("react");
                         }))) {
                         } else {
                             $salaryService = new SalaryService($employee, $result,$period,$currentMonth);
                             $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
                             
                             $salaryData = array_merge($result,$salary);
-                            dd($salaryData);
+                            // dd($salaryData);
             
                             $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                             
