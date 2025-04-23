@@ -3,18 +3,7 @@
 @section('content')
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    {{-- <h1 class="m-0">Branch</h1> --}}
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        {{-- <li class="breadcrumb-item"><a class="btn btn-secondary" href="{{ url('/branches') }}">View List</a>
-                        </li> --}}
-                        {{-- <li class="breadcrumb-item active">Create</li> --}}
-                    </ol>
-                </div>
-            </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <div class="card card-secondary">
@@ -97,7 +86,8 @@
             });
 
             function fetchSaleOrders(searchTerm) {
-                fetch(`/paramount/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
+                const baseUrl = "{{ env('APP_URL') }}"
+                fetch(`${baseUrl}/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
                     .then(response => response.json())
                     .then(data => {
                         displayResults(data);

@@ -10,4 +10,8 @@ class ProductionPlanning extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function saleOrder(){
+        return $this->belongsTo(SaleOrder::class);
+    }
 }

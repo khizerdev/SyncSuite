@@ -52,9 +52,14 @@ class ProductionPlanningController extends Controller
                          ->with('success', 'Created successfully.');
     }
 
-    public function edit($id)
+    public function edit(ProductionPlanning $productionPlanning)
     {
-        $productionPlanning = ProductionPlanning::find($id);
+        $productionPlanning->load([
+            'saleOrder.customer',
+            'saleOrder.items.design',
+            'saleOrder.items.color'
+        ]);
+        
         return view('pages.production_plannings.edit', compact('productionPlanning'));
     }
 
@@ -66,7 +71,7 @@ class ProductionPlanningController extends Controller
         ]);
 
         $productionPlanning = ProductionPlanning::find($id);
-        $productionPlanning->update($request->all());
+        $productionPlanning->update($request->only('date','machine_number','sale_order_id'));
 
         return redirect()->route('production-plannings.index')
                          ->with('success', 'Production Planning updated successfully');
