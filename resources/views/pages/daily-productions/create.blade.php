@@ -3,19 +3,18 @@
 @section('content')
     <section class="content-header">
         <div class="container-fluid">
-            < <div class="row">
+            <div class="row">
                 <div class="col-md-12">
                     <div class="card card-secondary">
                         <div class="card-header">
                             <h3 class="card-title">Add New Daily Production</h3>
                         </div>
                         <div class="card-body">
-
                             <form action="{{ route('daily-productions.store') }}" method="POST">
                                 @csrf
 
                                 <div class="row">
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-xs-12 col-md-4">
                                         <div class="form-group">
                                             <strong>Shift:</strong>
                                             <select name="shift_id" class="form-control" required>
@@ -28,13 +27,13 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-xs-12 col-md-4">
                                         <div class="form-group">
                                             <strong>Date:</strong>
                                             <input type="date" name="date" class="form-control" required>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-xs-12 col-md-4">
                                         <div class="form-group">
                                             <strong>Machine:</strong>
                                             <select name="machine_id" class="form-control" required>
@@ -47,20 +46,20 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-xs-12 col-md-4">
                                         <div class="form-group">
                                             <strong>Previous Stitch:</strong>
                                             <input type="number" id="previous_stitch" class="form-control" readonly>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-xs-12 col-md-4">
                                         <div class="form-group">
                                             <strong>Current Stitch:</strong>
                                             <input type="number" name="current_stitch" id="current_stitch"
                                                 class="form-control" placeholder="Current Stitch" required>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="col-xs-12 col-md-4">
                                         <div class="form-group">
                                             <strong>Actual Stitch:</strong>
                                             <input type="number" id="actual_stitch" class="form-control" readonly>
@@ -72,22 +71,31 @@
                                             <textarea class="form-control" style="height:150px" name="description" placeholder="Description"></textarea>
                                         </div>
                                     </div>
+
+                                    <!-- Sale Orders Section -->
                                     <div class="col-xs-12 col-sm-12 col-md-12">
-                                        <div class="form-group">
-                                            <strong>Search Sale Order:</strong>
-                                            <input type="text" name="saleorder_search" id="saleorder_search"
-                                                class="form-control"
-                                                placeholder="Enter Sale Order ID or Fabric Design Code">
-                                            <div id="saleorder_search_results" class="mt-2"></div>
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4 class="card-title">Sale Orders</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-group">
+                                                    <strong>Search Sale Order:</strong>
+                                                    <input type="text" name="saleorder_search" id="saleorder_search"
+                                                        class="form-control"
+                                                        placeholder="Enter Sale Order ID or Fabric Design Code">
+                                                    <div id="saleorder_search_results" class="mt-2"></div>
+                                                    <small id="duplicate-error" class="text-danger d-none">This order is
+                                                        already added</small>
+                                                </div>
+
+                                                <div id="selected_saleorders">
+                                                    <!-- Selected sale orders will appear here -->
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
-                                        <div class="form-group">
-                                            <strong>Selected Sale Order:</strong>
-                                            <div id="selected_saleorder" class="p-2  rounded"></div>
-                                            <input type="hidden" name="saleorder_id" id="saleorder_id">
-                                        </div>
-                                    </div>
+
                                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                                         <button type="submit" class="btn btn-primary">Submit</button>
                                     </div>
@@ -96,8 +104,7 @@
                         </div>
                     </div>
                 </div>
-        </div>
-
+            </div>
         </div>
     </section>
 @endsection
@@ -127,7 +134,7 @@
             function calculateActualStitch() {
                 var previous = parseInt($('#previous_stitch').val()) || 0;
                 var current = parseInt($('#current_stitch').val()) || 0;
-                var actual = previous - current;
+                var actual = current - previous;
                 $('#actual_stitch').val(actual);
             }
         });
@@ -137,14 +144,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('saleorder_search');
             const resultsDiv = document.getElementById('saleorder_search_results');
-            const selectedDiv = document.getElementById('selected_saleorder');
-            const saleorderIdInput = document.getElementById('saleorder_id');
+            const selectedDiv = document.getElementById('selected_saleorders');
+            const duplicateError = document.getElementById('duplicate-error');
+            let selectedOrders = [];
 
             // Debounce function to limit API calls
             let debounceTimer;
             searchInput.addEventListener('input', function() {
                 clearTimeout(debounceTimer);
                 const searchTerm = this.value.trim();
+                duplicateError.classList.add('d-none');
 
                 // if (searchTerm.length < 2) {
                 //     resultsDiv.innerHTML = '';
@@ -157,7 +166,8 @@
             });
 
             function fetchSaleOrders(searchTerm) {
-                fetch(`/paramount/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
+                const baseUrl = "{{ env('APP_URL') }}"
+                fetch(`${baseUrl}/api/sale-orders/search?q=${encodeURIComponent(searchTerm)}`)
                     .then(response => response.json())
                     .then(data => {
                         displayResults(data);
@@ -175,107 +185,172 @@
 
                 let html = '<ul class="list-group">';
                 saleorders.forEach(order => {
+                    // Check if order is already selected
+                    const isSelected = selectedOrders.some(o => o.id == order.id);
+                    const selectedClass = isSelected ? 'bg-light text-muted' : '';
+                    const selectedText = isSelected ? ' (Already added)' : '';
+
                     html += `
-                <li class="list-group-item list-group-item-action" 
-                    data-id="${order.id}"
-                    style="cursor: pointer;">
-                    <strong>Order #${order.id}</strong><br>
-                    Customer: ${order.customer.name}<br>
-                    Items: ${order.items_count}<br>
-                    Delivery Date: ${order.delivery_date}<br>
-                    Status: ${order.order_status}
-                </li>
-            `;
+                    <li class="list-group-item list-group-item-action ${selectedClass}" 
+                        data-id="${order.id}"
+                        style="cursor: pointer;"
+                        ${isSelected ? 'onclick="showDuplicateError()"' : `onclick="addSaleOrder(${order.id}, ${JSON.stringify(order).replace(/"/g, '&quot;')})"`}>
+                        <strong>Order #${order.id}${selectedText}</strong><br>
+                        Customer: ${order.customer.name}<br>
+                        Items: ${order.items_count}<br>
+                        Delivery Date: ${order.delivery_date}<br>
+                        Status: ${order.order_status}
+                    </li>
+                `;
                 });
                 html += '</ul>';
 
                 resultsDiv.innerHTML = html;
-
-                // Add click event to results
-                document.querySelectorAll('#saleorder_search_results li').forEach(item => {
-                    item.addEventListener('click', function() {
-                        const orderId = this.getAttribute('data-id');
-                        const order = saleorders.find(o => o.id == orderId);
-                        selectSaleOrder(order);
-                    });
-                });
             }
 
-            function selectSaleOrder(order) {
-                // Create the order header info
-                let html = `
-    <div class="card mb-3">
-        <div class="card-header">
-            <h5 class="mb-0">Order #${order.id}</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <p class="mb-1"><strong>Customer:</strong> ${order.customer.name || 'N/A'}</p>
-                </div>
-                <div class="col-md-4">
-                    <p class="mb-1"><strong>Delivery Date:</strong> ${order.delivery_date || 'N/A'}</p>
-                </div>
-                <div class="col-md-4">
-                    <p class="mb-1"><strong>Status:</strong> ${order.order_status || 'N/A'}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="card-header">
-            <h6 class="mb-0">Order Items</h6>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-sm table-striped mb-0">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>Design Code</th>
-                            <th>Color</th>
-                            <th>Lace Qty</th>
-                            <th>Qty</th>
-                            <th>Rate</th>
-                            <th>Amount</th>
-                            <th>Stitch</th>
-                            <th>Total Stitch</th>
-                            <th wdith="20px">Needle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-`;
+            // Global function to be called from onclick
+            window.addSaleOrder = function(orderId, order) {
+                // Check if order is already selected
+                if (selectedOrders.some(o => o.id == orderId)) {
+                    showDuplicateError();
+                    return;
+                }
 
-                // Add each item to the table
-                order.items.forEach(item => {
-                    html += `
-        <tr>
-            <td>${item.design.design_code}</td>
-            <td>${item.color.title}</td>
-            <td>${item.lace_qty}</td>
-            <td>${item.qty}</td>
-            <td>${item.rate}</td>
-            <td>${item.amount}</td>
-            <td>${item.stitch}</td>
-            <td>${item.stitch*item.lace_qty}</td>
-            <td><input type="text" name="needle[]" class="form-control w-25" placeholder="" required></td>
-        </tr>
-    `;
-                });
-
-                // Close the table and cards
-                html += `
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-`;
-
-                selectedDiv.innerHTML = html;
-                saleorderIdInput.value = order.id;
+                selectedOrders.push(order);
+                renderSelectedOrders();
                 resultsDiv.innerHTML = '';
                 searchInput.value = '';
+                duplicateError.classList.add('d-none');
+            };
+
+            window.showDuplicateError = function() {
+                duplicateError.classList.remove('d-none');
+                setTimeout(() => {
+                    duplicateError.classList.add('d-none');
+                }, 3000);
+            };
+
+            window.removeSaleOrder = function(orderId) {
+                selectedOrders = selectedOrders.filter(order => order.id != orderId);
+                renderSelectedOrders();
+                // Re-fetch results to update the "already added" status
+                if (searchInput.value.trim().length > 1) {
+                    fetchSaleOrders(searchInput.value.trim());
+                }
+            }
+
+            function renderSelectedOrders() {
+                let html = '';
+
+                // First, collect all current needle values before re-rendering
+                const currentNeedleValues = {};
+                document.querySelectorAll('.selected-order').forEach(orderElement => {
+                    const orderId = orderElement.getAttribute('data-order-id');
+                    currentNeedleValues[orderId] = {};
+
+                    orderElement.querySelectorAll('input[name^="saleorders"]').forEach(input => {
+                        if (input.name.includes('[needle]')) {
+                            // Extract the indices from the input name
+                            const matches = input.name.match(
+                                /saleorders\[(\d+)\]\[items\]\[(\d+)\]\[needle\]/);
+                            if (matches) {
+                                const orderIndex = matches[1];
+                                const itemIndex = matches[2];
+                                currentNeedleValues[orderId][itemIndex] = input.value;
+                            }
+                        }
+                    });
+                });
+
+                // Now render each order while preserving needle values
+                selectedOrders.forEach((order, orderIndex) => {
+                    html += `
+            <div class="card mb-3 selected-order" data-order-id="${order.id}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Order #${order.id}</h5>
+                    <button type="button" class="btn btn-sm btn-danger remove-order" 
+                        data-order-id="${order.id}">
+                        Remove
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Customer:</strong> ${order.customer.name || 'N/A'}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Delivery Date:</strong> ${order.delivery_date || 'N/A'}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1"><strong>Status:</strong> ${order.order_status || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" name="saleorders[${orderIndex}][id]" value="${order.id}">
+                    
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-striped mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Design Code</th>
+                                    <th>Color</th>
+                                    <th>Lace Qty</th>
+                                    <th>Qty</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                    <th>Stitch</th>
+                                    <th>Total Stitch</th>
+                                    <th width="100px">Needle</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+                    // Add items for this order
+                    order.items.forEach((item, itemIndex) => {
+                        // Check if we have a saved value for this needle
+                        const savedValue = currentNeedleValues[order.id]?.[itemIndex] || '';
+
+                        html += `
+                                <tr>
+                                    <td>${item.design.design_code}</td>
+                                    <td>${item.color.title}</td>
+                                    <td>${item.lace_qty}</td>
+                                    <td>${item.qty}</td>
+                                    <td>${item.rate}</td>
+                                    <td>${item.amount}</td>
+                                    <td>${item.stitch}</td>
+                                    <td>${item.stitch * item.lace_qty}</td>
+                                    <td>
+                                        <input type="text" 
+                                               name="saleorders[${orderIndex}][items][${itemIndex}][needle]" 
+                                               class="form-control" 
+                                               placeholder="Needle" 
+                                               value="${savedValue}"
+                                               required>
+                                        <input type="hidden" 
+                                               name="saleorders[${orderIndex}][items][${itemIndex}][sale_order_item_id]" 
+                                               value="${item.id}">
+                                    </td>
+                                </tr>`;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+                });
+
+                selectedDiv.innerHTML = html;
+
+                // Add event listeners to remove buttons
+                selectedDiv.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-order')) {
+                        const orderId = e.target.getAttribute('data-order-id');
+                        removeSaleOrder(orderId);
+                    }
+                });
             }
         });
     </script>

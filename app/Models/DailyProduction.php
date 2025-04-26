@@ -18,11 +18,11 @@ class DailyProduction extends Model
                 ->first();
             
             $dailyProduction->previous_stitch = $previousRecord ? $previousRecord->actual_stitch : 0;
-            $dailyProduction->actual_stitch = $dailyProduction->previous_stitch - $dailyProduction->current_stitch;
+            $dailyProduction->actual_stitch = $dailyProduction->current_stitch - $dailyProduction->previous_stitch;
         });
 
         static::updating(function ($dailyProduction) {
-            $dailyProduction->actual_stitch = $dailyProduction->previous_stitch - $dailyProduction->current_stitch;
+            $dailyProduction->actual_stitch = $dailyProduction->current_stitch - $dailyProduction->previous_stitch;
         });
     }
 
@@ -34,5 +34,10 @@ class DailyProduction extends Model
     public function machine()
     {
         return $this->belongsTo(Machine::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(DailyProductionItem::class);
     }
 }
