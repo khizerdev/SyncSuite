@@ -30,7 +30,7 @@
             $totalMi = 0;
             $dates = array_keys($groupedAttendances);
             $gazatteDatesArray = array_map(function ($date) {
-                return $date->format('Y-m-d');
+                return \Carbon\Carbon::parse($date)->format('Y-m-d');
             }, $gazatteDates);
         @endphp
         @foreach ($groupedAttendances as $date => $entries)

@@ -93,7 +93,7 @@ class PurchaseController extends Controller
         {
             foreach ($request->items as $item)
             {
-                ModelsPurchaseOrderItems::create(["product_id" => $item["id"], "purchase_id" => $purchase->id, "qty" => $item["qty"], ]);
+                ModelsPurchaseOrderItems::create(["product_id" => $item["id"], "purchase_id" => $purchase->id, "qty" => $item["qty"], "rate" => $item["rate"],]);
             }
         }
 
@@ -152,10 +152,11 @@ class PurchaseController extends Controller
             {
                 $PurchaseOrderItems = ModelsPurchaseOrderItems::find($item["id"]);
                 $PurchaseOrderItems->update(["qty" => $item["qty"], ]);
+                $PurchaseOrderItems->update(["rate" => $item["rate"], ]);
             }
             else
             {
-                $PurchaseOrderItems = ModelsPurchaseOrderItems::create(["product_id" => $item["product_id"], "purchase_id" => $id, "qty" => $item["qty"], ]);
+                $PurchaseOrderItems = ModelsPurchaseOrderItems::create(["product_id" => $item["product_id"], "purchase_id" => $id, "qty" => $item["qty"], "rate" => $item["rate"], ]);
             }
 
             array_push($notDeleted, $PurchaseOrderItems->id);
