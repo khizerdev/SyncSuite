@@ -40,6 +40,11 @@ class Product extends Model
     {
         return $this->belongsTo(Particular::class);
     }
+    
+    public function purchaseOrderItems()
+    {
+        return $this->hasMany(PurchaseOrderItems::class);
+    }
 
 
 }

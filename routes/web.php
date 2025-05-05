@@ -148,6 +148,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('inward-receipts/view/{id}', [App\Http\Controllers\InwardReceiptController::class, 'view'])->name('inward-receipts.view');
 
         Route::resource('inward-general', App\Http\Controllers\InwardGeneralController::class);
+        
+        Route::resource('inventory', App\Http\Controllers\InventoryController::class);
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {

@@ -167,6 +167,7 @@
                                         ['title' => 'Purchase Order', 'route' => 'purchases.index'],
                                         ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
+                                        ['title' => 'Inventory', 'route' => 'inventory.index'],
                                     ],
                                 ],
                                 [

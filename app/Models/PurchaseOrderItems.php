@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
     
      public function purchase()
     {
-        return $this->belongsTo('App\Models\Product','purchase_id');
+        return $this->belongsTo('App\Models\Purchase','purchase_id');
     }
     
 
