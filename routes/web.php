@@ -26,6 +26,7 @@ use App\Http\Controllers\StockAdjustmentController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorPayableController;
+use App\Http\Controllers\InventoryController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -150,6 +151,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('inward-general', App\Http\Controllers\InwardGeneralController::class);
         
         Route::resource('inventory', App\Http\Controllers\InventoryController::class);
+        Route::post('inventory/{product}/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer');
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {

@@ -45,6 +45,13 @@ class Product extends Model
     {
         return $this->hasMany(PurchaseOrderItems::class);
     }
+    
+    public function departments()
+{
+    return $this->belongsToMany(Department::class, 'inventory_department')
+                ->withPivot('quantity')
+                ->withTimestamps();
+}
 
 
 }

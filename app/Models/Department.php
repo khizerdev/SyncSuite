@@ -18,4 +18,11 @@ class Department extends Model
     {
         return $this->hasMany(Employee::class);
     }
+    
+    public function products()
+{
+    return $this->belongsToMany(Product::class, 'inventory_department')
+                ->withPivot('quantity')
+                ->withTimestamps();
+}
 }

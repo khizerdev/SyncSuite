@@ -9,6 +9,7 @@ use App\Http\Requests\Department\StoreDepartmentRequest;
 use App\Http\Requests\Department\UpdateDepartmentRequest;
 use App\Models\PurchaseOrderItems;
 use App\Models\Product;
+use App\Models\Department;
 
 class InventoryController extends Controller
 {
@@ -54,10 +55,23 @@ class InventoryController extends Controller
      
      public function show($id, Request $request)
 {
-    $product = Product::findOrFail($id);
+    $product = Product::with('departments')->findOrFail($id);
     
     if ($request->ajax()) {
-        // Get all purchase order items for this product
+        // Check if this is a request for department inventory
+        if ($request->has('department_inventory')) {
+            return DataTables::of($product->departments)
+                ->addIndexColumn()
+                ->addColumn('department_name', function($department) {
+                    return $department->name;
+                })
+                ->addColumn('quantity', function($department) {
+                    return $department->pivot->quantity;
+                })
+                ->toJson();
+        }
+
+        // Original ledger functionality
         $purchaseItems = PurchaseOrderItems::with(['purchase'])
             ->where('product_id', $id)
             ->get()
@@ -73,11 +87,8 @@ class InventoryController extends Controller
                 ];
             });
 
-        // When you implement sales, add sale items here similarly
-        // $saleItems = SaleItem::with(['saleOrder'])... 
-
         // Combine all transactions and sort by date
-        $allTransactions = collect($purchaseItems)/*->merge($saleItems)*/
+        $allTransactions = collect($purchaseItems)
             ->sortBy('created_at');
 
         // Calculate running balance
@@ -101,8 +112,53 @@ class InventoryController extends Controller
             ->toJson();
     }
 
-    return view('pages.inventory.show', compact('product'));
+    $departments = Department::all();
+    return view('pages.inventory.show', compact('product', 'departments'));
 }
+
+public function transfer(Request $request, $productId)
+    {
+        $request->validate([
+            'from_department' => 'required|exists:departments,id',
+            'to_department' => 'required|exists:departments,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+        
+        $product = Product::findOrFail($productId);
+        
+        // Check if from department has enough quantity
+        $fromDepartment = $product->departments()
+                                ->where('department_id', $request->from_department)
+                                ->first();
+                                
+        if (!$fromDepartment || $fromDepartment->pivot->quantity < $request->quantity) {
+            return back()->with('error', 'Insufficient quantity in source department');
+        }
+        
+        // Decrease from source department
+        $product->departments()->updateExistingPivot(
+            $request->from_department,
+            ['quantity' => $fromDepartment->pivot->quantity - $request->quantity]
+        );
+        
+        // Increase in target department
+        $toDepartment = $product->departments()
+                              ->where('department_id', $request->to_department)
+                              ->first();
+                              
+        if ($toDepartment) {
+            $product->departments()->updateExistingPivot(
+                $request->to_department,
+                ['quantity' => $toDepartment->pivot->quantity + $request->quantity]
+            );
+        } else {
+            $product->departments()->attach($request->to_department, [
+                'quantity' => $request->quantity
+            ]);
+        }
+        
+        return back()->with('success', 'Stock transferred successfully');
+    }
 
     
     

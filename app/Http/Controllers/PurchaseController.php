@@ -9,9 +9,11 @@ use Auth;
 use App\Models\Purchase;
 use App\Models\PurchaseOrderItems as ModelsPurchaseOrderItems;
 use App\Models\Vendor;
+use App\Models\Department;
 use Yajra\Datatables\Datatables;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
@@ -34,7 +36,7 @@ class PurchaseController extends Controller
                 return $btn;
             })->addColumn("action", function ($row)
             {
-                $delete = ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm" title="Delete"><i class="px-1 text-danger fas fa-window-close text-white"></i></button>';
+                $delete = ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm">Delete</button>';
 
                 $edit = "<a href=" . route('purchases.edit', $row->id) . " title='Edit' class='btn btn-primary btn-sm mr-1'> <i class='fas fa-edit text-white' aria-hidden='true'></i></a>";
 
@@ -65,47 +67,63 @@ class PurchaseController extends Controller
 
     /*** Store a newly created resource in storage */
     public function store(Request $request)
-    {
-        $request->validate(["date" => "required", ]);
+{
+    $request->validate(["date" => "required"]);
 
-        $date = Carbon::createFromFormat("Y-m-d", $request->date);
-        $last = Purchase::whereYear("date", date($date->format("Y")))
-            ->whereMonth("date", date($date->format("m")))
-            ->orderBy("serial", "DESC")
-            ->first();
-        if ($last == null)
-        {
-            $last = 1;
-        }
-        else
-        {
-            $last = $last->serial + 1;
-        }
+    $date = Carbon::createFromFormat("Y-m-d", $request->date);
+    $last = Purchase::whereYear("date", $date->format("Y"))
+        ->whereMonth("date", $date->format("m"))
+        ->orderBy("serial", "DESC")
+        ->first();
+    
+    $serial_no = "PO-" . $date->format("ym") . str_pad($last ? $last->serial + 1 : 1, 3, "0", STR_PAD_LEFT);
 
-        $serial = str_pad(intval($last) , 3, "0", STR_PAD_LEFT);
-        $date = $date->format("ym");
-        $serial_no = "PO-" . $date . $serial;
+    DB::beginTransaction();
+    try {
+        // 1. Create the purchase order (no department_id needed)
+        $purchase = Purchase::create([
+            "vendor_id" => $request->vendor_id,
+            "serial_no" => $serial_no,
+            "serial" => $last ? $last->serial + 1 : 1,
+            "date" => $request->date
+        ]);
 
-        // try {
-        $purchase = Purchase::create(["vendor_id" => $request->vendor_id, "serial_no" => $serial_no, "serial" => $last, "date" => $request->date, ]);
+        // 2. Get the Main department
+        $mainDepartment = Department::where('name', 'Main')->firstOrFail();
 
-        if ($request->has("items"))
-        {
-            foreach ($request->items as $item)
-            {
-                ModelsPurchaseOrderItems::create(["product_id" => $item["id"], "purchase_id" => $purchase->id, "qty" => $item["qty"], "rate" => $item["rate"],]);
+        // 3. Process items
+        if ($request->has("items")) {
+            foreach ($request->items as $item) {
+                // A. Record purchase item
+                ModelsPurchaseOrderItems::create([
+                    "product_id" => $item["id"],
+                    "purchase_id" => $purchase->id,
+                    "qty" => $item["qty"],
+                    "rate" => $item["rate"]
+                ]);
+
+                // B. Update Main department inventory
+                DB::table('inventory_department')->updateOrInsert(
+                    [
+                        'product_id' => $item["id"],
+                        'department_id' => $mainDepartment->id
+                    ],
+                    [
+                        'quantity' => DB::raw("quantity + {$item['qty']}"),
+                        'updated_at' => now()
+                    ]
+                );
             }
         }
 
-        return redirect()->route("purchases.index")
-            ->with("success", "Created Successfully");
-        // }
-        //catch exception
-        // catch(Exception $e) {
-        //     return redirect()->route('purchases.index')->with('warning','Error Found Contact To Admin');
-        // }
+        DB::commit();
+        return redirect()->route("purchases.index")->with("success", "Purchase recorded!");
         
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->withInput()->with('error', 'Error: ' . $e->getMessage());
     }
+}
 
     /** * Show the form for editing the specified resource **/
     public function edit($id)
