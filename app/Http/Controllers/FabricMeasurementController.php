@@ -20,8 +20,6 @@ class FabricMeasurementController extends Controller
         'design_code' => 'required|string',
         'design_picture' => 'nullable',
         'design_stitch' => 'required|string|max:255',
-        'front_yarn' => 'required|string|max:255',
-        'back_yarn' => 'required|string|max:255',
     ]);
 
     $data = $request->all(); // Don't exclude design_picture here
@@ -73,8 +71,6 @@ class FabricMeasurementController extends Controller
         $request->validate([
             'unit_of_measure' => 'required|string|max:255',
             'design_stitch' => 'required|string|max:255',
-            'front_yarn' => 'required|string|max:255',
-            'back_yarn' => 'required|string|max:255',
         ]);
 
         $measurement = FabricMeasurement::findOrFail($id);

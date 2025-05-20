@@ -44,12 +44,12 @@
                                 <div class="form-group">
                                     <label for="front_yarn">Front Yarn</label>
                                     <input type="text" name="front_yarn" class="form-control"
-                                        value="{{ $measurement->front_yarn }}" required>
+                                        value="{{ $measurement->front_yarn }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="back_yarn">Back Yarn</label>
                                     <input type="text" name="back_yarn" class="form-control"
-                                        value="{{ $measurement->back_yarn }}" required>
+                                        value="{{ $measurement->back_yarn }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="design_code">Design Code</label>

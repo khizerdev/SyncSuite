@@ -40,11 +40,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="front_yarn">Front Yarn</label>
-                                    <input type="text" name="front_yarn" class="form-control" required>
+                                    <input type="text" name="front_yarn" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label for="back_yarn">Back Yarn</label>
-                                    <input type="text" name="back_yarn" class="form-control" required>
+                                    <input type="text" name="back_yarn" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label for="design_code">Design Code</label>
