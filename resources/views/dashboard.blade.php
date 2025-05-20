@@ -4,7 +4,7 @@
     <style>
         .iframe-container {
             width: 100%;
-            max-width: 800px;
+            /*max-width: 800px;*/
             margin: 0 auto;
             padding: 20px;
         }
@@ -22,7 +22,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            /*border: none;*/
         }
     </style>
 
@@ -109,7 +109,6 @@
                         <div class="iframe-responsive">
                             <!-- Replace the src with your target URL -->
                             <iframe src="https://ahmedfabrics.com.pk/db_converter/" title="Example Embedded Content"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen>
                             </iframe>
                         </div>
