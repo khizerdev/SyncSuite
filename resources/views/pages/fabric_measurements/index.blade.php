@@ -28,6 +28,7 @@
                                         <th>Design Stitch</th>
                                         <th>Front Yarn</th>
                                         <th>Back Yarn</th>
+                                        <th>Design Code</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -109,6 +110,10 @@
                     {
                         data: 'back_yarn',
                         name: 'back_yarn'
+                    },
+                    {
+                        data: 'design_code',
+                        name: 'design_code'
                     },
                     {
                         data: 'action',

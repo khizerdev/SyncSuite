@@ -149,8 +149,7 @@
                                             <div class="form-group">
                                                 <label>Stitch Rate</label>
                                                 <input type="number" class="form-control stitch-rate"
-                                                    name="stitch_rate[]" value={{ \App\Models\Setting::find(2)->value }}
-                                                    readonly>
+                                                    name="stitch_rate[]" value={{ \App\Models\Setting::find(2)->value }}>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -164,8 +163,7 @@
                                             <div class="form-group">
                                                 <label>L/F</label>
                                                 <input type="number" class="form-control length-factor"
-                                                    name="length_factor[]" value={{ \App\Models\Setting::find(1)->value }}
-                                                    readonly>
+                                                    name="length_factor[]" value={{ \App\Models\Setting::find(1)->value }}>
                                             </div>
                                         </div>
                                         <div class="col-md-1">

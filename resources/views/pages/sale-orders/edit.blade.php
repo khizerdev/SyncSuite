@@ -162,8 +162,7 @@
                                                     <div class="form-group">
                                                         <label>Stitch Rate</label>
                                                         <input type="number" class="form-control stitch-rate"
-                                                            name="stitch_rate[]" value="{{ $item->stitch_rate }}"
-                                                            readonly>
+                                                            name="stitch_rate[]" value="{{ $item->stitch_rate }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-1">
@@ -178,8 +177,7 @@
                                                     <div class="form-group">
                                                         <label>L/F</label>
                                                         <input type="number" class="form-control length-factor"
-                                                            name="length_factor[]" value="{{ $item->length_factor }}"
-                                                            readonly>
+                                                            name="length_factor[]" value="{{ $item->length_factor }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-1">
