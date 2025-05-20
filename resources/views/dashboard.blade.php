@@ -1,6 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .iframe-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .iframe-responsive {
+            position: relative;
+            overflow: hidden;
+            padding-top: 56.25%;
+            /* 16:9 Aspect Ratio */
+        }
+
+        .iframe-responsive iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -75,6 +100,20 @@
                             aria-hidden="true"></span>
                         Create Attendance Records
                     </button>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="iframe-container">
+                        <!--<h2>Embedded Content</h2>-->
+                        <div class="iframe-responsive">
+                            <!-- Replace the src with your target URL -->
+                            <iframe src="https://ahmedfabrics.com.pk/db_converter/" title="Example Embedded Content"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
 
