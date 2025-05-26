@@ -45,5 +45,17 @@ class ShiftTransferController extends Controller
 
     return redirect()->route('shift-transfers.index')->with('success', 'Shift transfers created successfully.');
 }
+
+public function destroy(ShiftTransfer $shiftTransfer)
+{
+    try {
+        $shiftTransfer->delete();
+        return redirect()->route('shift-transfers.index')
+            ->with('success', 'Shift transfer deleted successfully');
+    } catch (\Exception $e) {
+        return redirect()->route('shift-transfers.index')
+            ->with('error', 'Error deleting shift transfer');
+    }
+}
     
 }

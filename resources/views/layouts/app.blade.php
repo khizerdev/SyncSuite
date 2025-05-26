@@ -125,6 +125,12 @@
                                     'children' => [['title' => 'View', 'route' => 'branches.index']],
                                 ],
                                 [
+                                    'title' => 'Department',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'departments.index',
+                                    'children' => [['title' => 'View', 'route' => 'departments.index']],
+                                ],
+                                [
                                     'title' => 'Customer',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'customers.index',
@@ -212,12 +218,7 @@
                                         ['title' => 'Miss Scan', 'route' => 'miss-scan.index'],
                                     ],
                                 ],
-                                [
-                                    'title' => 'Department',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'departments.index',
-                                    'children' => [['title' => 'View', 'route' => 'departments.index']],
-                                ],
+
                                 [
                                     'title' => 'Shifts',
                                     'icon' => 'fas fa-circle',

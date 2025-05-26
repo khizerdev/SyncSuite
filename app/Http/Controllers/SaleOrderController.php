@@ -51,8 +51,24 @@ class SaleOrderController extends Controller
             'payment_terms' => 'nullable|string',
             'description' => 'nullable|string',
         ]);
-
-        $saleOrder = SaleOrder::create($request->only('customer_id','order_status','order_reference','advance_payment','delivery_date','payment_terms','description'));
+    
+        // Get the latest sale order to determine the next number
+        $latestOrder = SaleOrder::orderBy('id', 'desc')->first();
+        $nextNumber = 1;
+        
+        if ($latestOrder && preg_match('/PL-SB-(\d+)/', $latestOrder->sale_no, $matches)) {
+            $nextNumber = (int)$matches[1] + 1;
+        }
+        
+        // Format the number with leading zeros
+        $saleNo = 'PL-SB-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    
+        // Create the sale order with all fields including the generated sale_no
+        $saleOrder = SaleOrder::create(array_merge(
+            $request->only('customer_id', 'order_status', 'order_reference', 'advance_payment', 'delivery_date', 'payment_terms', 'description'),
+            ['sale_no' => $saleNo]
+        ));
+        
         foreach ($request->design_name as $index => $designName) {
             SaleOrderItem::create([
                 'sale_order_id'   => $saleOrder->id,

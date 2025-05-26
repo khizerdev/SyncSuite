@@ -28,6 +28,7 @@
                                         <th>Order Reference</th>
                                         <th>Advance Payment</th>
                                         <th>Delivery Date</th>
+                                        <th>Description</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -119,6 +120,10 @@
                     {
                         data: 'delivery_date',
                         name: 'delivery_date'
+                    },
+                    {
+                        data: 'description',
+                        name: 'description'
                     },
                     {
                         data: 'action',

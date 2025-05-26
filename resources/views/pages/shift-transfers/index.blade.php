@@ -50,6 +50,7 @@
                                         <th>Employee Name</th>
                                         <th>Shift</th>
                                         <th>From Date</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -58,6 +59,14 @@
                                             <td>{{ $transfer->employee->name }}</td>
                                             <td>{{ $transfer->shift->name }}</td>
                                             <td>{{ $transfer->from_date }}</td>
+                                            <td>
+                                                <form action="{{ route('shift-transfers.destroy', $transfer->id) }}"
+                                                    method="POST" class="delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -74,6 +83,21 @@
 @endsection
 
 @section('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForms = document.querySelectorAll('.delete-form');
+
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    if (confirm('Are you sure you want to delete this shift transfer?')) {
+                        this.submit();
+                    }
+                });
+            });
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function() {
             $('#employee_id').select2();
