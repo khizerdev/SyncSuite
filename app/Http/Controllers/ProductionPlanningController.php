@@ -39,12 +39,11 @@ class ProductionPlanningController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
-            'machine_number' => 'required|string|max:255',
         ]);
 
         ProductionPlanning::create([
             'date' => $request->date,
-            'machine_number' => $request->machine_number,
+            'machine_id' => $request->machine_id,
             'sale_order_id' => $request->saleorder_id,
         ]);
 
@@ -67,11 +66,10 @@ class ProductionPlanningController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
-            'machine_number' => 'required|string|max:255',
         ]);
 
         $productionPlanning = ProductionPlanning::find($id);
-        $productionPlanning->update($request->only('date','machine_number','sale_order_id'));
+        $productionPlanning->update($request->only('date','machine_id','sale_order_id'));
 
         return redirect()->route('production-plannings.index')
                          ->with('success', 'Production Planning updated successfully');

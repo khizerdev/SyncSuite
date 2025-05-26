@@ -24,8 +24,13 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <strong>Machine Number:</strong>
-                                            <input type="text" name="machine_number" class="form-control"
-                                                placeholder="Machine Number">
+                                            <select required class="form-control" name="machine_id">
+                                                <option value="" disabled selected>Select Machine</option>
+                                                @foreach (\App\Models\Machine::all() as $machine)
+                                                    <option value="{{ $machine->id }}">{{ $machine->code }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

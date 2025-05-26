@@ -14,4 +14,9 @@ class ProductionPlanning extends Model
     public function saleOrder(){
         return $this->belongsTo(SaleOrder::class);
     }
+    
+    public function machine(){
+        return $this->belongsTo(Machine::class);
+    }
+    
 }
