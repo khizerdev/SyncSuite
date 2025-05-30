@@ -151,7 +151,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('inward-general', App\Http\Controllers\InwardGeneralController::class);
         
         Route::resource('inventory', App\Http\Controllers\InventoryController::class);
-        Route::post('inventory/{product}/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer');
+        // Route::post('inventory/{product}/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer');
+        Route::post('/inventory/bulk-transfer', [InventoryController::class, 'transfer'])
+     ->name('inventory.bulk-transfer');
+        Route::get('/bulk/inventory', [InventoryController::class, 'bulk_transfer'])
+     ->name('inventory.bulk_transfer');
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {

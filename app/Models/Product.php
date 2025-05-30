@@ -47,11 +47,19 @@ class Product extends Model
     }
     
     public function departments()
-{
-    return $this->belongsToMany(Department::class, 'inventory_department')
-                ->withPivot('quantity')
-                ->withTimestamps();
-}
+    {
+        return $this->belongsToMany(Department::class, 'inventory_department')
+                    ->withPivot('quantity')
+                    ->withTimestamps();
+    }
+
+    // Add this accessor to easily get Main department stock
+    public function getMainDepartmentStockAttribute()
+    {
+        return $this->departments()
+            ->where('name', 'Main')
+            ->first()->pivot->quantity ?? 0;
+    }
 
 
 }

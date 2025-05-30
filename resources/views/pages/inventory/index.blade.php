@@ -14,7 +14,7 @@
                             <h4 class="card-title">All Inventory</h4>
                         </div>
                         <div class="col-6 text-right ">
-                            <!--<a class="btn btn-primary" href="{{ route('inward-general.create') }}">Add New</a>-->
+                            <a class="btn btn-primary" href="{{ route('inventory.bulk_transfer') }}">Bulk Transfer</a>
                         </div>
                     </div>
                 </div>

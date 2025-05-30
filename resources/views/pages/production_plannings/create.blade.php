@@ -170,8 +170,7 @@
                                 <th>Design Code</th>
                                 <th>Color</th>
                                 <th>Qty</th>
-                                <th>Rate</th>
-                                <th>Amount</th>
+                                
                                 <th>Stitch</th>
                             </tr>
                         </thead>
@@ -185,8 +184,6 @@
                 <td>${item.design.design_code}</td>
                 <td>${item.color.title}</td>
                 <td>${item.qty}</td>
-                <td>${item.rate}</td>
-                <td>${item.amount}</td>
                 <td>${item.stitch}</td>
             </tr>
         `;
