@@ -104,7 +104,7 @@ class AttendanceService
         
         $cappedOverMinutes = array_map(
             function($value) {
-                return $value > 150 ? 150 : $value;
+                return $value > 150 ? 150 : 150;
             },
             $calculatedMinutes['overMinutes']
         );

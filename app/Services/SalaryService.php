@@ -116,8 +116,13 @@ class SalaryService
                 $this->attendanceData['overMinutes'][$date] = 0;
             }
         }
-
-        $overtimePay = ($overMintuesWithoutHoliday / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
+        
+        $currentShift = $this->attendanceData['shift'];
+        if($currentShift->id == "12"){
+            $overtimePay = (array_sum($this->attendanceData['overMinutesOfAutoShift']) / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
+        } else {
+            $overtimePay = ($overMintuesWithoutHoliday / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
+        }
 
         $lateMinutes = array_sum($this->attendanceData['lateMinutes']);
         // dd($lateMinutes);
