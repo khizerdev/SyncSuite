@@ -49,6 +49,7 @@
                                         <th>Contact</th>
                                         <th>Department</th>
                                         <th>Type</th>
+                                        <th>Designation</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -163,6 +164,12 @@
                     {
                         data: 'type_name',
                         name: 'type_name',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'designation',
+                        name: 'designation',
                         orderable: true,
                         searchable: true
                     },

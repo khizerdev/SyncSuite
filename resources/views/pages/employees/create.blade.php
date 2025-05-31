@@ -55,6 +55,13 @@
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="form-group">
+                                            <label for="name">Designation</label>
+                                            <input type="text" id="designation" name="designation"
+                                                class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
                                             <label for="branch_id">Branch</label>
                                             <select id="branch_id" name="branch_id" class="form-control" required>
                                                 @foreach (App\Models\Branch::all() as $item)
