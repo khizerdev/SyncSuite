@@ -113,7 +113,8 @@
                                     <label for="overtime_ratio" class="form-label">Overtime Ratio</label>
                                     <input type="number" class="form-control" id="overtime_ratio" name="overtime_ratio"
                                         step="0.01" min="0"
-                                        value="{{ old('overtime_ratio', $employeeType->overtime_ratio) }}">
+                                        value="{{ old('overtime_ratio', $employeeType->overtime_ratio) }}"
+                                        @if ($employeeType->overtime == '0') readonly @endif>
                                 </div>
 
                                 <div class="mb-3">
@@ -135,6 +136,8 @@
                                 <button type="submit" class="btn btn-primary float-right">Update</button>
                             </form>
 
+
+
                         </div>
 
                     </div>
@@ -148,6 +151,33 @@
 
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const overtimeYes = document.getElementById('overtime_yes');
+            const overtimeNo = document.getElementById('overtime_no');
+            const overtimeRatio = document.getElementById('overtime_ratio');
+
+
+            if (overtimeNo.checked) {
+                overtimeRatio.readOnly = true;
+            }
+
+            overtimeYes.addEventListener('change', function() {
+                if (this.checked) {
+                    overtimeRatio.value = overtimeRatio.value || '1';
+                    overtimeRatio.readOnly = false;
+                }
+            });
+
+            overtimeNo.addEventListener('change', function() {
+                if (this.checked) {
+                    overtimeRatio.value = '0';
+                    overtimeRatio.readOnly = true;
+                }
+            });
+        });
+    </script>
 
     <script>
         // In your Javascript (external .js resource or <script> tag)
