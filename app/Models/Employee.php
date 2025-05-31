@@ -69,4 +69,9 @@ class Employee extends Model
     {
         return $this->hasMany(ShiftTransfer::class);
     }
+    
+    public function currentShift()
+    {
+        return $this->belongsTo(Shift::class, 'shift_id');
+    }
 }

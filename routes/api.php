@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\GazetteController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ParticularController;
 use App\Http\Controllers\SaleOrderController;
+use App\Http\Controllers\ShiftTransferController;
 use App\Models\DailyProduction;
 
 Route::get('/products/count', [ProductController::class, 'count']);
@@ -34,6 +35,11 @@ Route::post('/particulars/store', [ParticularController::class, 'store']);
 Route::apiResource('shifts', ShiftController::class)->only([
     'store','update'
 ]);
+
+Route::prefix('api')->group(function () {
+    Route::get('employees/by-department/{departmentId}', [ShiftTransferController::class, 'getEmployeesByDepartment']);
+    Route::get('shift-transfers/data', [ShiftTransferController::class, 'getShiftTransfersData']);
+});
 
 Route::get('/gazette-holidays', [GazetteController::class, 'index'])->name('gazette-holidays.index');
 Route::get('/gazette-holidays', [GazetteController::class, 'getHolidays']);

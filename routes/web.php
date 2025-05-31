@@ -175,6 +175,10 @@ Route::middleware(['auth'])->group(function () {
         ]);
 
         Route::resource('shift-transfers', ShiftTransferController::class);
+        Route::get('/api/employees/by-department/{departmentId}', [ShiftTransferController::class, 'getEmployeesByDepartment'])->name('employees.by-department');
+        
+        // Optional: DataTables endpoint for shift transfers
+        Route::get('/api/shift-transfers/data', [ShiftTransferController::class, 'getShiftTransfersData'])->name('shift-transfers.data');
 
         Route::post('/import-excel', [AttendanceController::class, 'import'])->name('import.excel');
         Route::get('/calculate-hours/{employeeId}', [AttendanceController::class, 'calculateHours'])->name('calculate.hours');
