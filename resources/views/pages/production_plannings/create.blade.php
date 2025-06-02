@@ -68,6 +68,8 @@
 
 @section('script')
     <script>
+        const assetBase = "{{ asset('') }}";
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('saleorder_search');
             const resultsDiv = document.getElementById('saleorder_search_results');
@@ -169,9 +171,10 @@
                             <tr>
                                 <th>Design Code</th>
                                 <th>Color</th>
-                                <th>Qty</th>
-                                
                                 <th>Stitch</th>
+                                <th>Lace Qty</th>
+                                <th>Qty</th>
+                                <th>Image</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -183,8 +186,10 @@
             <tr>
                 <td>${item.design.design_code}</td>
                 <td>${item.color.title}</td>
-                <td>${item.qty}</td>
                 <td>${item.stitch}</td>
+                <td>${item.lace_qty}</td>
+                <td>${item.qty}</td>
+                <td><img src="${assetBase}${item.design.design_picture}" /></td>
             </tr>
         `;
                 });
