@@ -27,6 +27,7 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorPayableController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ProductGroupController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -149,6 +150,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('inward-receipts/view/{id}', [App\Http\Controllers\InwardReceiptController::class, 'view'])->name('inward-receipts.view');
 
         Route::resource('inward-general', App\Http\Controllers\InwardGeneralController::class);
+        Route::resource('product-groups', ProductGroupController::class);
         
         Route::resource('inventory', App\Http\Controllers\InventoryController::class);
         // Route::post('inventory/{product}/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer');
