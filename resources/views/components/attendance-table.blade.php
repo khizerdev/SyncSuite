@@ -9,18 +9,36 @@
     'gazatteDates',
 ])
 
+<style>
+    #salary-box tr {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
 
+    @media print {
+        .hide-on-print {
+            display: none;
+        }
 
-<table class="table table-bordered">
+        #salary-box,
+        #attd-table {
+            zoom: 0.45 !important;
+        }
+    }
+    }
+</style>
+
+<table class="table table-bordered" id="attd-table">
     <thead>
         <tr>
             <th>Date</th>
             <th class="text-center">Entries</th>
-            <th>Working Hours</th>
-            <th>Late Min</th>
-            <th>Early Min</th>
-            <th>Early Out</th>
-            <th>Over Min</th>
+            <th>W.H</th>
+            <th>L/M</th>
+            <th>EI/M</th>
+            <th>EO/M</th>
+            <th>OT/M</th>
             <th>Status</th>
         </tr>
     </thead>
@@ -84,12 +102,12 @@
                 }
             @endphp
             <tr>
-                <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, Y') }}</td>
+                <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, y') }}</td>
                 <td>
                     <div class="entries-container">
                         @foreach ($entries as $entry)
                             <div class="entry-card mb-2 @if (!$loop->last) border-bottom pb-2 @endif">
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center entry-stat">
                                     <div class="entry-time">
                                         @if ($entry['original_checkin'])
                                             In: {{ $entry['original_checkin']->format('h:i A') }}

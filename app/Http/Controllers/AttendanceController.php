@@ -407,59 +407,78 @@ class AttendanceController extends Controller
     }
 
     public function updateAttendanceTable()
-    {
-        $lastAttendance = DB::table('attendances')->latest('datetime')->first();
+{
+    $lastAttendance = DB::table('attendances')->latest('datetime')->first();
 
-        if (!$lastAttendance) {
-            return response()->json(['message' => 'No records found in attendances table'], 404);
-        }
+    if (!$lastAttendance) {
+        return response()->json(['message' => 'No records found in attendances table'], 404);
+    }
 
-        $lastDate = \Carbon\Carbon::parse($lastAttendance->datetime)->addDay()->toDateString();
+    $lastDate = \Carbon\Carbon::parse($lastAttendance->datetime)->addDay()->toDateString();
+    $startDate = $lastDate;
+    $endDate = Carbon::yesterday()->toDateString();
 
-        $startDate = $lastDate;
-        $endDate = Carbon::yesterday()->toDateString();
-
-        $recordsInRange = DB::connection('mysql2')->table('CHECKINOUT')
-            ->select(
-                'USERID',
-                DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time')
-            )
-            ->get()
-            ->filter(function ($record) use ($startDate, $endDate) {
-
-                $checktime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d');
-
-                // Check if the date falls within the range
-                return $checktime >= $startDate && $checktime <= $endDate;
-            });
-
-        if ($recordsInRange->isEmpty()) {
-            return response()->json(['message' => 'No records found in the given date range','startDate' => $startDate, 'endDate' => $endDate], 404);
-        }
-        // Process records in chunks
-        $chunkSize = 200;
-        $recordsInRange->chunk($chunkSize)->each(function ($chunk) {
-            $attendanceData = [];
-
-            foreach ($chunk as $record) {
-                try {
-                    $datetime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d H:i:s');
-                    $attendanceData[] = [
-                        'code' => $record->USERID,
-                        'datetime' => $datetime,
-                    ];
-                } catch (\Exception $e) {
-                    dd($e);
-                }
-            }
-
-            if (!empty($attendanceData)) {
-                DB::table('attendances')->insert($attendanceData);
-            }
+    $recordsInRange = DB::connection('mysql2')->table('CHECKINOUT')
+        ->select('USERID', DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time'))
+        ->get()
+        ->filter(function ($record) use ($startDate, $endDate) {
+            $checktime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d');
+            return $checktime >= $startDate && $checktime <= $endDate;
         });
 
-        return response()->json(['message' => 'Attendance records created successfully', 'startDate' => $startDate, 'endDate' => $endDate]);
+    if ($recordsInRange->isEmpty()) {
+        return response()->json(['message' => 'No records found in the given date range', 'startDate' => $startDate, 'endDate' => $endDate], 404);
     }
+
+    // ❗ Always delete and recreate the user_infos table
+    DB::table('user_infos')->truncate();
+
+    $userInfoRecords = DB::connection('mysql2')->table('USERINFO')
+        ->select('USERID', 'Badgenumber')
+        ->get();
+
+    $newUserInfos = [];
+    foreach ($userInfoRecords as $info) {
+        $newUserInfos[] = [
+            'id' => $info->USERID,
+            'code' => trim($info->Badgenumber, '"'),
+        ];
+    }
+
+    if (!empty($newUserInfos)) {
+        DB::table('user_infos')->insert($newUserInfos);
+    }
+
+    // Insert attendances
+    $chunkSize = 200;
+    $recordsInRange->chunk($chunkSize)->each(function ($chunk) {
+        $attendanceData = [];
+
+        foreach ($chunk as $record) {
+            try {
+                $datetime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d H:i:s');
+                $attendanceData[] = [
+                    'code' => $record->USERID,
+                    'datetime' => $datetime,
+                ];
+            } catch (\Exception $e) {
+                dd($e);
+            }
+        }
+
+        if (!empty($attendanceData)) {
+            DB::table('attendances')->insert($attendanceData);
+        }
+    });
+
+    return response()->json([
+        'message' => 'Attendance and user_infos updated successfully',
+        'startDate' => $startDate,
+        'endDate' => $endDate
+    ]);
+}
+
+
     
     
 }
