@@ -5,7 +5,6 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-
                     <div class="card">
                         <div class="card-header row align-items-center justify-content-between">
                             <div class="col-10">
@@ -42,6 +41,8 @@
                                 </div>
                                 <div class="col-md-3">
                                     <button id="filter" class="btn btn-primary">Filter</button>
+                                    <a id="showSalaryByDept" href="#" class="btn btn-success">Show Salary by
+                                        Department</a>
                                 </div>
                             </div>
 
@@ -82,13 +83,11 @@
                                     </table>
                                 @endrole
                             </div>
-
                         </div>
-
                     </div>
                 </div>
-
             </div>
+        </div>
     </section>
 @endsection
 
@@ -212,4 +211,38 @@
             });
         </script>
     @endrole
+
+    <script>
+        $('#showSalaryByDept').on('click', function(e) {
+            e.preventDefault();
+            var departmentId = $('#department').val();
+            var month = $('#month').val();
+            var year = $('#year').val();
+
+            if (!departmentId) {
+                alert('Please select a department first');
+                return;
+            }
+            if (!month) {
+                alert('Please select a month first');
+                return;
+            }
+            if (!year) {
+                alert('Please select a year first');
+                return;
+            }
+
+            var url = "{{ route('salaries.byDepartment') }}?department_id=" + departmentId;
+
+            if (month) {
+                url += "&month=" + month;
+            }
+
+            if (year) {
+                url += "&year=" + year;
+            }
+
+            window.location.href = url;
+        });
+    </script>
 @endsection

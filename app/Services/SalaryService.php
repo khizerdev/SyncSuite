@@ -160,7 +160,11 @@ class SalaryService
         // dd($this->attendanceData['gazatteMinutes']);
 
         $missScanCount = $this->attendanceData['missScanCount'];
-        $missScanCleared = Missscan::where('employee_id', $this->employee->id)->where('month', $this->attendanceData['month'])->where('year', $this->attendanceData['year'])->where('duration', $this->period)->first();
+        if($this->period){
+            $missScanCleared = Missscan::where('employee_id', $this->employee->id)->where('month', $this->attendanceData['month'])->where('year', $this->attendanceData['year'])->where('duration', $this->period)->first();
+        } else {
+            $missScanCleared = Missscan::where('employee_id', $this->employee->id)->where('month', $this->attendanceData['month'])->where('year', $this->attendanceData['year'])->first();
+        }
 
         $actualSalary = $regularPay + $holidayPay + $normalHolidayPay + $gazattePay;
 

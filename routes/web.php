@@ -206,6 +206,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/loan-exceptions/bulk-update', [LoanExceptionController::class, 'bulkUpdate'])->name('loan-exception.bulk-update');
 
         Route::get('/generate-salary', [SalaryController::class, 'generateSalary'])->name('generate-salary');
+        Route::get('/salary/by-department', [SalaryController::class, 'showByDepartment'])->name('salaries.byDepartment');
         Route::post('/generate-salary/process', [SalaryController::class, 'processSalaryGeneration'])->name('generate-salary.process');
 
         Route::resource('gazette-holidays', GazetteController::class);

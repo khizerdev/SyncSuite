@@ -265,4 +265,68 @@ class SalaryController extends Controller
         return redirect()->route('generate-salary')->with('success', 'Salaries generated successfully.');
     }
     
+    public function showByDepartment(Request $request)
+{
+    // Validate required parameters
+    $request->validate([
+        'department_id' => 'required|integer',
+        'month' => 'required|integer|between:1,12',
+        'year' => 'required|integer|digits:4'
+    ]);
+
+    $departmentId = $request->department_id;
+    $currentMonth = intval($request->month);
+    $currentYear = intval($request->year);
+
+    // Get employees belonging to the specified department
+    $employees = Employee::where('department_id', $departmentId)->get();
+    
+    if ($employees->isEmpty()) {
+        return redirect()->back()->with('error', 'No employees found for this department');
+    }
+
+    // Set date ranges
+    $timestamp = mktime(0, 0, 0, $currentMonth, 1, $currentYear);
+    $month_name = date("F", $timestamp);
+    $baseDate = Carbon::createFromDate($currentYear, $currentMonth, 1);
+    $startDate = $baseDate->copy()->startOfMonth();
+    $endDate = $baseDate->copy()->endOfMonth();
+
+    $results = [];
+    
+    foreach ($employees as $employee) {
+        $salary = Salary::where('employee_id', $employee->id)
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->first();
+        
+        if (!$salary) {
+            continue; // Skip employees without salary records
+        }
+        
+        $processor = new AttendanceService($employee);
+        $attendance = $processor->processAttendance($startDate, $endDate);
+        
+        if (!$attendance) {
+            continue; // Skip employees with attendance processing issues
+        }
+
+        $salaryCalculator = new SalaryService($employee, $attendance, 'full_month', $currentMonth);
+        $salaryComponent = $salaryCalculator->calculateSalary();
+        
+        $results[$employee->id] = [
+            'employee' => $employee,
+            'attendance' => $attendance,
+            'salary_data' => array_merge($attendance, $salaryComponent),
+            'salary' => $salary
+        ];
+    }
+    
+    if (empty($results)) {
+        return redirect()->back()->with('error', 'No valid payroll data found for this department');
+    }
+
+    return view('pages.employees.payroll', compact('results'));
+}
+    
 }
