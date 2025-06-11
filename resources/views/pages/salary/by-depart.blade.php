@@ -21,250 +21,251 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card mb-4">
-                        @foreach ($results as $item)
-                            @php
-                                $salary = $item['salary'];
-                                $attendance = $item['attendance'];
-                                $result = $item['salary_data'];
+                        <div class="card-header">
+                            <h5>Employee Salary Details</h5>
+                        </div>
 
-                                $months = [
-                                    'January',
-                                    'February',
-                                    'March',
-                                    'April',
-                                    'May',
-                                    'June',
-                                    'July',
-                                    'August',
-                                    'September',
-                                    'October',
-                                    'November',
-                                    'December',
-                                ];
-                                $month = $months[$salary->month - 1];
-                            @endphp
-
-                            <div class="card-header printable-section">
-                                <div class="row">
-                                    <div class="col-md-11">
-                                        <h5>Salary Details for {{ $result['employee']->name }} - {{ $month }} 2025
-                                        </h5>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card-body">
-                                <table id="salaryTable-{{ $loop->index }}"
-                                    class="salary-table table table-bordered table-striped">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="salaryDataTable" class="table table-bordered table-striped" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>Item</th>
-                                            <th>Value</th>
+                                            <th>Employee Name</th>
+                                            <th>Month</th>
+                                            <th>Working Days</th>
+                                            <th>Worked Days</th>
+                                            <th>Total Hours Worked</th>
+                                            <th>Salary Per Hour</th>
+                                            <th>Actual Salary Earned</th>
+                                            <th>Early Cut Amount</th>
+                                            <th>Miss Amount</th>
+                                            <th>Total Overtime Pay</th>
+                                            <th>Late Minutes</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>Employee Name</td>
-                                            <td>{{ $result['employee']->name }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Month</td>
-                                            <td>{{ $month }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Early Cut Amount</td>
-                                            <td>{{ number_format($result['earlyOutCutAmount'], 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Early Minutes (Check-in)</td>
-                                            <td>{{ number_format(array_sum($attendance['earlyCheckinMinutes']), 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Early Minutes (Check-out)</td>
-                                            <td>{{ number_format(array_sum($attendance['earlyCheckoutMinutes']), 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Holidays</td>
-                                            <td>{{ implode(', ', $result['holidays']) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Working Days</td>
-                                            <td>{{ $result['workingDays'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Worked Days</td>
-                                            <td>{{ $result['totalWorkedDays'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total Expected Working Days</td>
-                                            <td>{{ $salary->expected_hours }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total Hours Worked</td>
-                                            <td>{{ $result['totalHoursWorked'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total Holiday Hours Worked</td>
-                                            <td>{{ $result['holidayHours'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Salary Per Hour</td>
-                                            <td>{{ number_format($result['salaryPerHour'], 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Paid Holiday Amount</td>
-                                            <td>{{ number_format($result['normalHolidayPay'], 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Gazatte Pay Amount</td>
-                                            <td>{{ $result['gazattePay'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Holiday Pay Amount</td>
-                                            <td>{{ $result['holidayPay'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Holiday Ratio</td>
-                                            <td>{{ $salary->holiday_pay_ratio }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Over Time Ratio</td>
-                                            <td>{{ $salary->overtime_pay_ratio }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total Over Time Hours Worked</td>
-                                            <td>{{ $salary->overtime_hours }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total Over Time Minutes Worked</td>
-                                            <td>{{ $result['totalOvertimeMinutes'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total Overtime Pay</td>
-                                            <td>{{ number_format($result['totalOvertimePay'], 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Late Minutes</td>
-                                            <td>{{ array_sum($attendance['lateMinutes']) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Actual Salary Earned</td>
-                                            <td>{{ number_format($result['actualSalaryEarned'], 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Miss Deduct Days</td>
-                                            <td>{{ $result['missDeductDays'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Miss Amount</td>
-                                            <td>{{ number_format($result['missAmount'], 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Holiday Over Minutes</td>
-                                            <td>{{ $result['holidayOverMins'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Sandwich Deduction</td>
-                                            <td>{{ $result['sandwichDeduct'] }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Over Minutes (Auto Shift)</td>
-                                            <td>{{ number_format(array_sum($result['overMinutesOfAutoShift']), 2) }}</td>
-                                        </tr>
+                                        @foreach ($results as $item)
+                                            @php
+                                                $salary = $item['salary'];
+                                                $attendance = $item['attendance'];
+                                                $result = $item['salary_data'];
+
+                                                $months = [
+                                                    'January',
+                                                    'February',
+                                                    'March',
+                                                    'April',
+                                                    'May',
+                                                    'June',
+                                                    'July',
+                                                    'August',
+                                                    'September',
+                                                    'October',
+                                                    'November',
+                                                    'December',
+                                                ];
+                                                $month = $months[$salary->month - 1];
+                                            @endphp
+                                            <tr>
+                                                <td>{{ $result['employee']->name }}</td>
+                                                <td>{{ $month }}</td>
+                                                <td>{{ $result['workingDays'] }}</td>
+                                                <td>{{ $result['totalWorkedDays'] }}</td>
+                                                <td>{{ $result['totalHoursWorked'] }}</td>
+                                                <td>{{ number_format($result['salaryPerHour'], 2) }}</td>
+                                                <td>{{ number_format($result['actualSalaryEarned'], 2) }}</td>
+                                                <td>{{ number_format($result['earlyOutCutAmount'], 2) }}</td>
+                                                <td>{{ number_format($result['missAmount'], 2) }}</td>
+                                                <td>{{ number_format($result['totalOvertimePay'], 2) }}</td>
+                                                <td>{{ array_sum($attendance['lateMinutes']) }}</td>
+
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                        @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Detail Modals -->
+    @foreach ($results as $item)
+        @php
+            $salary = $item['salary'];
+            $attendance = $item['attendance'];
+            $result = $item['salary_data'];
+
+            $months = [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December',
+            ];
+            $month = $months[$salary->month - 1];
+        @endphp
+    @endforeach
 @endsection
 
 @section('script')
     <script>
         $(document).ready(function() {
-            // Initialize DataTables for each table
-            // $('.salary-table').each(function() {
-            //     $(this).DataTable({
-            //         "paging": true,
-            //         "lengthChange": true,
-            //         "searching": true,
-            //         "ordering": true,
-            //         "info": true,
-            //         "autoWidth": false,
-            //         "responsive": true,
-            //         "pageLength": 10,
-            //         "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-            //         "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-            //               "<'row'<'col-sm-12'tr>>" +
-            //               "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-            //         "buttons": []
-            //     });
-            // });
+            // Initialize DataTable
+            $('#salaryDataTable').DataTable({
+                "responsive": true,
+                "lengthChange": true,
+                "autoWidth": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "paging": true,
+                "pageLength": 25,
+                "lengthMenu": [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, "All"]
+                ],
+                "order": [
+                    [0, "asc"]
+                ], // Sort by employee name by default
+                "columnDefs": [{
+                    "targets": [6, 7, 8, 9], // Salary columns
+                    "className": "text-right"
+                }],
+                "language": {
+                    "search": "Search employees:",
+                    "lengthMenu": "Show _MENU_ employees per page",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ employees",
+                    "infoEmpty": "Showing 0 to 0 of 0 employees",
+                    "infoFiltered": "(filtered from _MAX_ total employees)"
+                },
+                "dom": 'Bfrtip',
+                "buttons": [{
+                        extend: 'copy',
+                        text: '<i class="fas fa-copy"></i> Copy',
+                        className: 'btn btn-secondary btn-sm'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="fas fa-file-csv"></i> CSV',
+                        className: 'btn btn-success btn-sm'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel"></i> Excel',
+                        className: 'btn btn-success btn-sm'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fas fa-file-pdf"></i> PDF',
+                        className: 'btn btn-danger btn-sm',
+                        orientation: 'landscape',
+                        pageSize: 'A4'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> Print Table',
+                        className: 'btn btn-info btn-sm'
+                    }
+                ]
+            });
 
-            // Print all records
-            // $('#printAllBtn').click(function() {
-            //     // Create a new window for printing
-            //     var printWindow = window.open('', '', 'height=600,width=800');
+            // Custom search functionality
+            $('#salaryDataTable_filter input').attr('placeholder', 'Search by employee name, month, etc...');
+        });
 
-            //     // Start building the HTML content
-            //     var htmlContent = `
-        //         <html>
-        //             <head>
-        //                 <title>Salary Reports</title>
-        //                 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        //                 <style>
-        //                     @page { size: auto; margin: 5mm; }
-        //                     body { padding: 20px; }
-        //                     .print-section { margin-bottom: 30px; page-break-after: always; }
-        //                     .print-section:last-child { page-break-after: auto; }
-        //                     table { width: 100%; margin-bottom: 1rem; border-collapse: collapse; }
-        //                     table td, table th { padding: 0.75rem; vertical-align: top; border: 1px solid #dee2e6; }
-        //                     table thead th { vertical-align: bottom; border-bottom: 2px solid #dee2e6; }
-        //                 </style>
-        //             </head>
-        //             <body>
-        //                 <div class="container">
-        //                     <h1 class="text-center mb-4">Salary Reports</h1>
-        //     `;
+        // Function to print modal content
+        function printModal(modalId) {
+            var printContents = document.getElementById(modalId).querySelector('.modal-body').innerHTML;
+            var originalContents = document.body.innerHTML;
 
-            //     // Add each table's content
-            //     $('.printable-section').each(function() {
-            //         // Get the original table HTML before DataTable initialization
-            //         var tableHtml = $(this).find('table').prop('outerHTML');
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+        <html>
+            <head>
+                <title>Salary Report Details</title>
+                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    table { width: 100% !important; }
+                    .table td, .table th { padding: 8px; border: 1px solid #dee2e6; }
+                    @media print {
+                        .btn { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    ${printContents}
+                </div>
+            </body>
+        </html>
+    `);
+            printWindow.document.close();
+            printWindow.print();
+        }
 
-            //         // Get the card header
-            //         var cardHeader = $(this).find('.card-title').text();
-
-            //         // Add to HTML content
-            //         htmlContent += `
-        //             <div class="print-section">
-        //                 <h3>${cardHeader}</h3>
-        //                 ${tableHtml}
-        //             </div>
-        //         `;
-            //     });
-
-            //     // Close HTML content
-            //     htmlContent += `
-        //                 </div>
-        //             </body>
-        //         </html>
-        //     `;
-
-            //     // Write the content to the print window
-            //     printWindow.document.open();
-            //     printWindow.document.write(htmlContent);
-            //     printWindow.document.close();
-
-            //     // Wait for content to load before printing
-            //     setTimeout(function() {
-            //         printWindow.focus();
-            //         printWindow.print();
-            //     }, 500);
-            // });
+        // Print all functionality
+        $('#printAllBtn').on('click', function() {
+            window.print();
         });
     </script>
+
+    <style>
+        @media print {
+
+            .card-header,
+            .btn,
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter,
+            .dataTables_wrapper .dataTables_info,
+            .dataTables_wrapper .dataTables_paginate,
+            .dt-buttons {
+                display: none !important;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .table td,
+            .table th {
+                padding: 4px !important;
+            }
+        }
+
+        .dt-buttons {
+            margin-bottom: 15px;
+        }
+
+        .dt-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 12px;
+            }
+
+            .btn-sm {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
 @endsection

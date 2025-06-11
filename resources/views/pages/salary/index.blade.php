@@ -40,6 +40,14 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
+                                    <select id="period" name="period" class="form-control">
+                                        <option value="">Select Period</option>
+                                        <option value="first_half">First Half</option>
+                                        <option value="second_half">Second Half</option>
+                                        <option value="full_month">Full Month</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <button id="filter" class="btn btn-primary">Filter</button>
                                     <a id="showSalaryByDept" href="#" class="btn btn-success">Show Salary by
                                         Department</a>
@@ -104,6 +112,7 @@
                             d.department = $('#department').val();
                             d.month = $('#month').val();
                             d.year = $('#year').val();
+                            d.period = $('#period').val();
                         }
                     },
                     columns: [{
@@ -167,6 +176,7 @@
                             d.department = $('#department').val();
                             d.month = $('#month').val();
                             d.year = $('#year').val();
+                            d.period = $('#period').val();
                         }
                     },
                     columns: [{
@@ -218,6 +228,7 @@
             var departmentId = $('#department').val();
             var month = $('#month').val();
             var year = $('#year').val();
+            var period = $('#period').val();
 
             if (!departmentId) {
                 alert('Please select a department first');
@@ -231,6 +242,10 @@
                 alert('Please select a year first');
                 return;
             }
+            if (!period) {
+                alert('Please select a period first');
+                return;
+            }
 
             var url = "{{ route('salaries.byDepartment') }}?department_id=" + departmentId;
 
@@ -240,6 +255,9 @@
 
             if (year) {
                 url += "&year=" + year;
+            }
+            if (period) {
+                url += "&period=" + period;
             }
 
             window.location.href = url;

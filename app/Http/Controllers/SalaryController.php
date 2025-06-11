@@ -40,6 +40,10 @@ class SalaryController extends Controller
             if ($request->has('year') && $request->year != '') {
                 $data->where('year', $request->year);
             }
+            
+            if ($request->has('period') && $request->period != '') {
+                $data->where('period', $request->period);
+            }
 
             $data = $data->get();
 
@@ -266,17 +270,19 @@ class SalaryController extends Controller
     }
     
     public function showByDepartment(Request $request)
-{
+    {
     // Validate required parameters
     $request->validate([
         'department_id' => 'required|integer',
         'month' => 'required|integer|between:1,12',
-        'year' => 'required|integer|digits:4'
+        'year' => 'required|integer|digits:4',
+        'period' => 'required'
     ]);
 
     $departmentId = $request->department_id;
     $currentMonth = intval($request->month);
     $currentYear = intval($request->year);
+    $period = $request->period;
 
     // Get employees belonging to the specified department
     $employees = Employee::where('department_id', $departmentId)->get();
@@ -298,6 +304,7 @@ class SalaryController extends Controller
         $salary = Salary::where('employee_id', $employee->id)
             ->where('month', $currentMonth)
             ->where('year', $currentYear)
+            ->where('period', $period)
             ->first();
         
         if (!$salary) {
@@ -311,8 +318,9 @@ class SalaryController extends Controller
             continue; // Skip employees with attendance processing issues
         }
 
-        $salaryCalculator = new SalaryService($employee, $attendance, 'full_month', $currentMonth);
+        $salaryCalculator = new SalaryService($employee, $attendance, $period, $currentMonth);
         $salaryComponent = $salaryCalculator->calculateSalary();
+        // dd($period);
         
         $results[$employee->id] = [
             'employee' => $employee,
