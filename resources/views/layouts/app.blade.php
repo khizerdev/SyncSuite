@@ -50,7 +50,7 @@
         </div> --}}
 
         <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light hide-on-print">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light hide-on-print d-print-none">
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
@@ -77,7 +77,7 @@
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4 hide-on-print">
+        <aside class="main-sidebar sidebar-dark-primary elevation-4 hide-on-print d-print-none">
             <!-- Brand Logo -->
             <a href="index3.html" class="brand-link">
                 <img src="{{ env('ASSET_URL') }}/assets/dist/img/AdminLTELogo.png" alt="AdminLTE Logo"
@@ -86,7 +86,7 @@
             </a>
 
             <!-- Sidebar -->
-            <div class="sidebar">
+            <div class="sidebar d-print-none">
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">

@@ -326,7 +326,7 @@ class SalaryController extends Controller
         return redirect()->back()->with('error', 'No valid payroll data found for this department');
     }
 
-    return view('pages.employees.payroll', compact('results'));
+    return view('pages.salary.by-depart', compact('results'));
 }
     
 }
