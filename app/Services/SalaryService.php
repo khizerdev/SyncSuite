@@ -26,6 +26,8 @@ class SalaryService
         $this->isNightShift = Carbon::parse($this->shift->start_time)->greaterThan(Carbon::parse($this->shift->end_time));
         $this->monthDays = cal_days_in_month(CAL_GREGORIAN, $currentMonth, now()->year);
         $this->holidays = array_map('trim', explode(',', $employee->type->holidays));
+        $this->isContract = $employee->type->name == "Contract" ? true : false;
+        // dd($this->isContract);
     }
 
     public function calculateTimeDifference($data)
@@ -123,6 +125,8 @@ class SalaryService
         } else {
             $overtimePay = ($overMintuesWithoutHoliday / 60) * $this->employee->type->overtime_ratio * $salaryPerHour;
         }
+        
+        $overMintuesWithoutHoliday = $this->shift->id == "12" ? array_sum($this->attendanceData['overMinutesOfAutoShift']) : $overMintuesWithoutHoliday;
 
         $lateMinutes = array_sum($this->attendanceData['lateMinutes']);
         // dd($lateMinutes);
@@ -225,6 +229,7 @@ class SalaryService
             'salaryPerHour' => $salaryPerHour,
             'totalBaseSalary' => $this->employee->salary,
             'totalAdjustedSalary' => $actualSalary,
+            'period' => $this->period,
 
             'holidayHours' => number_format($holidayWorkingMinutes / 60, 2),
             'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * $hoursPerDay, 2),

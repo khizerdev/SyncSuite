@@ -11,22 +11,20 @@
 
 <style>
     #salary-box tr {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
 
-    @media print {
-        .hide-on-print {
-            display: none;
-        }
-
-        #salary-box,
-        #attd-table {
-            zoom: 0.45 !important;
-        }
+@media print {
+    .hide-on-print {
+        display:none;
+    }
+    #salary-box, #attd-table {
+        zoom: 0.45 !important; 
     }
     }
+}
 </style>
 
 <table class="table table-bordered" id="attd-table">

@@ -36,8 +36,7 @@
     <table class="table table-bordered" style="zoom:0.9" id="salary-box">
         <tbody>
             <tr>
-                <td colspan="4" class="bg-light"><strong>Salary Details of {{ $salaryMonth }} 2025 for
-                        Employee:</strong> {{ $employee->name }}
+                <td colspan="4" class="bg-light"><strong>Salary Details of {{$salaryMonth}} 2025 for Employee:</strong> {{ $employee->name }}
                 </td>
             </tr>
             <tr>
@@ -66,8 +65,7 @@
                 </td>
                 <td><strong>Late Minutes</strong><br>{{ number_format($lateMinutes, 2) }} mins</td>
 
-                <td class="hide-on-print"><strong>Late Cut</strong><br>PKR
-                    {{ number_format(($lateMinutes / 60) * $salaryPerHour, 0) }}</td>
+                <td class="hide-on-print"><strong>Late Cut</strong><br>PKR {{ number_format(($lateMinutes / 60) * $salaryPerHour, 0) }}</td>
                 {{-- <td><strong>Initial Salary</strong><br>PKR
                     {{ number_format($actualSalaryEarned, 0) }}</td> --}}
                 <td><strong>ADV Deduction</strong><br>PKR
@@ -84,18 +82,15 @@
                 </td>
                 <td class="hide-on-print"><strong>Total Worked Days</strong><br>{{ $workedDays }} days</td>
                 <td class="hide-on-print"><strong>Holiday Over Mins</strong><br>{{ $holidayOverMins }} mins</td>
-                <td class="hide-on-print"><strong>Early In
-                        Mins</strong><br>{{ number_format(array_sum($earlyMinutes), 2) }} mins</td>
+                <td class="hide-on-print"><strong>Early In Mins</strong><br>{{ number_format(array_sum($earlyMinutes), 2) }} mins</td>
                 <td><strong>Early Out Mins</strong><br>{{ number_format(array_sum($earlyOutMinutes), 2) }} mins</td>
-                <td class="hide-on-print"><strong>Early Cut Amount</strong><br>PKR
-                    {{ number_format($earlyCutAmount, 2) }}</td>
-                <td class="hide-on-print"><strong>Over Minutes
-                        Auto</strong><br>{{ number_format(array_sum($overMinutesAuto), 2) }} mins</td>
+                <td class="hide-on-print"><strong>Early Cut Amount</strong><br>PKR {{ number_format($earlyCutAmount, 2) }}</td>
+                <!--<td class="hide-on-print"><strong>Over Minutes Auto</strong><br>{{ number_format(array_sum($overMinutesAuto), 2) }} mins</td>-->
                 <td class="table-success"><strong>Final Salary</strong><br>PKR
                     {{ number_format(max($actualSalaryEarned - $salary->advance_deducted - $salary->loan_deducted, 0), 2) }}
                 </td>
             </tr>
-
+        
         </tbody>
     </table>
 </div>

@@ -31,6 +31,7 @@ class AttendanceService
         $this->holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1;
         $this->overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;
         $this->isNightShift = Carbon::parse($this->shift->start_time)->greaterThan(Carbon::parse($this->shift->end_time));
+        $this->isContract = $employee->type->name == "Contract" ? true : false;
     }
 
     public function getGazatteHolidays($startDate, $endDate)
@@ -59,6 +60,43 @@ class AttendanceService
 
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
         $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances'],$gazetteHolidays);
+        
+        if ($this->isContract) {
+            // Daily minutes
+            $calculatedMinutes['dailyMinutes'] = array_map(function($val) {
+                return $val > 0 ? 720 : $val;
+            }, $calculatedMinutes['dailyMinutes']);
+            
+            // Early check-in minutes
+            $calculatedMinutes['earlyCheckinMinutes'] = array_fill(
+                0, 
+                count($calculatedMinutes['earlyCheckinMinutes']), 
+                0
+            );
+            
+            // Early check-out minutes
+            $calculatedMinutes['earlyCheckoutMinutes'] = array_fill(
+                0, 
+                count($calculatedMinutes['earlyCheckoutMinutes']), 
+                0
+            );
+            
+            // Early lateMinutes minutes
+            $calculatedMinutes['lateMinutes'] = array_fill(
+                0, 
+                count($calculatedMinutes['lateMinutes']), 
+                0
+            );
+            
+            // Early overMinutes minutes
+            $calculatedMinutes['overMinutes'] = array_fill(
+                0, 
+                count($calculatedMinutes['overMinutes']), 
+                0
+            );
+            
+        }
+      
 
         $missScanCount = $this->getMissScanCount($processedAttendances['groupedAttendances']);
         // dd($calculatedMinutes['totalHolidayMinutesWorked']);
@@ -109,7 +147,22 @@ class AttendanceService
             $calculatedMinutes['overMinutes']
         );
         
-        // dd($processedAttendances['groupedAttendances']);
+        $cappedLateMinutes = array_map(
+            function($value) {
+                if($this->shift->id == "12"){
+                    if($value > 60){
+                        return $value - 60;
+                    } else {
+                        return $value;
+                    }
+                } else {
+                    return $value;
+                }
+                
+            },
+            $calculatedMinutes['lateMinutes']
+        );
+      
         return [
             'employee' => $this->employee,
             
@@ -119,7 +172,7 @@ class AttendanceService
             'dailyMinutes' => $calculatedMinutes['dailyMinutes'],
             'earlyCheckinMinutes' => $calculatedMinutes['earlyCheckinMinutes'],
             'earlyCheckoutMinutes' => $calculatedMinutes['earlyCheckoutMinutes'],
-            'lateMinutes' => $calculatedMinutes['lateMinutes'],
+            'lateMinutes' => $cappedLateMinutes,
             'overMinutes' => $calculatedMinutes['overMinutes'],
             'overMinutesOfAutoShift' => $cappedOverMinutes,
             'totalMinutesWorked' => $calculatedMinutes['totalMinutesWorked'],

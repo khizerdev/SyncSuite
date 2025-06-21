@@ -209,7 +209,7 @@ class SalaryController extends Controller
                             $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
                             
                             $salaryData = array_merge($result,$salary);
-                            // dd($salaryData);
+                            dd($salaryData);
             
                             $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                             
@@ -283,6 +283,7 @@ class SalaryController extends Controller
     $currentMonth = intval($request->month);
     $currentYear = intval($request->year);
     $period = $request->period;
+    $depart = Department::find($departmentId);
 
     // Get employees belonging to the specified department
     $employees = Employee::where('department_id', $departmentId)->get();
@@ -295,8 +296,18 @@ class SalaryController extends Controller
     $timestamp = mktime(0, 0, 0, $currentMonth, 1, $currentYear);
     $month_name = date("F", $timestamp);
     $baseDate = Carbon::createFromDate($currentYear, $currentMonth, 1);
-    $startDate = $baseDate->copy()->startOfMonth();
-    $endDate = $baseDate->copy()->endOfMonth();
+    
+    if ($period === 'first_half') {
+            $startDate = $baseDate->copy()->startOfMonth();
+            $endDate = $baseDate->copy()->startOfMonth()->addDays(14);
+        } elseif ($period === 'second_half') {
+            $startDate = $baseDate->copy()->startOfMonth()->addDays(15);
+            $endDate = $baseDate->copy()->endOfMonth();
+        } else {
+            // full_month
+            $startDate = $baseDate->copy()->startOfMonth();
+            $endDate = $baseDate->copy()->endOfMonth();
+        }
 
     $results = [];
     
@@ -320,7 +331,7 @@ class SalaryController extends Controller
 
         $salaryCalculator = new SalaryService($employee, $attendance, $period, $currentMonth);
         $salaryComponent = $salaryCalculator->calculateSalary();
-        // dd($period);
+        // dd($salaryCalculator);
         
         $results[$employee->id] = [
             'employee' => $employee,
@@ -334,7 +345,7 @@ class SalaryController extends Controller
         return redirect()->back()->with('error', 'No valid payroll data found for this department');
     }
 
-    return view('pages.salary.by-depart', compact('results'));
+    return view('pages.salary.by-depart', compact('results','depart','period','currentMonth','currentYear'));
 }
     
 }
