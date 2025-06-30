@@ -10,31 +10,38 @@ use Dotenv\Exception\ValidationException;
 class ProductController extends Controller
 {
     public function store(StoreProductRequest $request)
-    {
-        try {
+{
+    try {
+        $validatedData = $request->validated();
 
-            $validatedData = $request->validated();
+        // Get the latest product to determine the next serial number
+        $latestProduct = Product::orderBy('id', 'desc')->first();
+        $nextId = $latestProduct ? $latestProduct->id + 1 : 1;
 
-            Product::create($validatedData);
+        // Format the serial number (PL-P001, PL-P002, etc.)
+        $serialNo = 'PL-P' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
 
-            return response()->json([
-                'message' => 'Product created successfully',
-            ], 200);
+        // Add the serial number to the validated data
+        $validatedData['serial_no'] = $serialNo;
 
-        } catch (ValidationException $e) {
+        $product = Product::create($validatedData);
 
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->getMessage(),
-            ], 422);
+        return response()->json([
+            'message' => 'Product created successfully',
+            'serial_no' => $serialNo,
+        ], 200);
 
-        } catch (\Exception $e) {
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $e->errors(),
+        ], 422);
 
-            return response()->json([
-                'message' => 'Failed to create product',
-                'error' => $e->getMessage(),
-            ], 500);
-
-        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Failed to create product',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 }
