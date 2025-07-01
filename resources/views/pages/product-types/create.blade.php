@@ -35,7 +35,7 @@
                                         <div class="form-group">
                                             <label for="material">Material</label>
                                             <select id="material" name="material_id" class="form-control" required>
-                                                <option></option>
+                                                <option value="">Select Material</option>
                                                 @foreach (App\Models\Material::all() as $item)
                                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                 @endforeach
@@ -45,11 +45,8 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="particular">Particular</label>
-                                            <select id="particular" name="particular_id" class="form-control" required>
-                                                <option></option>
-                                                {{-- @foreach (App\Models\Particular::all() as $item)
-                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach --}}
+                                            <select id="particular" name="particular_id" class="form-control" required readonly>
+                                                <option value="">Select Material first</option>
                                             </select>
                                         </div>
                                     </div>
@@ -71,31 +68,43 @@
 
 <script>
     $(document).ready(function() {
+        // Initialize the particular dropdown as readonly
+        $('#particular').prop('readonly', true);
+        
         $('#material').on('change', function() {
             var materialId = $(this).val();
+            var particularSelect = $('#particular');
+            const baseUrl = "{{ env('APP_URL') }}"
             if (materialId) {
                 $.ajax({
-                    url: '/getParticulars/' + materialId,
+                    url: `${baseUrl}/getParticulars/` + materialId,
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        console.log(data)
-                        $('#particular').empty();
-                        $('#particular').append(
-                            '<option value="">Select Particular</option>');
-                        $.each(data, function(key, value) {
-                            $('#particular').append('<option value="' + value
-                                .particular.id + '">' + value.particular.name +
-                                '</option>');
-                        });
+                        particularSelect.empty();
+                        particularSelect.append('<option value="">Select Particular</option>');
+                        
+                        if (data.length > 0) {
+                            particularSelect.prop('readonly', false);
+                            $.each(data, function(key, value) {
+                                particularSelect.append('<option value="' + value.particular.id + '">' + value.particular.name + '</option>');
+                            });
+                        } else {
+                            particularSelect.append('<option value="">No particulars available</option>');
+                            particularSelect.prop('readonly', true);
+                        }
                     },
                     error: function() {
+                        particularSelect.empty();
+                        particularSelect.append('<option value="">Error loading particulars</option>');
+                        particularSelect.prop('readonly', true);
                         console.error('Error fetching particulars.');
                     }
                 });
             } else {
-                $('#particular').empty();
-                $('#particular').append('<option value="">Select Rarticular</option>');
+                particularSelect.empty();
+                particularSelect.append('<option value="">Select Material first</option>');
+                particularSelect.prop('readonly', true);
             }
         });
     });

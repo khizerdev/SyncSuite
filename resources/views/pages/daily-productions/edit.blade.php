@@ -277,7 +277,7 @@
                                             <th>Design Code</th>
                                             <th>Color</th>
                                             <th>Lace Qty</th>
-                                            <th>Qty</th>
+                                            <th>Than Qty</th>
                                             <th>Rate</th>
                                             <th>Amount</th>
                                             <th>Stitch</th>

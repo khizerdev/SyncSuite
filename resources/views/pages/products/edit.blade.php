@@ -90,7 +90,7 @@
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="inventory_price">Opening Inventory Price</label>
+                                            <label for="inventory_price">Rate</label>
                                             <input type="text" id="inventory_price" name="inventory_price"
                                                 class="form-control" value="{{ $product->inventory_price }}">
                                         </div>

@@ -13,7 +13,7 @@
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ env('ASSET_URL') }}/assets/plugins/fontawesome-free/css/all.min.css">
-    <!-- Ionicons -->
+    <!-- Ionicons -->p
     {{-- <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> --}}
     <!-- Tempusdominus Bootstrap 4 -->
     {{-- <link rel="stylesheet"
@@ -124,7 +124,7 @@
                                     'route' => 'branches.index',
                                     'children' => [['title' => 'View', 'route' => 'branches.index']],
                                 ],
-                                [
+                                 [
                                     'title' => 'Department',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'departments.index',
@@ -171,7 +171,7 @@
                                     'route' => 'purchases.index',
                                     'children' => [
                                         ['title' => 'Purchase Order', 'route' => 'purchases.index'],
-                                        ['title' => 'Purchase Receipts', 'route' => 'purchase-receipts.index'],
+                                        ['title' => 'Purchase Received', 'route' => 'purchase-receipts.index'],
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
                                         ['title' => 'Inventory', 'route' => 'inventory.index'],
                                     ],
@@ -181,8 +181,8 @@
                                     'icon' => 'fas fa-circle',
                                     'route' => 'inward-receipts.index',
                                     'children' => [
-                                        ['title' => 'Inward Receipt', 'route' => 'inward-receipts.index'],
-                                        ['title' => 'Inward General', 'route' => 'inward-general.index'],
+                                        
+                                        ['title' => 'Gate Inward', 'route' => 'inward-general.index'],
                                     ],
                                 ],
                                 [
@@ -219,7 +219,7 @@
                                         ['title' => 'Miss Scan', 'route' => 'miss-scan.index'],
                                     ],
                                 ],
-
+                               
                                 [
                                     'title' => 'Shifts',
                                     'icon' => 'fas fa-circle',

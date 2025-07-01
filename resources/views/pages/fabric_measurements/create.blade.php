@@ -36,15 +36,15 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="design_stitch">Design Stitch</label>
-                                    <input type="text" name="design_stitch" class="form-control" required>
+                                    <input type="number" name="design_stitch" class="form-control" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="front_yarn">Front Yarn</label>
-                                    <input type="text" name="front_yarn" class="form-control">
+                                    <input type="number" name="front_yarn" class="form-control" >
                                 </div>
                                 <div class="form-group">
                                     <label for="back_yarn">Back Yarn</label>
-                                    <input type="text" name="back_yarn" class="form-control">
+                                    <input type="number" name="back_yarn" class="form-control" >
                                 </div>
                                 <div class="form-group">
                                     <label for="design_code">Design Code</label>

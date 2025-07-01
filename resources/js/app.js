@@ -2,7 +2,7 @@ import "./bootstrap";
 
 import { createApp } from "vue";
 
-import DashboardCounts from "./components/Dashboard/DashboardCounts.vue";
+import DashboardCounts from "./components/dashboard/DashboardCounts.vue";
 
 import InwardCreate from "./components/InwardGeneral/Create.vue";
 import InwardEdit from "./components/InwardGeneral/Edit.vue";
