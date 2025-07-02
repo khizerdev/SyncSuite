@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed, reactive, ref } from "vue";
+import { onMounted, computed, reactive, ref, watch } from "vue";
 import TypeModal from "./TypeModal.vue";
 import MaterialModal from "./MaterialModal.vue";
 import ParticularModal from "./ParticularModal.vue";
@@ -77,6 +77,35 @@ const getMaterials = async () => {
     console.error(error);
   }
 };
+
+const filteredMaterials = computed(() => {
+  if (!product.product_type_id) return [];
+  const selectedType = productTypes.find(type => type.id == product.product_type_id);
+  if (!selectedType || !selectedType.material_id) return [];
+  return materials.filter(mat => mat.id == selectedType.material_id);
+});
+
+watch(() => product.product_type_id, async (newVal) => {
+  if (newVal) {
+    const selectedType = productTypes.find(type => type.id == newVal);
+
+    if (selectedType && selectedType.material_id) {
+      product.material_id = selectedType.material_id;
+
+      // Fetch and auto-select first particular
+      await getParticulars();
+      if (particulars.length > 0) {
+        product.particular_id = particulars[0].particular.id;
+      } else {
+        product.particular_id = "";
+      }
+    } else {
+      product.material_id = "";
+      product.particular_id = "";
+      particulars.splice(0, particulars.length);
+    }
+  }
+});
 
 onMounted(() => {
   getDepartments();
@@ -209,7 +238,7 @@ const submitForm = async () => {
                     @change="getParticulars"
                   >
                     <option value="" disabled>Select Material</option>
-                    <option v-for="mat in materials" :key="mat.id" :value="mat.id">
+                    <option v-for="mat in filteredMaterials" :key="mat.id" :value="mat.id">
                       {{ mat.name }}
                     </option>
                   </select>
