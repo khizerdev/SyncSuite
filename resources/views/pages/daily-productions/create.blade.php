@@ -155,11 +155,6 @@
                 const searchTerm = this.value.trim();
                 duplicateError.classList.add('d-none');
 
-                // if (searchTerm.length < 2) {
-                //     resultsDiv.innerHTML = '';
-                //     return;
-                // }
-
                 debounceTimer = setTimeout(() => {
                     fetchSaleOrders(searchTerm);
                 }, 300);
@@ -240,118 +235,206 @@
             }
 
             function renderSelectedOrders() {
-                let html = '';
+    let html = '';
 
-                // First, collect all current needle values before re-rendering
-                const currentNeedleValues = {};
-                document.querySelectorAll('.selected-order').forEach(orderElement => {
-                    const orderId = orderElement.getAttribute('data-order-id');
-                    currentNeedleValues[orderId] = {};
+    // First, collect all current values before re-rendering
+    const currentValues = {};
+    document.querySelectorAll('.selected-order').forEach(orderElement => {
+        const orderId = orderElement.getAttribute('data-order-id');
+        currentValues[orderId] = {};
 
-                    orderElement.querySelectorAll('input[name^="saleorders"]').forEach(input => {
-                        if (input.name.includes('[needle]')) {
-                            // Extract the indices from the input name
-                            const matches = input.name.match(
-                                /saleorders\[(\d+)\]\[items\]\[(\d+)\]\[needle\]/);
-                            if (matches) {
-                                const orderIndex = matches[1];
-                                const itemIndex = matches[2];
-                                currentNeedleValues[orderId][itemIndex] = input.value;
-                            }
-                        }
-                    });
-                });
-
-                // Now render each order while preserving needle values
-                selectedOrders.forEach((order, orderIndex) => {
-                    html += `
-            <div class="card mb-3 selected-order" data-order-id="${order.id}">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Order #${order.id}</h5>
-                    <button type="button" class="btn btn-sm btn-danger remove-order" 
-                        data-order-id="${order.id}">
-                        Remove
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p class="mb-1"><strong>Customer:</strong> ${order.customer.name || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="mb-1"><strong>Delivery Date:</strong> ${order.delivery_date || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="mb-1"><strong>Status:</strong> ${order.order_status || 'N/A'}</p>
-                        </div>
-                    </div>
-                    
-                    <input type="hidden" name="saleorders[${orderIndex}][id]" value="${order.id}">
-                    
-                    <div class="table-responsive mt-3">
-                        <table class="table table-sm table-striped mb-0">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Design Code</th>
-                                    <th>Color</th>
-                                    <th>Lace Qty</th>
-                                    <th>Than Qty</th>
-                                    <th>Rate</th>
-                                    <th>Amount</th>
-                                    <th>Stitch</th>
-                                    <th>Total Stitch</th>
-                                    <th width="100px">Needle</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-
-                    // Add items for this order
-                    order.items.forEach((item, itemIndex) => {
-                        // Check if we have a saved value for this needle
-                        const savedValue = currentNeedleValues[order.id]?.[itemIndex] || '';
-
-                        html += `
-                                <tr>
-                                    <td>${item.design.design_code}</td>
-                                    <td>${item.color.title}</td>
-                                    <td>${item.lace_qty}</td>
-                                    <td>${item.qty}</td>
-                                    <td>${item.rate}</td>
-                                    <td>${item.amount}</td>
-                                    <td>${item.stitch}</td>
-                                    <td>${item.stitch * item.lace_qty}</td>
-                                    <td>
-                                        <input type="text" 
-                                               name="saleorders[${orderIndex}][items][${itemIndex}][needle]" 
-                                               class="form-control" 
-                                               placeholder="Needle" 
-                                               value="${savedValue}"
-                                               required>
-                                        <input type="hidden" 
-                                               name="saleorders[${orderIndex}][items][${itemIndex}][sale_order_item_id]" 
-                                               value="${item.id}">
-                                    </td>
-                                </tr>`;
-                    });
-
-                    html += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>`;
-                });
-
-                selectedDiv.innerHTML = html;
-
-                // Add event listeners to remove buttons
-                selectedDiv.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('remove-order')) {
-                        const orderId = e.target.getAttribute('data-order-id');
-                        removeSaleOrder(orderId);
-                    }
-                });
+        orderElement.querySelectorAll('input[name^="saleorders"]').forEach(input => {
+            if (input.name.includes('[needle]')) {
+                const matches = input.name.match(
+                    /saleorders\[(\d+)\]\[items\]\[(\d+)\]\[needle\]/);
+                if (matches) {
+                    const orderIndex = matches[1];
+                    const itemIndex = matches[2];
+                    currentValues[orderId][itemIndex] = currentValues[orderId][itemIndex] || {};
+                    currentValues[orderId][itemIndex].needle = input.value;
+                }
+            } else if (input.name.includes('[lace_qty]')) {
+                const matches = input.name.match(
+                    /saleorders\[(\d+)\]\[items\]\[(\d+)\]\[lace_qty\]/);
+                if (matches) {
+                    const orderIndex = matches[1];
+                    const itemIndex = matches[2];
+                    currentValues[orderId][itemIndex] = currentValues[orderId][itemIndex] || {};
+                    currentValues[orderId][itemIndex].lace_qty = input.value;
+                }
+            } else if (input.name.includes('[qty]')) {
+                const matches = input.name.match(
+                    /saleorders\[(\d+)\]\[items\]\[(\d+)\]\[qty\]/);
+                if (matches) {
+                    const orderIndex = matches[1];
+                    const itemIndex = matches[2];
+                    currentValues[orderId][itemIndex] = currentValues[orderId][itemIndex] || {};
+                    currentValues[orderId][itemIndex].qty = input.value;
+                }
             }
+        });
+    });
+
+    // Now render each order while preserving values
+    selectedOrders.forEach((order, orderIndex) => {
+        html += `
+<div class="card mb-3 selected-order" data-order-id="${order.id}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Order #${order.id}</h5>
+        <button type="button" class="btn btn-sm btn-danger remove-order" 
+            data-order-id="${order.id}">
+            Remove
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <p class="mb-1"><strong>Customer:</strong> ${order.customer.name || 'N/A'}</p>
+            </div>
+            <div class="col-md-4">
+                <p class="mb-1"><strong>Delivery Date:</strong> ${order.delivery_date || 'N/A'}</p>
+            </div>
+            <div class="col-md-4">
+                <p class="mb-1"><strong>Status:</strong> ${order.order_status || 'N/A'}</p>
+            </div>
+        </div>
+        
+        <input type="hidden" name="saleorders[${orderIndex}][id]" value="${order.id}">
+        
+        <div class="table-responsive mt-3">
+            <table class="table table-sm table-striped mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Design Code</th>
+                        <th>Color</th>
+                        <th>Lace Qty (Remaining/Total)</th>
+                        <th>Than Qty (Remaining/Total)</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <th>Stitch</th>
+                        <th>Total Stitch</th>
+                        <th width="100px">Needle</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        // Add items for this order
+        order.items.forEach((item, itemIndex) => {
+            // Get saved values if they exist
+            const savedValues = currentValues[order.id]?.[itemIndex] || {};
+            const savedNeedle = savedValues.needle || '';
+            const savedLaceQty = savedValues.lace_qty !== undefined ? savedValues.lace_qty : 0;
+            const savedQty = savedValues.qty !== undefined ? savedValues.qty : 0;
+
+            // Calculate remaining quantities
+            const totalLaceQty = item.lace_qty;
+            const totalQty = item.qty;
+            
+            // Get previously used quantities from the database
+            // This would need to be passed from the controller initially
+            const usedLaceQty = item.used_lace_qty || 0;
+            const usedQty = item.used_qty || 0;
+            
+            const remainingLaceQty = totalLaceQty - usedLaceQty;
+            const remainingQty = totalQty - usedQty;
+
+            // Calculate max values for this production
+            const maxLaceQty = remainingLaceQty;
+            const maxQty = remainingQty;
+
+            html += `
+                    <tr>
+                        <td>${item.design.design_code}</td>
+                        <td>${item.color.title}</td>
+                        <td>
+                            <div class="input-group">
+                                <input type="number" 
+                                       name="saleorders[${orderIndex}][items][${itemIndex}][lace_qty]" 
+                                       class="form-control lace-qty-input" 
+                                       min="0" 
+                                       max="${maxLaceQty}"
+                                       value="${savedLaceQty}"
+                                       ${maxLaceQty <= 0 ? 'disabled' : ''}>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">${remainingLaceQty}/${totalLaceQty}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <input type="number" 
+                                       name="saleorders[${orderIndex}][items][${itemIndex}][qty]" 
+                                       class="form-control qty-input" 
+                                       min="0" 
+                                       max="${maxQty}"
+                                       value="${savedQty}"
+                                       ${maxQty <= 0 ? 'disabled' : ''}>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">${remainingQty}/${totalQty}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${item.rate}</td>
+                        <td>${item.amount}</td>
+                        <td>${item.stitch}</td>
+                        <td>${item.stitch * item.lace_qty}</td>
+                        <td>
+                            <input type="text" 
+                                   name="saleorders[${orderIndex}][items][${itemIndex}][needle]" 
+                                   class="form-control" 
+                                   placeholder="Needle" 
+                                   value="${savedNeedle}"
+                                   required>
+                            <input type="hidden" 
+                                   name="saleorders[${orderIndex}][items][${itemIndex}][sale_order_item_id]" 
+                                   value="${item.id}">
+                        </td>
+                    </tr>`;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>`;
+    });
+
+    selectedDiv.innerHTML = html;
+
+    // Add event listeners to remove buttons
+    selectedDiv.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-order')) {
+            const orderId = e.target.getAttribute('data-order-id');
+            removeSaleOrder(orderId);
+        }
+    });
+
+    // Add validation for lace_qty and qty inputs
+    document.querySelectorAll('.lace-qty-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const value = parseInt(this.value) || 0;
+            
+            if (value > max) {
+                this.value = max;
+                alert(`Lace quantity cannot exceed remaining quantity (${max})`);
+            }
+        });
+    });
+
+    document.querySelectorAll('.qty-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const max = parseInt(this.getAttribute('max'));
+            const value = parseInt(this.value) || 0;
+            
+            if (value > max) {
+                this.value = max;
+                alert(`Quantity cannot exceed remaining quantity (${max})`);
+            }
+        });
+    });
+}
         });
     </script>
 @endsection

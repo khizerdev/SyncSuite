@@ -9,12 +9,7 @@ class DailyProductionItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'daily_production_id',
-        'sale_order_id',
-        'sale_order_item_id',
-        'needle',
-    ];
+    protected $guarded = [];
 
     public function dailyProduction()
     {

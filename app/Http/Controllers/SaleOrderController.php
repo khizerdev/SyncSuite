@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SaleOrder;
 use App\Models\Customer;
 use App\Models\SaleOrderItem;
+use App\Models\DailyProductionItem;
 use Illuminate\Http\Request;
 use DataTables;
 
@@ -145,24 +146,33 @@ class SaleOrderController extends Controller
         }
     }
 
-    public function search(Request $request)
-    {
-        $searchTerm = $request->input('q');
-        
-        $saleOrders = SaleOrder::with(['customer', 'items.design','items.color'])
-            ->where(function($query) use ($searchTerm) {
-                // Search by sale order ID
-                $query->where('id', 'like', "%{$searchTerm}%")
-                    // Or search by fabric design code in items
-                    ->orWhereHas('items.design', function($q) use ($searchTerm) {
-                        $q->where('design_code', 'like', "%{$searchTerm}%");
-                    });
-            })
-            ->withCount('items')
-            ->limit(10)
-            ->get();
-        
-        return response()->json($saleOrders);
-    }
+    // In your API controller
+public function search(Request $request)
+{
+    $query = $request->input('q');
+    
+    $saleOrders = SaleOrder::with(['customer', 'items.design', 'items.color'])
+        ->where(function($q) use ($query) {
+            $q->where('id', 'like', "%{$query}%")
+              ->orWhereHas('items.design', function($q) use ($query) {
+                  $q->where('design_code', 'like', "%{$query}%");
+              });
+        })
+        ->get()
+        ->map(function($order) {
+            $order->items->each(function($item) {
+                // Calculate used quantities
+                $used = DailyProductionItem::where('sale_order_item_id', $item->id)
+                    ->selectRaw('SUM(lace_qty) as total_lace_qty, SUM(than_qty) as total_than_qty')
+                    ->first();
+                
+                $item->used_lace_qty = $used->total_lace_qty ?? 0;
+                $item->used_qty = $used->total_than_qty ?? 0;
+            });
+            return $order;
+        });
+    
+    return response()->json($saleOrders);
+}
 
 }

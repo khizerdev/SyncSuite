@@ -46,56 +46,62 @@ class DailyProductionController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validate the request
-        $validated = $request->validate([
-            'shift_id' => 'required|exists:shifts,id',
-            'date' => 'required|date',
-            'machine_id' => 'required|exists:machines,id',
-            'current_stitch' => 'required|integer',
-            'description' => 'nullable|string',
-            'saleorders' => 'required|array',
-            'saleorders.*.id' => 'required|exists:sale_orders,id',
-            'saleorders.*.items' => 'required|array',
-            'saleorders.*.items.*.sale_order_item_id' => 'required|exists:sale_order_items,id',
-            'saleorders.*.items.*.needle' => 'required|string',
+{
+    
+    // Validate the request
+    $validated = $request->validate([
+        'shift_id' => 'required|exists:shifts,id',
+        'date' => 'required|date',
+        'machine_id' => 'required|exists:machines,id',
+        'current_stitch' => 'required|integer',
+        'description' => 'nullable|string',
+        'saleorders' => 'required|array',
+        'saleorders.*.id' => 'required|exists:sale_orders,id',
+        'saleorders.*.items' => 'required|array',
+        'saleorders.*.items.*.sale_order_item_id' => 'required|exists:sale_order_items,id',
+        'saleorders.*.items.*.needle' => 'required|string',
+        'saleorders.*.items.*.lace_qty' => 'required|integer|min:0',
+        'saleorders.*.items.*.qty' => 'required|integer|min:0',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        // Create the daily production record
+        $dailyProduction = DailyProduction::create([
+            'shift_id' => $validated['shift_id'],
+            'date' => $validated['date'],
+            'machine_id' => $validated['machine_id'],
+            'previous_stitch' => $request->previous_stitch,
+            'current_stitch' => $validated['current_stitch'],
+            'actual_stitch' => $request->actual_stitch,
+            'description' => $validated['description'],
         ]);
 
-        DB::beginTransaction();
-
-        try {
-            // Create the daily production record
-            $dailyProduction = DailyProduction::create([
-                'shift_id' => $validated['shift_id'],
-                'date' => $validated['date'],
-                'machine_id' => $validated['machine_id'],
-                'current_stitch' => $validated['current_stitch'],
-                'description' => $validated['description'],
-            ]);
-
-            // Create production items
-            foreach ($validated['saleorders'] as $saleOrderData) {
-                foreach ($saleOrderData['items'] as $item) {
-                    DailyProductionItem::create([
-                        'daily_production_id' => $dailyProduction->id,
-                        'sale_order_id' => $saleOrderData['id'],
-                        'sale_order_item_id' => $item['sale_order_item_id'],
-                        'needle' => $item['needle'],
-                    ]); 
-                }
+        // Create production items
+        foreach ($validated['saleorders'] as $saleOrderData) {
+            foreach ($saleOrderData['items'] as $item) {
+                DailyProductionItem::create([
+                    'daily_production_id' => $dailyProduction->id,
+                    'sale_order_id' => $saleOrderData['id'],
+                    'sale_order_item_id' => $item['sale_order_item_id'],
+                    'needle' => $item['needle'],
+                    'lace_qty' => $item['lace_qty'],
+                    'than_qty' => $item['qty'], // Note: 'qty' in request becomes 'than_qty' in DB
+                ]); 
             }
-
-            DB::commit();
-
-            return redirect()->route('daily-productions.index')
-                ->with('success', 'Daily production created successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            dd($e);
-            return back()->withInput()
-                ->with('error', 'Error creating daily production: ' . $e->getMessage());
         }
+
+        DB::commit();
+
+        return redirect()->route('daily-productions.index')
+            ->with('success', 'Daily production created successfully.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withInput()
+            ->with('error', 'Error creating daily production: ' . $e->getMessage());
     }
+}
 
 
     public function edit($id)
