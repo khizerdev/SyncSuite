@@ -82,33 +82,34 @@
                                     <thead>
                                         <tr>
                                             <th>Name</th>
+                                            <th>Designation</th>
+                                            <th>WD</th>
+                                            <th>Gross Salary</th>
+                                            <th>Allowance</th>
+                                            
                                             <th class="d-print-none">Month</th>
-                                            <!--<th>Period</th>-->
-                                            <th>Adv Deducted</th>
+                                            <th class="d-print-none">Adv Deducted</th>
+                                            <th>Deduction</th>
                                             <th class="d-print-none">EC AMT</th>
                                             <th class="d-print-none">EM (in)</th>
                                             <th class="d-print-none">EM (out)</th>
                                             <th class="d-print-none">Holidays</th>
-                                            <th>EWD</th>
-                                            <th>WD</th>
+                                            <th class="d-print-none">EWD</th>
                                             <th class="d-print-none">EWH</th>
                                             <th class="d-print-none">THW</th>
                                             <th class="d-print-none">HHW</th>
                                             <th class="d-print-none">AMT Per Hour</th>
-                                            <th>Paid Holiday AMT</th>
-                                            <th>Gazatte AMT</th>
-                                            <th>Holiday AMT</th>
                                             <th class="d-print-none">Holiday Ratio</th>
                                             <th class="d-print-none">OT Ratio</th>
                                             <th class="d-print-none">OT Hours</th>
                                             <th class="d-print-none">OT Minutes</th>
                                             <th class="d-print-none">Total Overtime Pay</th>
-                                            <th>Late Minutes</th>
+                                            <th class="d-print-none">Late Minutes</th>
                                             <th>Actual Salary Earned</th>
-                                            <th>Miss Deduct Days</th>
-                                            <th>Miss Amount</th>
-                                            <th>Holiday Over Minutes</th>
-                                            <th>Sandwich Deduction</th>
+                                            <th class="d-print-none">Miss Deduct Days</th>
+                                            <th class="d-print-none">Miss Amount</th>
+                                            <th class="d-print-none">Holiday Over Minutes</th>
+                                            <th class="d-print-none">Sandwich Deduction</th>
                                             <!--<th class="d-print-none">Over Minutes (Auto Shift)</th>-->
 
                                         </tr>
@@ -139,9 +140,27 @@
                                             @endphp
                                             <tr>
                                                 <td><strong>{{ $result['employee']->name }}</strong></td>
+                                                <td><strong>{{ $result['employee']->designation }}</strong></td>
+                                                <td class="text-center">{{ $result['totalWorkedDays'] }}</td>
+                                                
+                                                <td>{{ number_format($result['regularPay'], 2) }}</td>
+                                                <td class="text-right">
+                                                    
+                                                   {{ number_format(
+                                                    str_replace(',', '', $result['normalHolidayPay']) +
+                                                    str_replace(',', '', $result['gazattePay']) +
+                                                    str_replace(',', '', $result['holidayPay']) +
+                                                    str_replace(',', '', $result['totalOvertimePay']) +
+                                                    str_replace(',', '', $result['missAmount']),
+                                                    0
+                                                ) }}
+                                                
+                                                </td>
+                                                
                                                 <td class="d-print-none">{{ $month }}</td>
                                                 <!--<td>{{ $salary->period }}</td>-->
-                                                <td>{{ $salary->advance_deducted }}</td>
+                                                <td class="d-print-none">{{ $salary->advance_deducted }}</td>
+                                                <td>{{ $result['deduction'] + $salary->advance_deducted + $salary->loan_deducted }}</td>
                                                 <td class="text-right d-print-none">
                                                     {{ number_format($result['earlyOutCutAmount'], 2) }}</td>
                                                 <td class="text-right d-print-none">
@@ -153,17 +172,14 @@
                                                 <td class="d-print-none">
                                                     {{ !empty($result['holidays']) ? implode(', ', $result['holidays']) : 'No Holidays' }}
                                                 </td>
-                                                <td class="text-center">{{ $result['workingDays'] }}</td>
-                                                <td class="text-center">{{ $result['totalWorkedDays'] }}</td>
+                                                <td class="text-center d-print-none">{{ $result['workingDays'] }}</td>
                                                 <td class="text-center d-print-none">{{ $salary->expected_hours }}</td>
                                                 <td class="text-right d-print-none">{{ $result['totalHoursWorked'] }}</td>
                                                 <td class="text-right d-print-none">{{ $result['holidayHours'] }}</td>
                                                 <td class="text-right d-print-none">
                                                     {{ number_format($result['salaryPerHour'], 2) }}</td>
-                                                <td class="text-right">{{ number_format($result['normalHolidayPay'], 2) }}
-                                                </td>
-                                                <td class="text-right">{{ $result['gazattePay'] }}</td>
-                                                <td class="text-right">{{ $result['holidayPay'] }}</td>
+                                           
+
                                                 <td class="text-center d-print-none">{{ $salary->holiday_pay_ratio }}</td>
                                                 <td class="text-center d-print-none">{{ $salary->overtime_pay_ratio }}</td>
                                                 <td class="text-right d-print-none">{{ $salary->overtime_hours }}</td>
@@ -171,16 +187,16 @@
                                                 </td>
                                                 <td class="text-right d-print-none">
                                                     {{ number_format($result['totalOvertimePay'], 2) }}</td>
-                                                <td class="text-right">
+                                                <td class="text-right d-print-none">
                                                     {{ number_format(array_sum($attendance['lateMinutes']), 2) }}</td>
                                                 <td class="text-right">
                                                     <strong>{{ number_format($result['actualSalaryEarned'] - $salary->advance_deducted - $salary->loan_deducted, 2) }}</strong>
                                                 </td>
-                                                <td class="text-center">{{ $result['missDeductDays'] }}</td>
-                                                <td class="text-right">{{ number_format($result['missAmount'], 2) }}</td>
-                                                <td class="text-right">{{ number_format($result['holidayOverMins'], 2) }}
+                                                <td class="text-center d-print-none">{{ $result['missDeductDays'] }}</td>
+                                                <td class="text-right d-print-none">{{ number_format($result['missAmount'], 2) }}</td>
+                                                <td class="text-right d-print-none">{{ number_format($result['holidayOverMins'], 2) }}
                                                 </td>
-                                                <td class="text-right">{{ $result['sandwichDeduct'] }}</td>
+                                                <td class="text-right d-print-none">{{ $result['sandwichDeduct'] }}</td>
                                                 <!--<td class="text-right d-print-none">{{ number_format(array_sum($result['overMinutesOfAutoShift']), 2) }}</td>-->
 
                                             </tr>
@@ -195,30 +211,7 @@
         </div>
     </section>
 
-    <!-- Detail Modals -->
-    @foreach ($results as $item)
-        @php
-            $salary = $item['salary'];
-            $attendance = $item['attendance'];
-            $result = $item['salary_data'];
-
-            $months = [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-            ];
-            $month = $months[$salary->month - 1];
-        @endphp
-    @endforeach
+ 
 @endsection
 
 @section('script')
@@ -287,41 +280,11 @@
             $('#salaryDataTable_filter input').attr('placeholder', 'Search by employee name, month, etc...');
         });
 
-        // Function to print modal content
-        function printModal(modalId) {
-            var printContents = document.getElementById(modalId).querySelector('.modal-body').innerHTML;
-            var originalContents = document.body.innerHTML;
-
-            var printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-        <html>
-            <head>
-                <title>Salary Report Details</title>
-                <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    table { width: 100% !important; }
-                    .table td, .table th { padding: 8px; border: 1px solid #dee2e6; }
-                    @media print {
-                        .btn { display: none; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    ${printContents}
-                </div>
-            </body>
-        </html>
-    `);
-            printWindow.document.close();
-            printWindow.print();
-        }
 
         // Print all functionality
-        $('#printAllBtn').on('click', function() {
-            window.print();
-        });
+        // $('#printAllBtn').on('click', function() {
+        //     window.print();
+        // });
     </script>
 
     <style>

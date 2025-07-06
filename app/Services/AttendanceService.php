@@ -28,8 +28,8 @@ class AttendanceService
         $this->shift = $employee->timings;
         $this->holidays = array_map('trim', explode(',', $employee->type->holidays));
         // dd($this->holidays);
-        $this->holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 1;
-        $this->overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 1;
+        $this->holidayRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->holiday_ratio ?? 0;
+        $this->overTimeRatio = $employee->type->adjustment == 1 ? 0 : $employee->type->overtime_ratio ?? 0;
         $this->isNightShift = Carbon::parse($this->shift->start_time)->greaterThan(Carbon::parse($this->shift->end_time));
         $this->isContract = $employee->type->name == "Contract" ? true : false;
     }

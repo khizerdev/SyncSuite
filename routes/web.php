@@ -28,6 +28,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorPayableController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductGroupController;
+use App\Http\Controllers\ThanIssueController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -158,6 +159,8 @@ Route::middleware(['auth'])->group(function () {
      ->name('inventory.bulk-transfer');
         Route::get('/bulk/inventory', [InventoryController::class, 'bulk_transfer'])
      ->name('inventory.bulk_transfer');
+     
+        Route::resource('than-issues', ThanIssueController::class);
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {

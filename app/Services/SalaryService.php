@@ -203,6 +203,7 @@ class SalaryService
         }
 
         $perDayAmount = $this->employee->salary / $this->monthDays;
+        $sanwichDeductedAmount = 0;
         if ($sandWhichViolations > 0) {
             $sanwichDeductedAmount = $perDayAmount * $sandWhichViolations;
             $actualSalary -= $sanwichDeductedAmount;
@@ -223,9 +224,14 @@ class SalaryService
         // }
 
         // dd($this->attendanceData['workingDays']);
-        // dd($hoursPerDay);
+        // dd($regularPay);
+        
+        $deduction = $sanwichDeductedAmount;
+        
         return [
             'actualSalaryEarned' => $actualSalary,
+            'regularPay' => $regularPay,
+            'deduction' => $deduction,
             'salaryPerHour' => $salaryPerHour,
             'totalBaseSalary' => $this->employee->salary,
             'totalAdjustedSalary' => $actualSalary,

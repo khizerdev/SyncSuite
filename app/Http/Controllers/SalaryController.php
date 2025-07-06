@@ -209,7 +209,7 @@ class SalaryController extends Controller
                             $salary = $salaryService->calculateSalary($employee->id, $startDate, $endDate, $period, $currentMonth);
                             
                             $salaryData = array_merge($result,$salary);
-                            dd($salaryData);
+                            // dd($salaryData);
             
                             $advance = AdvanceSalary::where('employee_id', $employee->id)->where('is_paid', 0)->latest()->first();
                             
@@ -344,6 +344,7 @@ class SalaryController extends Controller
     if (empty($results)) {
         return redirect()->back()->with('error', 'No valid payroll data found for this department');
     }
+    
 
     return view('pages.salary.by-depart', compact('results','depart','period','currentMonth','currentYear'));
 }
