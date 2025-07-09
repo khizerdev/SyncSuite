@@ -8,7 +8,7 @@
                 <div class="col-md-12">
                     <div class="card card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title">Than Issue Create</h3>
+                            <h3 class="card-title">Than Create</h3>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('than-issues.store') }}" method="POST" id="thanIssueForm">

@@ -10,11 +10,11 @@
               <div class="card-header row align-items-center">
                 <div class="col-6">
                     
-                    <h3 class="card-title">Than Issues</h3>
+                    <h3 class="card-title">Than Create</h3>
                 </div>
                 <div class="col-6 text-right">
                     
-                    <a class="btn btn-primary" href="{{route('than-issues.create')}}">Add New Than Issue</a>
+                    <a class="btn btn-primary" href="{{route('than-issues.create')}}">Add New Than Create</a>
                 </div>
             </div>
 

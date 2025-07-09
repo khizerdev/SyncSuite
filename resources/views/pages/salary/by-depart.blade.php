@@ -121,31 +121,31 @@
                                             <th></th> <!-- Empty cell under Name -->
                                             <th></th> <!-- Empty cell under Name -->
                                             <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th>Late</th>
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th>Other deduct</th>
                                             <th>Advance</th>
                                             <th>Loan</th>
                                             <th></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
                                             <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
-                                            <th></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                            <th class="d-print-none"></th> <!-- Empty cell under Name -->
                                         </tr>
                                         @foreach ($results as $item)
                                             @php
@@ -175,17 +175,16 @@
                                                 <td><strong>{{ $result['employee']->designation }}</strong></td>
                                                 <td class="text-center">{{ $result['totalWorkedDays'] }}</td>
                                                 
-                                                <td>{{ number_format($result['regularPay'], 2) }}</td>
+                                                <td>{{ number_format($result['regularPay']+$result['missAmount'], 2) }}</td>
                                                 <td class="text-right">
                                                     
-                                                   {{ number_format(
-                                                    str_replace(',', '', $result['normalHolidayPay']) +
-                                                    str_replace(',', '', $result['gazattePay']) +
-                                                    str_replace(',', '', $result['holidayPay']) +
-                                                    str_replace(',', '', $result['totalOvertimePay']) +
-                                                    str_replace(',', '', $result['missAmount']),
-                                                    0
-                                                ) }}
+                                                  {{ number_format(
+    str_replace(',', '', $result['normalHolidayPay']) +
+    str_replace(',', '', $result['gazattePay']) +
+    str_replace(',', '', $result['holidayPay']) +
+    str_replace(',', '', $result['totalOvertimePay']),
+    0
+) }}
                                                 
                                                 </td>
                                                 
