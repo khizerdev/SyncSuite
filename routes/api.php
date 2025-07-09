@@ -57,3 +57,20 @@ Route::get('/get-previous-stitch/{machineId}', function ($machineId) {
         'previous_stitch' => $previousRecord ? $previousRecord->actual_stitch : 0
     ]);
 });
+
+Route::get('/daily-productions/search', function(Request $request) {
+    $query = $request->input('q');
+
+    $productions = DailyProduction::with(['items' => function($q) use ($query) {
+            $q->where('than_qty', '>', 0)
+              ->whereHas('saleOrder', function($q) use ($query) {
+                  $q->where('sale_no', 'like', "%$query%");
+              });
+        }])
+        ->whereHas('items.saleOrder', function($q) use ($query) {
+            $q->where('sale_no', 'like', "%$query%");
+        })
+        ->get();
+
+    return response()->json($productions);
+});

@@ -89,7 +89,7 @@
                                             
                                             <th class="d-print-none">Month</th>
                                             <th class="d-print-none">Adv Deducted</th>
-                                            <th>Deduction</th>
+                                            <th colspan="3">Deduction</th>
                                             <th class="d-print-none">EC AMT</th>
                                             <th class="d-print-none">EM (in)</th>
                                             <th class="d-print-none">EM (out)</th>
@@ -115,6 +115,38 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th>Late</th>
+                                            <th>Advance</th>
+                                            <th>Loan</th>
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                            <th></th> <!-- Empty cell under Name -->
+                                        </tr>
                                         @foreach ($results as $item)
                                             @php
 
@@ -160,7 +192,9 @@
                                                 <td class="d-print-none">{{ $month }}</td>
                                                 <!--<td>{{ $salary->period }}</td>-->
                                                 <td class="d-print-none">{{ $salary->advance_deducted }}</td>
-                                                <td>{{ $result['deduction'] + $salary->advance_deducted + $salary->loan_deducted }}</td>
+                                                <td>{{ number_format($result['deduction'] , 2) }}</td>
+                                                <td>{{ $salary->advance_deducted }}</td>
+                                                <td>{{ $salary->loan_deducted }}</td>
                                                 <td class="text-right d-print-none">
                                                     {{ number_format($result['earlyOutCutAmount'], 2) }}</td>
                                                 <td class="text-right d-print-none">

@@ -23,10 +23,9 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Date</th>
-                                <th>Product Group</th>
-                                <th>Job Type</th>
-                                <th>Department/Party</th>
+                                <th>Issue Date</th>
+                                <th>Serial No</th>
+                                <th>Remarks</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -101,28 +100,12 @@
                 }
             },
             { 
-                data: 'product_group.name', 
-                name: 'product_group.name',
-                render: function(data, type, row) {
-                    return data || 'N/A';
-                }
+                data: 'serial_no', 
+                name: 'serial_no',
             },
             { 
-                data: 'job_type', 
-                name: 'job_type',
-                render: function(data) {
-                    return data.charAt(0).toUpperCase() + data.slice(1);
-                }
-            },
-            { 
-                data: 'job_entity', 
-                name: 'job_entity',
-                render: function(data, type, row) {
-                    return row.job_type === 'department' 
-                        ? (row.department ? row.department.name : 'N/A')
-                        : (row.party ? row.party.name : 'N/A');
-                },
-                orderable: false
+                data: 'remarks', 
+                name: 'remarks',
             },
             { 
                 data: 'action', 
