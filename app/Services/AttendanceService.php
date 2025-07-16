@@ -195,9 +195,10 @@ class AttendanceService
             'missScanCount' => $missScanCount,
             // 'attendanceAccuracy' => (($processedAttendances['groupedAttendances'] - $missScanCount) / $processedAttendances['groupedAttendances']) * 100,
         
-            'workingDays' => $workingDays,
+            'workingDays' => $workingDays - $this->getAbsentCount($processedAttendances['groupedAttendances']),
             'monthDays' => $monthDays,
             'effectiveWorkingDays' => $workingDays - $holidayDays - count($gazetteHolidays),
+            'absentDays' => $this->getAbsentCount($processedAttendances['groupedAttendances']),
             'productivityRatio' => ($calculatedMinutes['totalMinutesWorked'] / 60) / ($workingDays * 8),
             'month' => $startDate instanceof Carbon ? $startDate->format('m') : Carbon::parse($startDate)->format('m'),
             'year' => $startDate instanceof Carbon ? $startDate->format('Y') : Carbon::parse($startDate)->format('Y'),
@@ -230,7 +231,7 @@ class AttendanceService
     }
 
     public function getMissScanCount($groupedAttendances){
-
+// dd($groupedAttendances);
         $missScanCount = 0;
         if (is_array($groupedAttendances)) {
             
@@ -255,6 +256,29 @@ class AttendanceService
 
         return $missScanCount;
     }
+    
+  public function getAbsentCount($groupedAttendances)
+{
+    $absentCount = 0;
+
+    if (is_array($groupedAttendances)) {
+        foreach ($groupedAttendances as $values) {
+
+            // Check if this single entry is an empty array
+            if (is_array($values) && empty($values)) {
+                $absentCount++;
+            }
+
+            // If values is not an array (unexpected structure), count as absent as well
+            if (!is_array($values)) {
+                $absentCount++;
+            }
+        }
+    }
+    
+    return $absentCount;
+}
+
 
     private function getUserInfo()
     {
@@ -300,7 +324,10 @@ class AttendanceService
             $date = $currentDate->format('Y-m-d');
             $groupedAttendances[$date] = [];
             
-            if (!in_array($currentDate->format('l'), $this->holidays) && !in_array(Carbon::parse($currentDate)->format('Y-m-d'),$gazatteDates)) {
+            // if (in_array($currentDate->format('l'), $this->holidays) || in_array(Carbon::parse($currentDate)->format('Y-m-d'),$gazatteDates)) {
+                $workingDays++;
+            // }
+            if (in_array($currentDate->format('l'), $this->holidays) || in_array(Carbon::parse($currentDate)->format('Y-m-d'),$gazatteDates)) {
                 $workingDays++;
             }
             if (in_array($currentDate->format('l'), $this->holidays)) {

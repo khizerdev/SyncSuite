@@ -198,6 +198,7 @@
                                         ['title' => 'Daily Production', 'route' => 'daily-productions.index'],
                                         ['title' => 'Product Group', 'route' => 'product-groups.index'],
                                         ['title' => 'Than Issue', 'route' => 'than-issues.index'],
+                                        ['title' => 'Than Supply', 'route' => 'than-supplies.index'],
                                     ],
                                 ],
                             ];

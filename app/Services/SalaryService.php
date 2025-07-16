@@ -242,7 +242,7 @@ class SalaryService
             // 'totalHoursWorked'          => $this->attendanceData['totalMinutesWorked'] / 60,
             'totalHoursWorked' => number_format($originalWorkingMinutes / 60, 2),
             'totalWorkingDays' => $this->attendanceData['workingDays'],
-            'totalWorkedDays' => $workedDays,
+            'totalWorkedDays' => $this->attendanceData['workingDays'],
             // 'totalPresentDays'          => $this->attendanceData['presentDays'],
             // 'totalAbsentDays'           => $this->attendanceData['workingDays'] - $this->attendanceData['presentDays'],
 

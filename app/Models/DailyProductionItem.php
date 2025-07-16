@@ -25,4 +25,9 @@ class DailyProductionItem extends Model
     {
         return $this->belongsTo(SaleOrderItem::class);
     }
+    
+    public function thanIssueItems()
+    {
+        return $this->hasMany(ThanIssueItem::class);
+    }
 }

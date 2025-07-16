@@ -23,7 +23,7 @@
                                         </div>
                                     </div>
                                     
-                                       <div class="col-md-12" id="product_group_id" >
+                                    <div class="col-md-12" id="product_group_id">
                                         <div class="form-group">
                                             <label for="product_group_id">Product Group</label>
                                             <select class="form-control" id="product_group_id" name="product_group_id" required>
@@ -59,57 +59,6 @@
                                         </div>
                                     </div>
                                     
-                                 
-
-                                    <!-- Job Type Section -->
-                                    <!--<div class="col-md-6 d-none">-->
-                                    <!--    <div class="form-group">-->
-                                    <!--        <label>Job Type</label>-->
-                                    <!--        <div>-->
-                                    <!--            <div class="form-check form-check-inline">-->
-                                    <!--                <input class="form-check-input" type="radio" name="job_type" id="job_type_department" -->
-                                    <!--                       value="department" {{ old('job_type') == 'department' ? 'checked' : '' }} required>-->
-                                    <!--                <label class="form-check-label" for="job_type_department">Department</label>-->
-                                    <!--            </div>-->
-                                    <!--            <div class="form-check form-check-inline">-->
-                                    <!--                <input class="form-check-input" type="radio" name="job_type" id="job_type_party" -->
-                                    <!--                       value="party" {{ old('job_type') == 'party' ? 'checked' : '' }}>-->
-                                    <!--                <label class="form-check-label" for="job_type_party">Party</label>-->
-                                    <!--            </div>-->
-                                    <!--        </div>-->
-                                    <!--    </div>-->
-                                    <!--</div>-->
-
-                                    <!--<div class="col-md-6 d-none" id="department_field" -->
-                                    <!--     style="{{ old('job_type') == 'department' ? '' : 'display: none;' }}">-->
-                                    <!--    <div class="form-group">-->
-                                    <!--        <label for="department_id">Department</label>-->
-                                    <!--        <select class="form-control" id="department_id" name="department_id">-->
-                                    <!--            <option value="">Select Department</option>-->
-                                    <!--            @foreach($departments as $department)-->
-                                    <!--                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>-->
-                                    <!--                    {{ $department->name }}-->
-                                    <!--                </option>-->
-                                    <!--            @endforeach-->
-                                    <!--        </select>-->
-                                    <!--    </div>-->
-                                    <!--</div>-->
-
-                                    <!--<div class="col-md-6 d-none" id="party_field" -->
-                                    <!--     style="{{ old('job_type') == 'party' ? '' : 'display: none;' }}">-->
-                                    <!--    <div class="form-group">-->
-                                    <!--        <label for="party_id">Party</label>-->
-                                    <!--        <select class="form-control" id="party_id" name="party_id">-->
-                                    <!--            <option value="">Select Party</option>-->
-                                    <!--            @foreach($parties as $party)-->
-                                    <!--                <option value="{{ $party->id }}" {{ old('party_id') == $party->id ? 'selected' : '' }}>-->
-                                    <!--                    {{ $party->name }}-->
-                                    <!--                </option>-->
-                                    <!--            @endforeach-->
-                                    <!--        </select>-->
-                                    <!--    </div>-->
-                                    <!--</div>-->
-
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="remarks">Remarks</label>
@@ -133,22 +82,46 @@
 @endsection
 
 @section('script')
-
-
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Toggle department/party fields based on job type selection
-        $('input[name="job_type"]').change(function() {
-            if ($(this).val() === 'department') {
-                $('#department_field').show();
-                $('#party_field').hide();
-                $('#party_id').val('');
-            } else {
-                $('#department_field').hide();
-                $('#party_field').show();
-                $('#department_id').val('');
+        // Get designs passed from controller
+        const designs = @json($designs ?? []);
+
+        // Initialize Select2 for design dropdowns
+        function initSelect2(element) {
+            $(element).select2({
+                placeholder: "Select Designs",
+                allowClear: true,
+                data: designs.map(design => ({
+                    id: design.id,
+                    text: design.design_code,
+                    description: design.description
+                })),
+                templateResult: formatDesign,
+                templateSelection: formatDesignSelection,
+                escapeMarkup: function (markup) { return markup; }
+            });
+        }
+
+        function formatDesign(design) {
+            if (design.loading) return design.text;
+            
+            var markup = "<div class='select2-result-design clearfix'>" +
+                "<div class='select2-result-design__title'>" + design.text + "</div>";
+            
+            if (design.description) {
+                markup += "<div class='select2-result-design__description'>" + design.description + "</div>";
             }
-        });
+            
+            markup += "</div>";
+            return markup;
+        }
+
+        function formatDesignSelection(design) {
+            return design.text;
+        }
 
         // Daily Production Search and Selection
         const searchInput = $('#production_search');
@@ -194,6 +167,7 @@
                     html += `<ul class="list-group mt-2">`;
                     
                     production.items.forEach(item => {
+                        console.log(item)
                         // Skip if already selected
                         const isSelected = selectedItems.some(i => i.parentId === item.id);
                         const itemClass = isSelected ? 'bg-light text-muted' : '';
@@ -201,8 +175,10 @@
                         html += `
                             <li class="list-group-item list-group-item-action ${itemClass}" 
                                 data-id="${item.id}"
-                                onclick="handleItemClick(${item.id}, '${item.sale_order_id}', ${item.than_qty}, this)">
+                                onclick="handleItemClick(${item.id}, '${item.sale_order_id}', ${item.than_qty}, this, '${item.design?.design_code || 'N/A'}', '${item.color?.title || 'N/A'}')">
                                 <strong>Sale Order #${item.sale_order_id}</strong><br>
+                                Design: ${item.design.design_code || 'N/A'}<br>
+                                Color: ${item.color.title || 'N/A'}<br>
                                 Than Qty: ${item.than_qty}
                                 ${isSelected ? '<span class="float-right text-success">✓ Selected</span>' : ''}
                             </li>`;
@@ -219,7 +195,7 @@
         }
 
         // Global click handler
-        window.handleItemClick = function(itemId, saleOrderId, thanQty, element) {
+        window.handleItemClick = function(itemId, saleOrderId, thanQty, element, designName, colorName) {
             // Check if already selected (using parentId to track the original item)
             const isSelected = selectedItems.some(item => item.parentId === itemId);
             
@@ -229,14 +205,25 @@
                 $(element).removeClass('bg-light text-muted');
                 $(element).find('.float-right').remove();
             } else {
-                // Add new items - one for each than_qty
-                for (let i = 1; i <= thanQty; i++) {
+                // Prompt user for number of items to include
+                const itemCount = prompt(`How many items do you want to include? (Max: ${thanQty})`, thanQty);
+                
+                if (itemCount === null) return; // User cancelled
+                
+                const count = parseInt(itemCount);
+                
+                if (count <= 0) return;
+                
+                // Add new items - one for each count
+                for (let i = 1; i <= count; i++) {
                     selectedItems.push({
                         id: `${itemId}-${i}`, // Unique ID for each row
                         parentId: itemId,     // Original item ID
                         sale_order_id: saleOrderId,
+                        design_name: designName,
+                        color_name: colorName,
                         than_qty: thanQty,
-                        sequence: i            // Track position (1 to than_qty)
+                        sequence: i            // Track position (1 to count)
                     });
                 }
                 $(element).addClass('bg-light text-muted');
@@ -259,9 +246,13 @@
                         <thead class="thead-light">
                             <tr>
                                 <th>#</th>
-                                <th>Sale Order</th>
-                                <th>Item Sequence</th>
-                                <th>Total Than Qty</th>
+                                <th>Sale #</th>
+                                <th>Design</th>
+                                <th>Color</th>
+                                <th>Designs</th>
+                                <th>Lace Qty</th>
+                                <th>Weight</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>`;
@@ -279,15 +270,34 @@
                     <tr>
                         <td>${index + 1}</td>
                         <td>${item.sale_order_id}</td>
-                        <td>Item ${item.sequence} of ${item.than_qty}</td>
-                        <td>${item.than_qty}
-                            <input type="hidden" name="daily_production_item_ids[]" value="${item.parentId}">
+                        <td>${item.design_name}</td>
+                        <td>${item.color_name}</td>
+                        <td>
+                            <select class="form-control design-select" name="designs[${item.id}][]" multiple="multiple" style="width: 100%;">
+                                <!-- Options will be loaded from controller data -->
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name="lace_qty[${item.id}]" value="${index}"  required step="0.01" min="0">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" name="weight[${item.id}]" value="${index}" required step="0.01" min="0">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSelectedItem(${item.parentId})">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>`;
             });
 
             html += `</tbody></table></div>`;
             selectedDiv.html(html);
+            
+            // Initialize Select2 for all design dropdowns with preloaded data
+            $('.design-select').each(function() {
+                initSelect2(this);
+            });
         }
 
         // Global remove function for all items with same parentId
@@ -309,5 +319,4 @@
         });
     });
 </script>
-
 @endsection

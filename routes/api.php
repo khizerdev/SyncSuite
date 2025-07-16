@@ -14,6 +14,7 @@ use App\Http\Controllers\ParticularController;
 use App\Http\Controllers\SaleOrderController;
 use App\Http\Controllers\ShiftTransferController;
 use App\Models\DailyProduction;
+use App\Models\ThanIssueItem;
 
 Route::get('/products/count', [ProductController::class, 'count']);
 Route::get('/departments', [ResourceController::class, 'getDepartments']);
@@ -61,16 +62,54 @@ Route::get('/get-previous-stitch/{machineId}', function ($machineId) {
 Route::get('/daily-productions/search', function(Request $request) {
     $query = $request->input('q');
 
-    $productions = DailyProduction::with(['items' => function($q) use ($query) {
+    $productions = DailyProduction::with([
+        'items' => function($q) use ($query) {
             $q->where('than_qty', '>', 0)
+              ->with(['saleOrderItem' => function($q) {
+                  $q->with(['design', 'color', 'saleOrder']);
+              }])
               ->whereHas('saleOrder', function($q) use ($query) {
                   $q->where('sale_no', 'like', "%$query%");
               });
-        }])
-        ->whereHas('items.saleOrder', function($q) use ($query) {
-            $q->where('sale_no', 'like', "%$query%");
-        })
-        ->get();
+        },
+        'machine',
+        'shift'
+    ])
+    ->whereHas('items.saleOrder', function($q) use ($query) {
+        $q->where('sale_no', 'like', "%$query%");
+    })
+    ->get()
+    ->map(function($production) {
+        return [
+            'id' => $production->id,
+            'date' => $production->date,
+            'machine' => $production->machine,
+            'shift' => $production->shift,
+            'items' => $production->items->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'sale_order_id' => $item->sale_order_id,
+                    'than_qty' => $item->than_qty,
+                    'design' => $item->saleOrderItem->design ?? null,
+                    'color' => $item->saleOrderItem->color ?? null,
+                    'saleOrder' => $item->saleOrderItem->saleOrder ?? null,
+                    'sale_order_no' => $item->saleOrder->sale_no ?? null
+                ];
+            })
+        ];
+    });
 
     return response()->json($productions);
+});
+
+Route::get('/then-issue/search', function(Request $request)
+{
+    $searchTerm = $request->input('search');
+    
+    $items = ThanIssueItem::query()
+        ->where('serial_no', 'LIKE', "%{$searchTerm}%")
+        
+        ->get();
+        
+    return response()->json($items);
 });

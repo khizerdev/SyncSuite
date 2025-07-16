@@ -14,7 +14,63 @@
                                 @csrf
 
                                 <div class="row">
-                                    
+                                    <div class="col-xs-12 col-md-4">
+                                        <div class="form-group">
+                                            <strong>Shift:</strong>
+                                            <select name="shift_id" class="form-control" required>
+                                                <option value="">Select Shift</option>
+                                                @foreach ($shifts as $shift)
+                                                    <option value="{{ $shift->id }}">{{ $shift->name }}
+                                                        ({{ $shift->start_time }} - {{ $shift->end_time }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-4">
+                                        <div class="form-group">
+                                            <strong>Date:</strong>
+                                            <input type="date" name="date" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-4">
+                                        <div class="form-group">
+                                            <strong>Machine:</strong>
+                                            <select name="machine_id" class="form-control" required>
+                                                <option value="">Select Machine</option>
+                                                @foreach ($machines as $machine)
+                                                    <option value="{{ $machine->id }}">{{ $machine->name }}
+                                                        ({{ $machine->model }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-4">
+                                        <div class="form-group">
+                                            <strong>Previous Stitch:</strong>
+                                            <input type="number" id="previous_stitch" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-4">
+                                        <div class="form-group">
+                                            <strong>Current Stitch:</strong>
+                                            <input type="number" name="current_stitch" id="current_stitch"
+                                                class="form-control" placeholder="Current Stitch" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-4">
+                                        <div class="form-group">
+                                            <strong>Actual Stitch:</strong>
+                                            <input type="number" id="actual_stitch" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="form-group">
+                                            <strong>Description:</strong>
+                                            <textarea class="form-control" style="height:150px" name="description" placeholder="Description"></textarea>
+                                        </div>
+                                    </div>
 
                                     <!-- Sale Orders Section -->
                                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -54,7 +110,35 @@
 @endsection
 
 @section('script')
-  
+    <script>
+        $(document).ready(function() {
+            const baseUrl = "{{ env('APP_URL') }}"
+            $('select[name="machine_id"]').change(function() {
+                var machineId = $(this).val();
+                if (machineId) {
+                    $.get(`${baseUrl}/api/get-previous-stitch/` + machineId, function(data) {
+                        $('#previous_stitch').val(data.previous_stitch || 0);
+                        calculateActualStitch();
+                    });
+                } else {
+                    $('#previous_stitch').val(0);
+                    calculateActualStitch();
+                }
+            });
+
+            // Calculate actual stitch when current stitch changes
+            $('#current_stitch').on('input', function() {
+                calculateActualStitch();
+            });
+
+            function calculateActualStitch() {
+                var previous = parseInt($('#previous_stitch').val()) || 0;
+                var current = parseInt($('#current_stitch').val()) || 0;
+                var actual = current - previous;
+                $('#actual_stitch').val(actual);
+            }
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -268,9 +352,8 @@
                                        name="saleorders[${orderIndex}][items][${itemIndex}][lace_qty]" 
                                        class="form-control lace-qty-input" 
                                        min="0" 
-                                       max="${maxLaceQty}"
                                        value="${savedLaceQty}"
-                                       ${maxLaceQty <= 0 ? 'disabled' : ''}>
+                                       >
                                 <div class="input-group-append">
                                     <span class="input-group-text">${remainingLaceQty}/${totalLaceQty}</span>
                                 </div>
@@ -282,9 +365,9 @@
                                        name="saleorders[${orderIndex}][items][${itemIndex}][qty]" 
                                        class="form-control qty-input" 
                                        min="0" 
-                                       max="${maxQty}"
                                        value="${savedQty}"
-                                       ${maxQty <= 0 ? 'disabled' : ''}>
+                                      
+                                       >
                                 <div class="input-group-append">
                                     <span class="input-group-text">${remainingQty}/${totalQty}</span>
                                 </div>
@@ -327,29 +410,29 @@
     });
 
     // Add validation for lace_qty and qty inputs
-    document.querySelectorAll('.lace-qty-input').forEach(input => {
-        input.addEventListener('change', function() {
-            const max = parseInt(this.getAttribute('max'));
-            const value = parseInt(this.value) || 0;
+    // document.querySelectorAll('.lace-qty-input').forEach(input => {
+    //     input.addEventListener('change', function() {
+    //         const max = parseInt(this.getAttribute('max'));
+    //         const value = parseInt(this.value) || 0;
             
-            if (value > max) {
-                this.value = max;
-                alert(`Lace quantity cannot exceed remaining quantity (${max})`);
-            }
-        });
-    });
+    //         if (value > max) {
+    //             this.value = max;
+    //             alert(`Lace quantity cannot exceed remaining quantity (${max})`);
+    //         }
+    //     });
+    // });
 
-    document.querySelectorAll('.qty-input').forEach(input => {
-        input.addEventListener('change', function() {
-            const max = parseInt(this.getAttribute('max'));
-            const value = parseInt(this.value) || 0;
+    // document.querySelectorAll('.qty-input').forEach(input => {
+    //     input.addEventListener('change', function() {
+    //         const max = parseInt(this.getAttribute('max'));
+    //         const value = parseInt(this.value) || 0;
             
-            if (value > max) {
-                this.value = max;
-                alert(`Quantity cannot exceed remaining quantity (${max})`);
-            }
-        });
-    });
+    //         if (value > max) {
+    //             this.value = max;
+    //             alert(`Quantity cannot exceed remaining quantity (${max})`);
+    //         }
+    //     });
+    // });
 }
         });
     </script>

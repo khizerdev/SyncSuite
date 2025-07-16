@@ -110,6 +110,7 @@
                                             <th class="d-print-none">Miss Amount</th>
                                             <th class="d-print-none">Holiday Over Minutes</th>
                                             <th class="d-print-none">Sandwich Deduction</th>
+                                            <th class="signature-cell">Employee Signature</th>
                                             <!--<th class="d-print-none">Over Minutes (Auto Shift)</th>-->
 
                                         </tr>
@@ -123,9 +124,9 @@
                                             <th></th> <!-- Empty cell under Name -->
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
-                                            <th>Other deduct</th>
                                             <th>Advance</th>
                                             <th>Loan</th>
+                                            <th>Other deduct</th>
                                             <th></th> <!-- Empty cell under Name -->
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
@@ -146,6 +147,7 @@
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
                                             <th class="d-print-none"></th> <!-- Empty cell under Name -->
+                                           
                                         </tr>
                                         @foreach ($results as $item)
                                             @php
@@ -191,9 +193,9 @@
                                                 <td class="d-print-none">{{ $month }}</td>
                                                 <!--<td>{{ $salary->period }}</td>-->
                                                 <td class="d-print-none">{{ $salary->advance_deducted }}</td>
-                                                <td>{{ number_format($result['deduction'] , 2) }}</td>
                                                 <td>{{ $salary->advance_deducted }}</td>
                                                 <td>{{ $salary->loan_deducted }}</td>
+                                                <td>{{ number_format($result['deduction'] , 2) }}</td>
                                                 <td class="text-right d-print-none">
                                                     {{ number_format($result['earlyOutCutAmount'], 2) }}</td>
                                                 <td class="text-right d-print-none">
@@ -230,6 +232,11 @@
                                                 <td class="text-right d-print-none">{{ number_format($result['holidayOverMins'], 2) }}
                                                 </td>
                                                 <td class="text-right d-print-none">{{ $result['sandwichDeduct'] }}</td>
+                                                 <td class="signature-cell">
+                            <div class="signature-box">
+                                
+                            </div>
+                        </td>
                                                 <!--<td class="text-right d-print-none">{{ number_format(array_sum($result['overMinutesOfAutoShift']), 2) }}</td>-->
 
                                             </tr>
@@ -321,6 +328,74 @@
     </script>
 
     <style>
+     /* Custom styles for signature boxes and increased row height */
+        .signature-cell {
+            width: 120px;
+            min-width: 120px;
+            text-align: center;
+            vertical-align: middle;
+            padding: 15px 8px !important;
+        }
+        
+        .signature-box {
+            border: 1px solid #333;
+            height: 40px;
+            width: 100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 10px;
+            padding: 2px;
+            background-color: #f9f9f9;
+        }
+        
+        /* Increase row height for all rows */
+        #salaryDataTable tbody tr {
+            height: 60px;
+        }
+        
+        #salaryDataTable tbody td {
+            padding: 15px 8px !important;
+            vertical-align: middle;
+        }
+        
+        #salaryDataTable thead th {
+            padding: 12px 8px !important;
+            vertical-align: middle;
+        }
+        
+        /* Print specific styles */
+        @media print {
+            .signature-box {
+                border: 1px solid #000 !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            #salaryDataTable tbody tr {
+                height: 70px !important;
+            }
+            
+            #salaryDataTable tbody td {
+                padding: 18px 8px !important;
+            }
+            
+            .signature-cell {
+                padding: 18px 8px !important;
+            }
+        }
+        
+        /* Make table responsive */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        /* Ensure table maintains structure */
+        #salaryDataTable {
+            white-space: nowrap;
+        }
         @media print {
 
             .card-header,

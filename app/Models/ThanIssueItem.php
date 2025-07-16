@@ -9,13 +9,7 @@ class ThanIssueItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'serial_no',
-        'than_issue_id',
-        'daily_production_item_id',
-        'product_group_id',
-        'quantity'
-    ];
+    protected $guarded = [];
 
     protected static function boot()
     {
@@ -38,8 +32,21 @@ class ThanIssueItem extends Model
         return $this->belongsTo(ThanIssue::class);
     }
 
+    public function dailyProductionItem()
+    {
+        return $this->belongsTo(DailyProductionItem::class);
+    }
+
     public function productGroup()
     {
         return $this->belongsTo(ProductGroup::class);
     }
+    
+    public function fabricMeasurements()
+{
+    return $this->belongsToMany(FabricMeasurement::class, 'design_than_issue_item', 
+        'than_issue_item_id', // Foreign key on the pivot table for ThanIssueItem
+        'fabric_measurement_id' // Foreign key on the pivot table for FabricMeasurement
+    );
+}
 }

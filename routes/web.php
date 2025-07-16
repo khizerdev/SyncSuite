@@ -29,6 +29,7 @@ use App\Http\Controllers\VendorPayableController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductGroupController;
 use App\Http\Controllers\ThanIssueController;
+use App\Http\Controllers\ThanSupplyController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -161,6 +162,7 @@ Route::middleware(['auth'])->group(function () {
      ->name('inventory.bulk_transfer');
      
         Route::resource('than-issues', ThanIssueController::class);
+        Route::resource('than-supplies', ThanSupplyController::class);
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {
