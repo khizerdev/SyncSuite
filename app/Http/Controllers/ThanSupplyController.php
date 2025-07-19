@@ -51,6 +51,7 @@ class ThanSupplyController extends Controller
 
     public function store(Request $request)
 {
+    
     DB::beginTransaction();
     
     try {
@@ -66,11 +67,11 @@ class ThanSupplyController extends Controller
         
         // Create the than_supply record
         $thanSupply = ThanSupply::create([
-            'serial_no' => $serialNumber,
+            // 'serial_no' => $serialNumber,
             'issue_date' => $request->date,
-            // 'job_type' => $request->job_type,
-            // 'department_id' => $request->department_id,
-            // 'party_id' => $request->party_id,
+            'job_type' => $request->job_type,
+            'department_id' => $request->department_id,
+            'party_id' => $request->party_id,
             'remarks' => $request->remarks,
         ]);
         

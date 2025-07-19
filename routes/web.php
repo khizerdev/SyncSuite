@@ -30,6 +30,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProductGroupController;
 use App\Http\Controllers\ThanIssueController;
 use App\Http\Controllers\ThanSupplyController;
+use App\Http\Controllers\SupplyReceiptController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -163,6 +164,14 @@ Route::middleware(['auth'])->group(function () {
      
         Route::resource('than-issues', ThanIssueController::class);
         Route::resource('than-supplies', ThanSupplyController::class);
+        
+        Route::prefix('supply-receipts')->group(function() {
+            Route::get('/create', [SupplyReceiptController::class, 'create'])->name('supply-receipts.create');
+            Route::get('/index', [SupplyReceiptController::class, 'index'])->name('supply-receipts.index');
+            Route::get('/get-supplies', [SupplyReceiptController::class, 'getSupplies'])->name('supply-receipts.get-supplies');
+            Route::post('/', [SupplyReceiptController::class, 'store'])->name('supply-receipts.store');
+        });
+        
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {

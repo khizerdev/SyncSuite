@@ -36,4 +36,9 @@ class ThanSupply extends Model
     {
         return $this->belongsTo(Party::class);
     }
+    
+    public function receipts()
+    {
+        return $this->hasMany(SupplyReceipt::class, 'than_supply_id');
+    }
 }

@@ -199,6 +199,7 @@
                                         ['title' => 'Product Group', 'route' => 'product-groups.index'],
                                         ['title' => 'Than Issue', 'route' => 'than-issues.index'],
                                         ['title' => 'Than Supply', 'route' => 'than-supplies.index'],
+                                        ['title' => 'Receive Supply', 'route' => 'supply-receipts.index'],
                                     ],
                                 ],
                             ];
