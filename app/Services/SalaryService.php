@@ -279,37 +279,66 @@ class SalaryService
     }
 
     public function countSandwichRuleViolations($groupedAttendances, $gazatteHolidays)
-    {
-        $violations = 0;
-        $dates = array_keys($groupedAttendances);
-        $gazetteHolidayDates = $gazatteHolidays->pluck('holiday_date')->toArray();
+{
+    $violations = 0;
+    $dates = array_keys($groupedAttendances);
+    $gazetteHolidayDates = $gazatteHolidays->pluck('holiday_date')->toArray();
 
-        $gazatteDates = array_map(function ($item) {
-            return $item->toDateString();
-        }, $gazetteHolidayDates);
+    $gazatteDates = array_map(function ($item) {
+        return $item->toDateString();
+    }, $gazetteHolidayDates);
 
-        $counter = 0;
-        foreach ($dates as $date) {
-
-            $counter++;
-            if ($counter == 1) {
-                continue;
+    foreach ($dates as $date) {
+        $carbonDate = \Carbon\Carbon::parse($date);
+        
+        // Function to find the nearest non-holiday previous day with attendance
+        $findPreviousNonHoliday = function($date) use ($gazatteDates) {
+            $prevDay = \Carbon\Carbon::parse($date)->subDay();
+            while (true) {
+                $prevDayFormatted = $prevDay->format('Y-m-d');
+                $prevDayName = $prevDay->format('l');
+                
+                if (!in_array($prevDayName, $this->holidays) && !in_array($prevDayFormatted, $gazatteDates)) {
+                    return $prevDayFormatted;
+                }
+                $prevDay->subDay();
             }
-            // Check previous day
-            $prevDay = date('Y-m-d', strtotime($date . ' -1 day'));
-            $prevDayIsAbsent = isset($groupedAttendances[$prevDay]) && count($groupedAttendances[$prevDay]) < 1 && !in_array($prevDay, $gazatteDates) && !in_array(date('l', strtotime($prevDay)), $this->holidays);
+        };
 
-            // Check next day
-            $nextDay = date('Y-m-d', strtotime($date . ' +1 day'));
-            $nextDayIsAbsent = isset($groupedAttendances[$nextDay]) && count($groupedAttendances[$nextDay]) < 1 && !in_array($nextDay, $gazatteDates) && !in_array(date('l', strtotime($nextDay)), $this->holidays);
+        // Function to find the nearest non-holiday next day with attendance
+        $findNextNonHoliday = function($date) use ($gazatteDates) {
+            $nextDay = \Carbon\Carbon::parse($date)->addDay();
+            while (true) {
+                $nextDayFormatted = $nextDay->format('Y-m-d');
+                $nextDayName = $nextDay->format('l');
+                
+                if (!in_array($nextDayName, $this->holidays) && !in_array($nextDayFormatted, $gazatteDates)) {
+                    return $nextDayFormatted;
+                }
+                $nextDay->addDay();
+            }
+        };
 
-            // Check if the middle day (current day) is a holiday
-            $middleDayIsHoliday = in_array($date, $gazatteDates) || in_array(date('l', strtotime($date)), $this->holidays);
-            // If 3 consecutive days are absent and the middle day is a holiday, increment violations
-            if ($prevDayIsAbsent && $middleDayIsHoliday && $nextDayIsAbsent) {
-                $violations += 1;
+        // Check if current day is a holiday
+        $currentDayIsHoliday = in_array($carbonDate->format('Y-m-d'), $gazatteDates) || 
+                              in_array($carbonDate->format('l'), $this->holidays);
+
+        if ($currentDayIsHoliday) {
+            // Get the nearest non-holiday previous day
+            $prevNonHoliday = $findPreviousNonHoliday($date);
+            $prevDayIsAbsent = isset($groupedAttendances[$prevNonHoliday]) && 
+                              count($groupedAttendances[$prevNonHoliday]) < 1;
+
+            // Get the nearest non-holiday next day
+            $nextNonHoliday = $findNextNonHoliday($date);
+            $nextDayIsAbsent = isset($groupedAttendances[$nextNonHoliday]) && 
+                              count($groupedAttendances[$nextNonHoliday]) < 1;
+
+            if ($prevDayIsAbsent && $nextDayIsAbsent) {
+                $violations++;
             }
         }
-        return $violations;
     }
+    return $violations;
+}
 }

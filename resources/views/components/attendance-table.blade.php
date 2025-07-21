@@ -79,25 +79,49 @@
 
                 // Check for sandwich leave condition (only for holidays)
                 $isSandwichHoliday = false;
-                if (in_array($dayName, $holidays) || in_array($dateFormatted, $gazatteDatesArray)) {
-                    // Check previous day is absent
-                    $prevDay = \Carbon\Carbon::parse($date)->subDay()->format('Y-m-d');
-                    $prevDayIsAbsent =
-                        isset($groupedAttendances[$prevDay]) &&
-                        count($groupedAttendances[$prevDay]) < 1 &&
-                        !in_array(\Carbon\Carbon::parse($prevDay)->format('l'), $holidays) &&
-                        !in_array($prevDay, $gazatteDatesArray);
+if (in_array($dayName, $holidays) || in_array($dateFormatted, $gazatteDatesArray)) {
+    // Function to find the nearest non-holiday previous day
+    $findPreviousNonHoliday = function($date) use ($holidays, $gazatteDatesArray) {
+        $prevDay = \Carbon\Carbon::parse($date)->subDay();
+        while (true) {
+            $prevDayFormatted = $prevDay->format('Y-m-d');
+            $prevDayName = $prevDay->format('l');
+            
+            if (!in_array($prevDayName, $holidays) && !in_array($prevDayFormatted, $gazatteDatesArray)) {
+                return $prevDayFormatted;
+            }
+            $prevDay->subDay();
+        }
+    };
 
-                    // Check next day is absent
-                    $nextDay = \Carbon\Carbon::parse($date)->addDay()->format('Y-m-d');
-                    $nextDayIsAbsent =
-                        isset($groupedAttendances[$nextDay]) &&
-                        count($groupedAttendances[$nextDay]) < 1 &&
-                        !in_array(\Carbon\Carbon::parse($nextDay)->format('l'), $holidays) &&
-                        !in_array($nextDay, $gazatteDatesArray);
+    // Function to find the nearest non-holiday next day
+    $findNextNonHoliday = function($date) use ($holidays, $gazatteDatesArray) {
+        $nextDay = \Carbon\Carbon::parse($date)->addDay();
+        while (true) {
+            $nextDayFormatted = $nextDay->format('Y-m-d');
+            $nextDayName = $nextDay->format('l');
+            
+            if (!in_array($nextDayName, $holidays) && !in_array($nextDayFormatted, $gazatteDatesArray)) {
+                return $nextDayFormatted;
+            }
+            $nextDay->addDay();
+        }
+    };
 
-                    $isSandwichHoliday = $prevDayIsAbsent && $nextDayIsAbsent;
-                }
+    // Get the nearest non-holiday previous day
+    $prevNonHoliday = $findPreviousNonHoliday($date);
+    $prevDayIsAbsent =
+        isset($groupedAttendances[$prevNonHoliday]) &&
+        count($groupedAttendances[$prevNonHoliday]) < 1;
+
+    // Get the nearest non-holiday next day
+    $nextNonHoliday = $findNextNonHoliday($date);
+    $nextDayIsAbsent =
+        isset($groupedAttendances[$nextNonHoliday]) &&
+        count($groupedAttendances[$nextNonHoliday]) < 1;
+
+    $isSandwichHoliday = $prevDayIsAbsent && $nextDayIsAbsent;
+}
             @endphp
             <tr>
                 <td>{{ \Carbon\Carbon::parse($date)->format('l, M j, y') }}</td>
