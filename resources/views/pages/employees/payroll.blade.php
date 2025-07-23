@@ -43,7 +43,7 @@
 
                                 @endphp
                                 <x-salary-details :employee="$result['employee']" :salary-month="$month" :early-cut-amount="$result['earlyOutCutAmount']" :early-minutes="$attendance['earlyCheckinMinutes']" :early-out-minutes="$attendance['earlyCheckoutMinutes']"
-                                    :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']" :worked-days="$result['totalWorkedDays']"
+                                    :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']-$result['totalSandwichViolations']" :worked-days="$result['totalWorkedDays']"
                                     :total-expected-working-days="$salary->expected_hours" :total-hours-worked="$result['totalHoursWorked']" :total-holiday-hours-worked="$result['holidayHours']" :salary-per-hour="$result['salaryPerHour']"
                                     :paid-holiday-amount="$result['normalHolidayPay']" :gazatte-pay-amount="$result['gazattePay']" :holiday-pay-amount="$result['holidayPay']" :holiday-ratio="$salary->holiday_pay_ratio"
                                     :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="$result['totalOvertimeMinutes']" :total-overtime-pay="$result['totalOvertimePay']"

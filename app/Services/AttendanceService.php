@@ -57,6 +57,7 @@ class AttendanceService
         $workingDays = $dates['workingDays'];
         $monthDays = $dates['monthDays'];
         $holidayDays = $dates['holidayDays'];
+        $totalDays = $dates['totalDays'];
 
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
         $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances'],$gazetteHolidays);
@@ -162,6 +163,7 @@ class AttendanceService
             },
             $calculatedMinutes['lateMinutes']
         );
+        
       
         return [
             'employee' => $this->employee,
@@ -194,8 +196,8 @@ class AttendanceService
             'groupedAttendances' => $processedAttendances['groupedAttendances'],
             'missScanCount' => $missScanCount,
             // 'attendanceAccuracy' => (($processedAttendances['groupedAttendances'] - $missScanCount) / $processedAttendances['groupedAttendances']) * 100,
-        
-            'workingDays' => $workingDays - $this->getAbsentCount($processedAttendances['groupedAttendances']),
+            
+            'workingDays' => $totalDays - $this->getAbsentCount($processedAttendances['groupedAttendances']),
             'monthDays' => $monthDays,
             'effectiveWorkingDays' => $workingDays - $holidayDays - count($gazetteHolidays),
             'absentDays' => $this->getAbsentCount($processedAttendances['groupedAttendances']),
@@ -204,6 +206,8 @@ class AttendanceService
             'year' => $startDate instanceof Carbon ? $startDate->format('Y') : Carbon::parse($startDate)->format('Y'),
             
         ];
+        
+        
     }
 
     public function getShiftDetails($date)
@@ -263,7 +267,7 @@ class AttendanceService
 
     if (is_array($groupedAttendances)) {
         foreach ($groupedAttendances as $values) {
-
+            
             // Check if this single entry is an empty array
             if (is_array($values) && empty($values)) {
                 $absentCount++;
@@ -311,6 +315,7 @@ class AttendanceService
         $workingDays = 0;
         $holidayDays = 0;
         $monthDays = 0;
+        $totalDays = 0;
         // $currentDate = clone $startDate;
         $currentDate = Carbon::parse($startDate);
         
@@ -319,8 +324,8 @@ class AttendanceService
             // dd(Carbon::parse($gazatteDate["holiday_date"])->format('Y-m-d'));
             array_push($gazatteDates,Carbon::parse($gazatteDate["holiday_date"])->format('Y-m-d'));
         }
-
         while ($currentDate->lte($endDate)) {
+        $totalDays++;
             $date = $currentDate->format('Y-m-d');
             $groupedAttendances[$date] = [];
             
@@ -342,6 +347,7 @@ class AttendanceService
             'workingDays' => $workingDays,
             'monthDays' => $monthDays,
             'holidayDays' => $holidayDays,
+            'totalDays' => $totalDays,
         ];
     }
 
@@ -403,14 +409,14 @@ class AttendanceService
 
         if (!$currentCheckIn) {
             // Ensure this is not immediately after the last checkout
-            if ($lastCheckOut && $lastCheckOut->diffInMinutes($entryTime) <= 2) {
+            if ($lastCheckOut && $lastCheckOut->diffInMinutes($entryTime) <= 30) {
                 continue;
             }
             $currentCheckIn = $entryTime;
             continue;
         }
 
-        if ($currentCheckIn->diffInMinutes($entryTime) > 2) {
+        if ($currentCheckIn->diffInMinutes($entryTime) > 30) {
             // Treat as a checkout for the current check-in
             $nestedEntries[] = [
                 'checkIn' => $currentCheckIn,
