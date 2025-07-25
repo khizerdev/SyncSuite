@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductionPlanning;
+use App\Models\SaleOrderItem;
 use Illuminate\Http\Request;
 use DataTables;
 
@@ -11,7 +12,7 @@ class ProductionPlanningController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = ProductionPlanning::latest()->get();
+            $data = ProductionPlanning::with('machine')->latest()->get();
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
@@ -35,21 +36,49 @@ class ProductionPlanningController extends Controller
         return view('pages.production_plannings.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'date' => 'required|date',
-        ]);
+   public function store(Request $request)
+{
+    $request->validate([
+        'date' => 'required|date',
+        'machine_id' => 'required|exists:machines,id',
+        'sale_order_id' => 'required|exists:sale_orders,id',
+        'selected_item' => 'required|exists:sale_order_items,id',
+        'items' => 'required|array',
+        'items.*.planned_qty' => 'required|integer|min:1',
+        'items.*.planned_lace_qty' => 'required|integer|min:0',
+    ]);
 
-        ProductionPlanning::create([
-            'date' => $request->date,
-            'machine_id' => $request->machine_id,
-            'sale_order_id' => $request->saleorder_id,
-        ]);
+    // Get the selected item ID from either selected_item or sale_order_item_id
+    $itemId = $request->selected_item ?? $request->sale_order_item_id;
+    
+    // Get the sale order item to validate quantities
+    $saleOrderItem = SaleOrderItem::findOrFail($itemId);
 
-        return redirect()->route('production-plannings.index')
-                         ->with('success', 'Created successfully.');
+    // Get the planned quantities from the items array
+    $plannedQty = $request->items[$itemId]['planned_qty'];
+    $plannedLaceQty = $request->items[$itemId]['planned_lace_qty'];
+
+    // Validate against original quantities
+    if ($plannedQty > $saleOrderItem->qty) {
+        return back()->withErrors(['planned_qty' => 'Planned quantity cannot exceed original quantity ('.$saleOrderItem->qty.')']);
     }
+
+    if ($plannedLaceQty > $saleOrderItem->lace_qty) {
+        return back()->withErrors(['planned_lace_qty' => 'Planned lace quantity cannot exceed original quantity ('.$saleOrderItem->lace_qty.')']);
+    }
+
+    // Create the production planning record
+    ProductionPlanning::create([
+        'date' => $request->date,
+        'machine_id' => $request->machine_id,
+        'sale_order_id' => $request->sale_order_id,
+        'planned_qty' => $plannedQty,
+        'planned_lace_qty' => $plannedLaceQty,
+    ]);
+
+    return redirect()->route('production-plannings.index')
+                     ->with('success', 'Production planning created successfully.');
+}
 
     public function edit(ProductionPlanning $productionPlanning)
     {

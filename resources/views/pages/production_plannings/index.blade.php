@@ -99,8 +99,8 @@
                         name: 'date'
                     },
                     {
-                        data: 'machine_number',
-                        name: 'machine_number'
+                        data: 'machine.code',
+                        name: 'machine'
                     },
                     {
                         data: 'action',
