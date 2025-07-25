@@ -197,10 +197,9 @@ class AttendanceService
             'missScanCount' => $missScanCount,
             // 'attendanceAccuracy' => (($processedAttendances['groupedAttendances'] - $missScanCount) / $processedAttendances['groupedAttendances']) * 100,
             
-            'workingDays' => $totalDays - $this->getAbsentCount($processedAttendances['groupedAttendances']),
+            'workingDays' => $totalDays - $this->getAbsentCount($startDate, $endDate, $processedAttendances['groupedAttendances'], $gazetteHolidays),
             'monthDays' => $monthDays,
             'effectiveWorkingDays' => $workingDays - $holidayDays - count($gazetteHolidays),
-            'absentDays' => $this->getAbsentCount($processedAttendances['groupedAttendances']),
             'productivityRatio' => ($calculatedMinutes['totalMinutesWorked'] / 60) / ($workingDays * 8),
             'month' => $startDate instanceof Carbon ? $startDate->format('m') : Carbon::parse($startDate)->format('m'),
             'year' => $startDate instanceof Carbon ? $startDate->format('Y') : Carbon::parse($startDate)->format('Y'),
@@ -261,25 +260,57 @@ class AttendanceService
         return $missScanCount;
     }
     
-  public function getAbsentCount($groupedAttendances)
+//   public function getAbsentCount($groupedAttendances)
+// {
+    
+//     $absentCount = 0;
+
+//     if (is_array($groupedAttendances)) {
+//         foreach ($groupedAttendances as $values) {
+            
+//             // Check if this single entry is an empty array
+//             if (is_array($values) && empty($values)) {
+//                 $absentCount++;
+//             }
+
+//             // If values is not an array (unexpected structure), count as absent as well
+//             if (!is_array($values)) {
+//                 $absentCount++;
+//             }
+//         }
+//     }
+    
+//     return $absentCount;
+// }
+  public function getAbsentCount($startDate, $endDate, $groupedAttendances, $gazetteHolidays)
 {
     $absentCount = 0;
+    
+    // Prepare gazette holiday dates
+    $gazetteDates = array_map(function($holiday) {
+        return Carbon::parse($holiday["holiday_date"])->format('Y-m-d');
+    }, $gazetteHolidays->toArray());
 
-    if (is_array($groupedAttendances)) {
-        foreach ($groupedAttendances as $values) {
-            
-            // Check if this single entry is an empty array
-            if (is_array($values) && empty($values)) {
-                $absentCount++;
-            }
+    if (!is_array($groupedAttendances)) {
+        return 0;
+    }
 
-            // If values is not an array (unexpected structure), count as absent as well
-            if (!is_array($values)) {
-                $absentCount++;
-            }
+    foreach ($groupedAttendances as $date => $attendanceRecords) {
+        $currentDate = Carbon::parse($date);
+        
+        // Skip if it's a weekend holiday or gazette holiday
+        if (in_array($currentDate->format('l'), $this->holidays) || 
+            in_array($currentDate->format('Y-m-d'), $gazetteDates)) {
+            continue;
+        }
+
+        // Count as absent if no attendance records exist for this working day
+           
+        if (empty($attendanceRecords)) {
+            $absentCount++;
         }
     }
-    
+
     return $absentCount;
 }
 

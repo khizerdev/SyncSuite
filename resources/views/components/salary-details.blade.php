@@ -43,8 +43,12 @@
 
             </tr>
             <tr>
-
-                <td><strong>Total WD</strong><br>{{ $workingDays }} days</td>
+@php
+        // Extract the number before "Days" from $sandWich
+        preg_match('/(\d+)\s*Days/', $sandWich, $matches);
+        $sandwichCount = $matches[1] ?? 0;
+    @endphp
+                <td><strong>Total WD</strong><br>{{ $workingDays - $sandwichCount }} days</td>
                 <td><strong>Expected WH</strong><br>{{ $totalExpectedWorkingDays }} hours
                 </td>
                 <td><strong>Hours Worked</strong><br>{{ $totalHoursWorked }} hours
