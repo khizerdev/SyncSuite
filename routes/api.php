@@ -102,13 +102,16 @@ Route::get('/daily-productions/search', function(Request $request) {
     return response()->json($productions);
 });
 
-Route::get('/then-issue/search', function(Request $request)
-{
+Route::get('/then-issue/search', function(Request $request) {
     $searchTerm = $request->input('search');
     
     $items = ThanIssueItem::query()
-        ->where('serial_no', 'LIKE', "%{$searchTerm}%")
-        
+        ->where('than_issue_items.serial_no', 'LIKE', "%{$searchTerm}%")
+        ->orWhereHas('dailyProductionItem.saleOrder', function($query) use ($searchTerm) {
+            $query->where('sale_orders.sale_no', 'LIKE', "%{$searchTerm}%")
+                  ->where('sale_orders.order_status', 'open');
+        })
+        ->with(['dailyProductionItem.saleOrder'])
         ->get();
         
     return response()->json($items);
