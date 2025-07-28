@@ -11,8 +11,14 @@ class UserInfo extends Model
 
     protected $guarded = [];
 
+    
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'code', 'code');
+    }
+    
     public function attendances()
     {
-        return $this->hasMany(Attendance::class);
+        return $this->hasMany(Attendance::class, 'code', 'id');
     }
 }

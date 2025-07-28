@@ -220,6 +220,7 @@
                                         ['title' => 'Checkin/Checkout', 'route' => 'attendance.create'],
                                         ['title' => 'Time Correction', 'route' => 'attendance.correction'],
                                         ['title' => 'Miss Scan', 'route' => 'miss-scan.index'],
+                                        ['title' => 'Fix Dept Attd', 'route' => 'fixed-dept-attendance'],
                                     ],
                                 ],
                                

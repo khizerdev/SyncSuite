@@ -13,6 +13,7 @@ use App\Models\Attendance;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\UserInfo;
+use App\Models\Department;
 use App\Services\AttendanceService;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
@@ -430,7 +431,6 @@ class AttendanceController extends Controller
         return response()->json(['message' => 'No records found in the given date range', 'startDate' => $startDate, 'endDate' => $endDate], 404);
     }
 
-    // ❗ Always delete and recreate the user_infos table
     DB::table('user_infos')->truncate();
 
     $userInfoRecords = DB::connection('mysql2')->table('USERINFO')
@@ -476,6 +476,94 @@ class AttendanceController extends Controller
         'startDate' => $startDate,
         'endDate' => $endDate
     ]);
+}
+
+    public function fixedDeptAttendance()
+    {
+        $departments = Department::all();
+        return view('pages.attendance.fixed-dept', compact('departments'));
+    }
+    
+    public function generateFixedDeptReport(Request $request)
+{
+    $request->validate([
+        'department_id' => 'required|exists:departments,id',
+        'date' => 'required|date'
+    ]);
+
+    $departmentId = $request->department_id;
+    $date = $request->date;
+
+    $employees = Employee::where('department_id', $departmentId)
+        ->with(['userInfo'])
+        ->get();
+
+    $processedEmployees = [];
+    
+    foreach ($employees as $employee) {
+        $attendances = collect();
+        $checkIn = null;
+        $checkOut = null;
+        $workingHours = null;
+
+        if ($employee->userInfo) {
+            $attendances = Attendance::where('code', $employee->userInfo->id)
+                ->whereDate('datetime', $date)
+                ->orderBy('datetime', 'asc')
+                ->get();
+
+            if ($attendances->isNotEmpty()) {
+                $checkIn = $attendances->first()->datetime;
+                
+                if ($attendances->count() > 1) {
+                    $checkOut = $attendances->last()->datetime;
+                    $workingHours = \Carbon\Carbon::parse($checkIn)
+                        ->diff(\Carbon\Carbon::parse($checkOut))
+                        ->format('%H:%I');
+                }
+            }
+        }
+
+        $processedEmployees[] = [
+            'employee' => $employee,
+            'check_in' => $checkIn,
+            'check_out' => $checkOut,
+            'working_hours' => $workingHours,
+            'attendances' => $attendances,
+            'has_attendance' => $attendances->isNotEmpty()
+        ];
+    }
+
+    $departments = Department::all();
+    
+    return view('pages.attendance.fixed-dept', compact('departments', 'processedEmployees', 'departmentId', 'date'));
+}
+
+public function deleteDayEntries(Request $request)
+{
+    
+    $request->validate([
+        'employees' => 'required|array',
+        'employees.*' => 'exists:employees,id',
+        'date' => 'required|date'
+    ]);
+
+    // Get userInfo IDs for the selected employees
+    $userInfoIds = UserInfo::whereIn('code', 
+        Employee::whereIn('id', $request->employees)->pluck('code')
+    )->pluck('id');
+
+    // Delete all attendance records for these employees on this date
+    $deletedCount = Attendance::whereIn('code', $userInfoIds)
+        ->whereDate('datetime', $request->date)
+        ->delete();
+
+    return redirect()
+        ->route('fixed-dept-attendance', [
+            'department_id' => $request->department_id,
+            'date' => $request->date
+        ])
+        ->with('success', "Deleted $deletedCount attendance records for selected employees");
 }
 
 

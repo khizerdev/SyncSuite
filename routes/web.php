@@ -227,6 +227,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/miss-scan', [MissScanController::class, 'index'])->name('miss-scan.index');
         Route::post('/miss-scan/resolve', [MissScanController::class, 'resolve'])->name('miss-scan.resolve');
+        
+        Route::get('/fixed-dept-attendance', [App\Http\Controllers\AttendanceController::class, 'fixedDeptAttendance'])->name('fixed-dept-attendance');
+        Route::post('/fixed-dept-attendance', [App\Http\Controllers\AttendanceController::class, 'generateFixedDeptReport'])->name('generate-fixed-dept-report');
+        Route::post('/delete-day-entries', [App\Http\Controllers\AttendanceController::class, 'deleteDayEntries'])
+    ->name('delete-day-entries');
     });
 
     Route::middleware(['role:super-admin'])->group(function () {

@@ -10,5 +10,10 @@ class Attendance extends Model
     use HasFactory;
 
     protected $guarded = [];
+    
+    public function userInfo()
+    {
+        return $this->belongsTo(UserInfo::class, 'code', 'id');
+    }
 
 }
