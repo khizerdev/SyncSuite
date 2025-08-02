@@ -1,103 +1,92 @@
 @extends('layouts.app')
 
-
-
 @section('content')
 <div class="container-fluid">
-        <!-- start page title -->
+    <!-- start page title -->
     <div class="row">
-      <div class="col-12">
-          <div class="page-title-box d-flex align-items-center justify-content-between">
-              <h4 class="mb-0 font-size-18">Purchase Invoice</h4>
-          </div>
-      </div>
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <h4 class="mb-0 font-size-18">Purchase Invoice</h4>
+            </div>
+        </div>
     </div>
     <!-- end page title -->
 
     <div class="row">
         <div class="col-12">
-           <div class="card">
-                  <div class="card-body">
+            <div class="card">
+                <div class="card-body">
                     <div class="container-fluid">
-                      <div class="py-3 row">
-                        <div class="col-6">
-                          <h4 class="card-title">{{$vendor->name}} Reciepts </h4>
-                        </div>
-                        <div class="col-6 text-right ">
-                          <button class="create_invoice btn btn-primary" >Create Invoice</button>
-                        </div>
-                      </div>
-
-                      <div class="table-responsive">
-                        <table class="table data-table">
-                          <thead>
-                              <tr>
-                                  <th>Receipt</th>
-                                  <th>Date</th>
-                                  <th width="100px">Action</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                          </tbody>
-                      </table>
+                        <form id="receiptSelectionForm">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="receiptSelect">Select Receipt</label>
+                                        <select class="form-control" id="receiptSelect" name="receipt_id" required>
+                                            <option value="">-- Select Receipt --</option>
+                                            @foreach($receipts as $receipt)
+                                                <option value="{{ $receipt->id }}">
+                                                    {{ $receipt->serial_no }} ({{ $receipt->date->format('d-m-Y') }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="margin-top: 30px;">
+                                    <button type="button" class="btn btn-primary" id="createInvoiceBtn">
+                                        Create Invoice
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    </div>
-                  </div>
-              </div>
-          </div>
-      </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-  <form class="my_form d-none" action="{{route('purchase-invoices.add')}}" method="post" >
-    @csrf
-        <input type="hidden" name="vendor_id" value="{{$vendor->id}}" />
-        <input type="hidden" name="receipt_id" class="receipt_id" value="" />
-   </form>
+<!-- Add Form will be loaded here -->
+<div id="addFormContainer" class="d-none mt-4"></div>
+
 @endsection
+
 @section('script')
-      <script>
-        $(document).ready(function(){
-
-            var table = $('.data-table').DataTable({
-              processing: true,
-              serverSide: true,
-              pageLength: 100,
-              ajax: "{{route('purchase-invoice.create',$vendor->id) }}",
-              columns: [
-                          {
-                            data: 'serial_no', 
-                            name: 'serial_no'
-                          },
-                          { 
-                            data: 'date', 
-                            name: 'date'
-                          },
-                          { 
-                            data: 'action', 
-                            name: 'action', 
-                            orderable: false, 
-                            searchable: false
-                          },
-                        ]
-                  });
-
-
-                $('.create_invoice').click(() => {
-                
-                          var selected = [];
-                          $('tbody input:checked').each(function() {
-                              selected.push($(this).val());
-                          });
-                          if(selected.length != 0){
-
-                            $('.receipt_id').val(selected.toString());
-                            $('.my_form').trigger('submit');
-                            
-                          }else{
-                                toastr.warning('Please Select Receipt');
-                          }
+<script>
+    $(document).ready(function(){
+        $('#createInvoiceBtn').click(function() {
+            var receiptId = $('#receiptSelect').val();
+            
+            if(receiptId) {
+                // Load the add form via AJAX
+                $.ajax({
+                    url: "{{ route('purchase-invoices.add') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        receipt_id: receiptId
+                    },
+                    beforeSend: function() {
+                        $('#createInvoiceBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                    },
+                    success: function(response) {
+                        $('#addFormContainer').html(response).removeClass('d-none');
+                        $('html, body').animate({
+                            scrollTop: $('#addFormContainer').offset().top
+                        }, 500);
+                    },
+                    complete: function() {
+                        $('#createInvoiceBtn').prop('disabled', false).html('Create Invoice');
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON.error || 'An error occurred');
+                    }
                 });
-
-          });
-      </script>
+            } else {
+                toastr.warning('Please select a receipt');
+            }
+        });
+    });
+</script>
 @endsection

@@ -135,7 +135,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('purchase-receipts/view/{id}', [App\Http\Controllers\PurchaseReceiptController::class, 'view'])->name('purchase-receipts.view');
 
         Route::get('purchase-invoice', [App\Http\Controllers\PurchaseInvoiceController::class, 'index'])->name('purchase-invoice.index');
-        Route::get('purchase-invoice/create/{id}', [App\Http\Controllers\PurchaseInvoiceController::class, 'create'])->name('purchase-invoice.create');
+        Route::get('purchase-invoice/create', [App\Http\Controllers\PurchaseInvoiceController::class, 'create'])->name('purchase-invoice.create');
         Route::post('purchase-invoice', [App\Http\Controllers\PurchaseInvoiceController::class, 'store'])->name('purchase-invoice.store');
         Route::get('purchase-invoice/{id}/edit', [App\Http\Controllers\PurchaseInvoiceController::class, 'edit'])->name('purchase-invoice.edit');
         Route::put('purchase-invoice/{id}', [App\Http\Controllers\PurchaseInvoiceController::class, 'update'])->name('purchase-invoice.update');

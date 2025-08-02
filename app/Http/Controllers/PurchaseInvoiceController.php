@@ -21,140 +21,110 @@ class PurchaseInvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request )
-    {
-        
-        if ($request->ajax()) {
-            $data = Vendor::select('*');
-            return Datatables::of($data)
-                    ->addIndexColumn()
-                    ->addColumn('action', function($row){
-                        
-                        $create = "<a class='mr-1 btn btn-success' href=".route('purchase-invoice.create',$row->id)." >Create</a>";
-                        
-                        
-                        $manage = "<a href=".route('purchase-invoice.vendor_invoices',$row->id)." class='btn btn-primary px-1' >Manage</a>"; 
-                        
-                        $btn = $create.$manage;
-                        return $btn;
-                    
-                    })
-                    ->rawColumns(['action'])
-                    ->make(true);
-        }
-         return view('pages.purchase-invoices.vendors');
-
-        
+    public function index(Request $request)
+{
+    if ($request->ajax()) {
+        $data = PurchaseInvoice::select('*');
+        return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    $view = "<a href=".route('purchase-invoice.view', $row->id)." class='btn btn-info mr-1'>View</a>";
+                    $edit = "<a href=".route('purchase-invoice.edit', $row->id)." class='btn btn-warning mr-1'>Edit</a>";
+                    return $view.$edit;
+                })
+                ->editColumn('date', function($row) {
+                    return \Carbon\Carbon::parse($row->date)->format('d-m-Y');
+                })
+                ->editColumn('due_date', function($row) {
+                    return $row->due_date ? \Carbon\Carbon::parse($row->due_date)->format('d-m-Y') : 'N/A';
+                })
+                ->editColumn('cartage', function($row) {
+                    return number_format($row->cartage, 2);
+                })
+                ->rawColumns(['action'])
+                ->make(true);
     }
+    return view('pages.purchase-invoices.index');
+}
 
 
  
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request,$id)
-    {   
+   public function create()
+{
+    // Get receipts that have items not present in purchase_invoice_items
+    $receipts = PurchaseReceipt::whereHas('items', function($query) {
+        $query->whereNotIn('id', function($subQuery) {
+            $subQuery->select('receipt_item_id')
+                    ->from('purchase_invoice_items');
+        });
+    })->get();
 
-        $vendor = Vendor::find($id);
-        if($request->ajax()){
-        
-               $vendor = Vendor::find($id);
-               $purchases = Purchase::where('vendor_id',$id)->get();
-                
-               $data = [];
-               foreach ($purchases as $purchase){
-                  if($purchase->receipt){
-                      foreach($purchase->receipt->items as $purchaseItem){
-                        if($purchaseItem->invoice == false){
-                            array_push($data,$purchase->receipt->id);     
-                        }
-                      }
-                  }
-               }
-                
-                $receipt = PurchaseReceipt::whereIn('id',$data);
+    return view('pages.purchase-invoices.create', compact('receipts'));
+}
 
-                return Datatables::of($receipt)
-                ->addIndexColumn()
-                ->addColumn('date', function($row){
-                    
-                    $btn = $row->created_at->format('M-d-Y');
-                    return $btn;
-                })
-                ->addColumn('action', function($row){
-                    
-                    $btn = "<input class='invoice_checks form-control' type='checkbox' value='".$row['id']."' />";
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
+public function add(Request $request)
+{   
+    $request->validate([
+        'receipt_id' => 'required|exists:purchase_receipts,id'
+    ]);
 
-        return view('pages.purchase-invoices.create',compact('vendor'));
+    // Get receipt with items that haven't been invoiced
+    $receipt = PurchaseReceipt::with(['items' => function($query) {
+        $query->whereNotIn('id', function($subQuery) {
+            $subQuery->select('receipt_item_id')
+                    ->from('purchase_invoice_items');
+        });
+    }])->findOrFail($request->receipt_id);
+
+    if($receipt->items->isEmpty()) {
+        return response()->json(['error' => 'All items in this receipt have already been invoiced'], 400);
     }
+
+    return view('pages.purchase-invoices.add', ['receipts' => collect([$receipt])])->render();
+}
+
+// store method remains the same as before
+
+public function store(Request $request)
+{
+    $request->validate([
+        'date' => 'required',
+        'receipt_id' => 'required|exists:purchase_receipts,id'
+    ]);
     
+    $date = Carbon::createFromFormat('Y-m-d', $request->date);
+    $last = PurchaseInvoice::whereYear('date', $date->format('Y'))
+                          ->whereMonth('date', $date->format('m'))
+                          ->orderBy('serial', 'DESC')
+                          ->first();
     
-      /**
-     * Show the form for creating a new resource.
-     */
-    public function add(Request $request)
-    {   
-        if(! $request->has('receipt_id')){
-            return back()->with('error','receipt Not Found');
-        }
-        
-        if(! $request->has('vendor_id')){
-            return back()->with('error','Vendor Not Found');
-        }
-         
-        $receipt = explode(',',$request->receipt_id);
-        $vendor =  Vendor::find($request->vendor_id);
-        $receipts = PurchaseReceipt::whereIn('id',$receipt)->get(); 
-         
-      return view('pages.purchase-invoices.add',compact('receipts','vendor'));
-    }
-
-
-      /**
-     * Show the form for creating a new resource.
-     */
-    public function store(Request $request)
-    {
-        
-         $request->validate([
-            'date' => 'required',
+    $serial = ($last) ? $last->serial + 1 : 1;
+    $serialNo = 'PI-'.$date->format('ym').str_pad($serial, 3, '0', STR_PAD_LEFT);
+    
+    // Create the invoice
+    $invoice = PurchaseInvoice::create([
+        "serial_no" => $serialNo,
+        "serial" => $serial,
+        'due_date' => $request->due_date,
+        'date' => $request->date,
+        'cartage' => $request->cartge,
+    ]);
+     
+    // Add items to the invoice
+    foreach ($request->items as $item) {
+        PurchaseInvoiceItems::create([
+            "gst" => $item['gst'],
+            "receipt_item_id" => $item['id'],
+            "invoice_id" => $invoice->id,
         ]);
-        
-        $date = Carbon::createFromFormat('Y-m-d',$request->date);
-        $last = PurchaseInvoice::whereYear('date', date($date->format('Y')))->whereMonth('date',date($date->format('m')))->orderBy('serial', 'DESC')->first();
-        if($last == null){
-            $last = 1;
-        }else{
-            $last = $last->serial + 1;
-        }
-        
-        $serial = str_pad(intval($last), 3, '0', STR_PAD_LEFT);
-        $date = $date->format('ym');
-        $serial_no = 'PI-'.$date.$serial;
-        
-        $invoice = PurchaseInvoice::create([
-            "serial_no" => $serial_no,
-            "serial" => $last,
-            'due_date' => $request->due_date,
-            'date' => $request->date,
-            'cartage' => $request->cartge,
-        ]);
-         
-         foreach ($request->items as $rr) {
-             PurchaseInvoiceItems::create([
-              "gst" => $rr['gst'],
-              "receipt_item_id" => $rr['id'],
-              "invoice_id" => $invoice->id,
-             ]);
-         }
-         
-         return redirect()->route('purchase-invoice.view',$invoice->id)->with('success','Purchase Invoice Generated');
     }
+     
+    return redirect()->route('pages.purchase-invoice.index', $invoice->id)
+                    ->with('success', 'Purchase Invoice Generated');
+}
 
 
     public function vendor_invoices(Request $request,$id)
