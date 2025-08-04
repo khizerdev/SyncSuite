@@ -9,17 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'department_id',
-        'product_type_id',
-        'material_id',
-        'particular_id',
-        'qty',
-        'inventory_price',
-        'total_price',
-        'min_qty_limit',
-    ];
+    protected $guarded = [ ];
 
     public function Department()
     {
