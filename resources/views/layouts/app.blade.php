@@ -174,6 +174,7 @@
                                         ['title' => 'Purchase Received', 'route' => 'purchase-receipts.index'],
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
                                         ['title' => 'Inventory', 'route' => 'inventory.index'],
+                                        ['title' => 'ERP Departments', 'route' => 'erp-departments.index'],
                                     ],
                                 ],
                                 [
@@ -181,7 +182,6 @@
                                     'icon' => 'fas fa-circle',
                                     'route' => 'inward-receipts.index',
                                     'children' => [
-                                        
                                         ['title' => 'Gate Inward', 'route' => 'inward-general.index'],
                                     ],
                                 ],

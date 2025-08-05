@@ -31,6 +31,7 @@ use App\Http\Controllers\ProductGroupController;
 use App\Http\Controllers\ThanIssueController;
 use App\Http\Controllers\ThanSupplyController;
 use App\Http\Controllers\SupplyReceiptController;
+use App\Http\Controllers\ErpDepartmentController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -172,6 +173,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [SupplyReceiptController::class, 'store'])->name('supply-receipts.store');
         });
         
+        Route::resource('erp-departments', ErpDepartmentController::class);
+        Route::get('erp-departments-data', [ErpDepartmentController::class, 'getDepartments'])->name('erp-departments.data');
+        
     });
 
     Route::middleware(['role:super-admin|hr'])->group(function () {
@@ -227,6 +231,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/miss-scan', [MissScanController::class, 'index'])->name('miss-scan.index');
         Route::post('/miss-scan/resolve', [MissScanController::class, 'resolve'])->name('miss-scan.resolve');
+        
         
         Route::get('/fixed-dept-attendance', [App\Http\Controllers\AttendanceController::class, 'fixedDeptAttendance'])->name('fixed-dept-attendance');
         Route::post('/fixed-dept-attendance', [App\Http\Controllers\AttendanceController::class, 'generateFixedDeptReport'])->name('generate-fixed-dept-report');
