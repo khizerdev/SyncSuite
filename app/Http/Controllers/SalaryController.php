@@ -130,8 +130,27 @@ class SalaryController extends Controller
     {
         try {
             $salary = Salary::findOrFail($id);
+            
+            // Revert advance changes
+            if ($salary->advance_id) {
+                $advance = Advance::find($salary->advance_id);
+                if ($advance) {
+                    $advance->is_paid = 0; // Set back to unpaid
+                    $advance->save();
+                }
+            }
+            
+            // Revert loan changes
+            if ($salary->loan_id && $salary->loan_deducted > 0) {
+                $loan = Loan::find($salary->loan_id);
+                if ($loan) {
+                    $loan->paid -= $loan->month; // Subtract the paid amount
+                    $loan->save();
+                }
+            }
+            
             $salary->delete();
-    
+        
             return response()->json(['message' => 'Salary deleted successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
@@ -243,6 +262,8 @@ class SalaryController extends Controller
                                     'start_date' => $startDate,
                                     'end_date' => $endDate,
                                     'loan_deducted' => ($loan && $loanException) ? 0 : $loanInstallmentAmount,
+                                    'loan_id' => ($loan && $loanException) ? null : $loan->id,
+                                    'advance_id' => $advance ? $advance->id : null,
                                 ];
                                 
                                 Salary::create($data);
