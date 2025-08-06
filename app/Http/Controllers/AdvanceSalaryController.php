@@ -52,9 +52,9 @@ class AdvanceSalaryController extends Controller
                                         ->where('month', $currentMonth)
                                         ->first();
 
-        if ($existingRecord) {
-            return redirect()->back()->with('error', 'Already exists.');
-        }
+        // if ($existingRecord) {
+        //     return redirect()->back()->with('error', 'Already exists.');
+        // }
 
         $validatedData['month'] = $currentMonth; 
 

@@ -48,7 +48,7 @@
                                 <div class="form-group">
                                     <label for="amount">Amount</label>
                                     <input type="number" name="amount" id="amount" class="form-control"
-                                        value="{{ $advanceSalary->amount }}" max="{{ $advanceSalary->amount }}" required>
+                                        value="{{ $advanceSalary->amount }}" required>
                                 </div>
 
                                 <div class="form-group">
