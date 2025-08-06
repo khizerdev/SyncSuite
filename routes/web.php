@@ -32,6 +32,7 @@ use App\Http\Controllers\ThanIssueController;
 use App\Http\Controllers\ThanSupplyController;
 use App\Http\Controllers\SupplyReceiptController;
 use App\Http\Controllers\ErpDepartmentController;
+use App\Http\Controllers\SubErpDepartmentController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -173,8 +174,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [SupplyReceiptController::class, 'store'])->name('supply-receipts.store');
         });
         
+        Route::resource('sub-erp-departments', SubErpDepartmentController::class);
         Route::resource('erp-departments', ErpDepartmentController::class);
-        Route::get('erp-departments-data', [ErpDepartmentController::class, 'getDepartments'])->name('erp-departments.data');
         
     });
 

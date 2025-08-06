@@ -175,6 +175,7 @@
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
                                         ['title' => 'Inventory', 'route' => 'inventory.index'],
                                         ['title' => 'ERP Departments', 'route' => 'erp-departments.index'],
+                                        ['title' => 'Sub ERP Departments', 'route' => 'sub-erp-departments.index'],
                                     ],
                                 ],
                                 [

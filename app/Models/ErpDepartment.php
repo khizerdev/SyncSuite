@@ -13,4 +13,9 @@ class ErpDepartment extends Model
     use HasFactory;
 
     protected $fillable = ['title'];
+    
+    public function subDepartments()
+    {
+        return $this->hasMany(SubErpDepartment::class);
+    }
 }
