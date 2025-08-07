@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SubErpDepartment;
 use App\Models\ErpDepartment;
 use Illuminate\Http\Request;
+use DataTables;
 
 class SubErpDepartmentController extends Controller
 {
@@ -71,7 +72,7 @@ class SubErpDepartmentController extends Controller
     {
         try {
           
-            $erpDepartment->delete();
+            $subErpDepartment->delete();
     
             return response()->json(['message' => 'Deleted successfully'], 200);
         } catch (\Exception $e) {

@@ -117,42 +117,12 @@
                         </li>
 
                         @php
-                            $erpItems = [
-                                [
-                                    'title' => 'Branch',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'branches.index',
-                                    'children' => [['title' => 'View', 'route' => 'branches.index']],
-                                ],
-                                 [
-                                    'title' => 'Department',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'departments.index',
-                                    'children' => [['title' => 'View', 'route' => 'departments.index']],
-                                ],
-                                [
-                                    'title' => 'Customer',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'customers.index',
-                                    'children' => [['title' => 'View', 'route' => 'customers.index']],
-                                ],
+                            $purchaseItems = [
                                 [
                                     'title' => 'Vendor',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'vendors.index',
                                     'children' => [['title' => 'View', 'route' => 'vendors.index']],
-                                ],
-                                [
-                                    'title' => 'Manufacturer',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'manufacturers.index',
-                                    'children' => [['title' => 'View', 'route' => 'manufacturers.index']],
-                                ],
-                                [
-                                    'title' => 'Machine',
-                                    'icon' => 'fas fa-circle',
-                                    'route' => 'machines.index',
-                                    'children' => [['title' => 'View', 'route' => 'machines.index']],
                                 ],
                                 [
                                     'title' => 'Product',
@@ -177,7 +147,42 @@
                                         ['title' => 'ERP Departments', 'route' => 'erp-departments.index'],
                                         ['title' => 'Sub ERP Departments', 'route' => 'sub-erp-departments.index'],
                                     ],
+                                ]
+                            ];
+                            $erpItems = [
+                                [
+                                    'title' => 'Branch',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'branches.index',
+                                    'children' => [['title' => 'View', 'route' => 'branches.index']],
                                 ],
+                                 [
+                                    'title' => 'Department',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'departments.index',
+                                    'children' => [['title' => 'View', 'route' => 'departments.index']],
+                                ],
+                                [
+                                    'title' => 'Customer',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'customers.index',
+                                    'children' => [['title' => 'View', 'route' => 'customers.index']],
+                                ],
+                                
+                                [
+                                    'title' => 'Manufacturer',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'manufacturers.index',
+                                    'children' => [['title' => 'View', 'route' => 'manufacturers.index']],
+                                ],
+                                [
+                                    'title' => 'Machine',
+                                    'icon' => 'fas fa-circle',
+                                    'route' => 'machines.index',
+                                    'children' => [['title' => 'View', 'route' => 'machines.index']],
+                                ],
+                                
+                                
                                 [
                                     'title' => 'Inward',
                                     'icon' => 'fas fa-circle',
@@ -332,6 +337,12 @@
                             $navItems = [];
 
                             // Define parent menus
+                            $purchaseParent = [
+                                'title' => 'Purchase',
+                                'icon' => 'fas fa-cogs',
+                                'children' => $purchaseItems,
+                            ];
+                            
                             $erpParent = [
                                 'title' => 'ERP',
                                 'icon' => 'fas fa-cogs',
@@ -351,12 +362,14 @@
                             ];
 
                             // Role-based logic to determine which parent menus to include
-                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles)) {
-                                $navItems = [$erpParent, $hrParent, $superParent];
+                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles) && in_array('purchase', $authRoles)) {
+                                $navItems = [$erpParent, $hrParent, $superParent,$purchaseParent];
                             } elseif (in_array('erp', $authRoles)) {
                                 $navItems = [$erpParent];
                             } elseif (in_array('hr', $authRoles)) {
                                 $navItems = [$hrParent];
+                            } elseif (in_array('purchase', $authRoles)) {
+                                $navItems = [$purchaseParent];
                             }
 
                             // If the user has the "super" role, include the Super menu

@@ -14,7 +14,7 @@
                 </div>
                 <div class="col-6 text-right">
                     
-                    <a class="btn btn-primary" href="{{route('sub-erp-departments.create')}}">Add New Erp Department</a>
+                    <a class="btn btn-primary" href="{{route('sub-erp-departments.create')}}">Add New Sub Erp Department</a>
                 </div>
             </div>
 
@@ -24,6 +24,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Name</th>
+                                <th>Department</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -58,7 +59,7 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: baseUrl + '/erp-departments/' + id,
+                url: baseUrl + '/sub-erp-departments/' + id,
                 type: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -88,10 +89,11 @@
       var dataTable = $('#table').DataTable({
           processing: true,
           serverSide: true,
-          ajax: "{{ route('erp-departments.index') }}",
+          ajax: "{{ route('sub-erp-departments.index') }}",
           columns: [
               { data: 'id', name: 'id' },
               { data: 'title', name: 'title' },
+              { data: 'department.title', name: 'department' },
               { data: 'action', name: 'action', orderable: false, searchable: false }
           ]
       });

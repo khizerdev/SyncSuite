@@ -133,7 +133,7 @@ class SalaryController extends Controller
             
             // Revert advance changes
             if ($salary->advance_id) {
-                $advance = Advance::find($salary->advance_id);
+                $advance = AdvanceSalary::find($salary->advance_id);
                 if ($advance) {
                     $advance->is_paid = 0; // Set back to unpaid
                     $advance->save();
