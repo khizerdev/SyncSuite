@@ -94,4 +94,10 @@ class ErpDepartmentController extends Controller
             ->rawColumns(['action'])
             ->make(true);
     }
+    
+     // app/Http/Controllers/DepartmentController.php
+    public function getSubDepartments(ErpDepartment $department)
+    {
+        return response()->json($department->subDepartments);
+    }
 }

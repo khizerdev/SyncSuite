@@ -33,6 +33,7 @@ use App\Http\Controllers\ThanSupplyController;
 use App\Http\Controllers\SupplyReceiptController;
 use App\Http\Controllers\ErpDepartmentController;
 use App\Http\Controllers\SubErpDepartmentController;
+use App\Http\Controllers\MaterialController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('products/{id}/edit', [App\Http\Controllers\ProductController::class, 'edit'])->name('products.edit');
         Route::put('products/{id}', [App\Http\Controllers\ProductController::class, 'update'])->name('products.update');
         Route::get('products/{id}', [App\Http\Controllers\ProductController::class, 'destroy'])->name('products.destroy');
+        
+        
+        Route::get('/sub-departments/{department}', [ErpDepartmentController::class, 'getSubDepartments']);
+        Route::get('/materials-by-particular/{particular}', [MaterialController::class, 'getMaterial']);
         
         Route::get('purchases', [App\Http\Controllers\PurchaseController::class, 'index'])->name('purchases.index');
         Route::get('purchases/create', [App\Http\Controllers\PurchaseController::class, 'create'])->name('purchases.create');

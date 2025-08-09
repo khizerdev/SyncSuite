@@ -16,6 +16,6 @@ class ErpDepartment extends Model
     
     public function subDepartments()
     {
-        return $this->hasMany(SubErpDepartment::class);
+        return $this->hasMany(SubErpDepartment::class ,'department_id');
     }
 }

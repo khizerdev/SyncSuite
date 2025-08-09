@@ -11,6 +11,10 @@ use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Product;
 use App\Models\Vendor;
+use App\Models\Particular;
+use App\Models\ErpDepartment;
+
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -52,40 +56,51 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('pages.products.create');
+        $particulars= Particular::all();
+        $departments= ErpDepartment::all();
+        return view('pages.products.create', compact('particulars','departments'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProductRequest $request)
-    {
-        try {
 
-            $validatedData = $request->validated();
+public function store(Request $request)
+{
+    // Validate the incoming request data
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'sub_department' => 'required',
+        'category' => 'required',
+        'type' => 'required',
+        'opening_quantity' => 'required|integer|min:0',
+        'opening_inventory' => 'required|numeric|min:0',
+        'total_price' => 'required|numeric|min:0',
+        'min_qty_limit' => 'required|string|max:255',
+        'unit' => 'required|string|max:11',
+    ]);
 
-            $product = Product::create($validatedData);
+    // Generate a serial number (you can customize this as needed)
+    $serialNo = 'PROD-' . Str::upper(Str::random(8));
 
-            return response()->json([
-                'message' => 'Product created successfully',
-            ], 200);
+    // Create the product with mapped fields
+    $product = Product::create([
+        'name' => $validatedData['name'],
+        'serial_no' => $serialNo,
+        'department_id' => $validatedData['sub_department'], // Mapping sub_department to department_id
+        'material_id' => $validatedData['type'], // Mapping type to material_id
+        'particular_id' => $validatedData['category'], // Mapping category to particular_id
+        'qty' => $validatedData['opening_quantity'], // Mapping opening_quantity to qty
+        'inventory_price' => $validatedData['opening_inventory'], // Mapping opening_inventory to inventory_price
+        'total_price' => $validatedData['total_price'],
+        'min_qty_limit' => $validatedData['min_qty_limit'],
+        'unit' => $validatedData['unit'],
+    ]);
 
-        } catch (ValidationException $e) {
-
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
-
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'message' => 'Failed to create product',
-                'error' => $e->getMessage(),
-            ], 500);
-
-        }
-    }
+    // Redirect with success message
+    return redirect()->route('products.index')
+        ->with('success', 'Product created successfully.');
+}
 
     /**
      * Show the form for editing the specified resource.

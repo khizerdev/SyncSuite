@@ -65,6 +65,7 @@ class ParticularController extends Controller
 
             return response()->json([
                 'message' => 'Particular created successfully',
+                'particular' => $particular,
             ], 200);
 
         } catch (ValidationException $e) {

@@ -9,10 +9,7 @@ class Material extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'particular_id',
-    ];
+    protected $guarded = [];
 
     public function particular()
     {

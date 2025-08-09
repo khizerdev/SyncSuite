@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Material\StoreMaterialRequest;
 use App\Http\Requests\Material\UpdateMaterialRequest;
 use App\Models\Material;
+use App\Models\Particular;
 
 class MaterialController extends Controller
 {
@@ -69,6 +70,7 @@ class MaterialController extends Controller
 
             return response()->json([
                 'message' => 'Material created successfully',
+                'material' => $material
             ], 200);
 
         } catch (ValidationException $e) {
@@ -139,6 +141,11 @@ class MaterialController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to delete material', 'error' => $e->getMessage()], 500);
         }
+    }
+    
+    public function getMaterial(Particular $particular)
+    {
+        return response()->json($particular->materials);
     }
     
 }
