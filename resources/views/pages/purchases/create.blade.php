@@ -106,6 +106,12 @@
                                                 <input readonly type="text" class="vendor_address form-control" />
                                             </div>
                                         </div>
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="simpleinput">Description</label>
+                                                <input type="text" name="descr" class="form-control" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

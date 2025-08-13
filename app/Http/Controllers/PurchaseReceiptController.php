@@ -122,7 +122,7 @@ class PurchaseReceiptController extends Controller
 
         }
 
-        $receipt = PurchaseReceipt::create(['date' => $request->date, 'purchase_id' => $request->purchase_id, "serial_no" => $serial_no, "serial" => $last, "party_challan" => $request->party_challan, ]);
+        $receipt = PurchaseReceipt::create(['date' => $request->date,'descr' => $request->descr, 'purchase_id' => $request->purchase_id, "serial_no" => $serial_no, "serial" => $last, "party_challan" => $request->party_challan, ]);
 
         foreach ($items as $key => $value)
         {
@@ -172,6 +172,7 @@ class PurchaseReceiptController extends Controller
         $module->serial = $number;
         $module->serial_no = $request->serial_no;
         $module->date = $request->date;
+        $module->descr = $request->descr;
         $module->party_challan = $request->party_challan;
         $module->save();
 

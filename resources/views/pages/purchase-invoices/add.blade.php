@@ -18,6 +18,12 @@
                         <label>Cartage</label>
                         <input type="number" name="cartge" class="cartage form-control" required/>     
                     </div>
+                    <div class="col-md-5 mt-3">
+                                            <div class="form-group">
+                                                <label for="simpleinput">Description</label>
+                                                <input type="text" name="descr" class="form-control" />
+                                            </div>
+                                        </div>
                 </div>
             </div>
             
@@ -45,7 +51,7 @@
                                             <?php $key = uniqid(); ?>
                                             <tr>
                                                 <td class="text-center"><input type="hidden" name="items[{{$key}}][id]" value="{{$receiptItem->id}}" /> {{$receiptItem->id}}</td>
-                                                <td>{{$receiptItem->product->name}}</td>
+                                                <td>{{ $receiptItem->product ? $receiptItem->product->name : 'N/A' }}</td>
                                                 <td class="text-center weight">{{$receiptItem->qty}}</td>
                                                 <td class="text-center rate">{{$receiptItem->rate}}</td>
                                                 <td class="text-center"><input required min="0" name="items[{{$key}}][gst]" type="number" value="0" class="form-control gst" /></td>

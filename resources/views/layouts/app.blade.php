@@ -141,7 +141,7 @@
                                     'route' => 'purchases.index',
                                     'children' => [
                                         ['title' => 'Purchase Order', 'route' => 'purchases.index'],
-                                        ['title' => 'Purchase Received', 'route' => 'purchase-receipts.index'],
+                                        ['title' => 'GRN', 'route' => 'purchase-receipts.index'],
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
                                         ['title' => 'Inventory', 'route' => 'inventory.index'],
                                         ['title' => 'ERP Departments', 'route' => 'erp-departments.index'],

@@ -25,7 +25,6 @@ class StoreMaterialRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'particular_id' => 'required|exists:particulars,id',
-            'prefix' => 'required',
         ];
     }
 }

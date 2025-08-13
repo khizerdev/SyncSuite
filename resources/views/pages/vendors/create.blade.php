@@ -74,7 +74,7 @@
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label for="s_man">Sales Manager</label>
+                                            <label for="s_man">Contact person name</label>
                                             <input type="text" id="s_man" name="s_man" class="form-control">
                                         </div>
                                     </div>

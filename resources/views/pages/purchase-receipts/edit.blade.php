@@ -7,7 +7,7 @@
       <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between">
-                <h4 class="mb-0 font-size-18">Purchase Receipt</h4>
+                <h4 class="mb-0 font-size-18">GRN</h4>
             </div>
         </div>
       </div>
@@ -102,6 +102,12 @@
                     <label>Vendor Name</label>
                     <input readonly type="text" value="{{$purchase->vendor->name}}"  class="form-control" />
                 </div>
+                <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="simpleinput">Description</label>
+                                                <input type="text" name="descr" value="{{$purchase->vendor->descr}}"  class="form-control" />
+                                            </div>
+                                        </div>
                 
                 {{-- <div class="col-md-12" >
                     <label>Vendor Address</label>

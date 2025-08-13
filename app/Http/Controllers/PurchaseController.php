@@ -85,7 +85,8 @@ class PurchaseController extends Controller
             "vendor_id" => $request->vendor_id,
             "serial_no" => $serial_no,
             "serial" => $last ? $last->serial + 1 : 1,
-            "date" => $request->date
+            "date" => $request->date,
+            "descr" => $request->descr
         ]);
 
         // 2. Get the Main department
@@ -161,6 +162,7 @@ class PurchaseController extends Controller
         $purchase->serial_no = $request->serial_no;
         $purchase->vendor_id = $request->vendor_id;
         $purchase->date = $request->date;
+        $purchase->descr = $request->descr;
         $purchase->save();
 
         $notDeleted = [];

@@ -111,7 +111,7 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('particulars', [App\Http\Controllers\ParticularController::class, 'index'])->name('particulars.index');
         Route::get('particulars/create', [App\Http\Controllers\ParticularController::class, 'create'])->name('particulars.create');
-        Route::post('particulars', [App\Http\Controllers\ParticularController::class, 'store'])->name('particulars.store');
+        Route::post('particulars/store', [App\Http\Controllers\ParticularController::class, 'store'])->name('particulars.store');
         Route::get('particulars/{id}/edit', [App\Http\Controllers\ParticularController::class, 'edit'])->name('particulars.edit');
         Route::put('particulars/{id}', [App\Http\Controllers\ParticularController::class, 'update'])->name('particulars.update');
         Route::get('particulars/{id}', [App\Http\Controllers\ParticularController::class, 'destroy'])->name('particulars.destroy');

@@ -155,6 +155,12 @@
                          <label>Cartage</label>
                            <input type="number" name="cartge" value="{{$invoice->cartage ?? '0'}}"  class="cartage form-control" required/>     
                         </div>
+                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="simpleinput">Description</label>
+                                                <input type="text" name="descr" value="{{ $invoice->descr }}" class="form-control" />
+                                            </div>
+                                        </div>
                     </div>
                   </div>
                 </div>

@@ -16,10 +16,7 @@
                      <label for="new_type_name">Name</label>
                      <input type="text" class="form-control" id="new_type_name" required>
                   </div>
-                  <div class="form-group">
-                     <label for="new_type_name">Prefix</label>
-                     <input type="text" class="form-control" name="prefix" id="new_prefix_name" required>
-                  </div>
+                  
                   <div class="form-group">
                      <label for="new_type_category">Category</label>
                      <select class="form-control" id="new_type_category" required>
@@ -53,6 +50,10 @@
             <div class="form-group">
                      <label for="new_category_name">Name</label>
                      <input type="text" class="form-control" id="new_category_name" required>
+                  </div>
+                  <div class="form-group">
+                     <label for="new_type_name">Prefix</label>
+                     <input type="text" class="form-control" name="prefix" id="new_prefix_name" required>
                   </div>
          </div>
          <div class="modal-footer">
@@ -207,7 +208,7 @@ function loadTypes(categoryId) {
                 data.forEach(type => {
                     const option = document.createElement('option');
                     option.value = type.id;
-                    option.textContent = `${type.name}-${type.prefix}`;
+                    option.textContent = `${type.name}`;
                     typeSelect.appendChild(option);
                 });
                 
@@ -221,14 +222,15 @@ function loadTypes(categoryId) {
 
 function createNewCategory() {
     const name = document.getElementById('new_category_name').value;
+    const prefix = document.getElementById('new_prefix_name').value;
     
-    fetch(`${baseUrl}/particulars`, {
+    fetch(`${baseUrl}/particulars/store`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name,prefix })
     })
     .then(response => response.json())
     .then(data => {
@@ -236,7 +238,7 @@ function createNewCategory() {
         const categorySelect = document.getElementById('category');
         const option = document.createElement('option');
         option.value = data.particular.id;
-        option.textContent = data.particular.name;
+        option.textContent = `${data.particular.name}-${data.particular.prefix}`;
         categorySelect.appendChild(option);
         
         // Select the new category

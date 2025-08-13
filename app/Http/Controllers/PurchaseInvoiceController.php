@@ -111,6 +111,7 @@ public function store(Request $request)
         'due_date' => $request->due_date,
         'date' => $request->date,
         'cartage' => $request->cartge,
+        'descr' => $request->descr,
     ]);
      
     // Add items to the invoice
@@ -230,6 +231,7 @@ public function store(Request $request)
         $invoice->due_date = $request->due_date;
         $invoice->date = $request->date;
         $invoice->cartage = $request->cartge;
+        $invoice->descr = $request->descr;
         $invoice->save();
         
         foreach ($request->items as $rr) {
