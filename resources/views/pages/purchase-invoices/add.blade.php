@@ -1,6 +1,6 @@
 <div class="card mt-4">
     <div class="card-body">
-        <form action="{{ route('purchase-invoice.store') }}" method="post">
+        <form action="{{ route('purchase-invoice.store') }}" method="post" enctype="multipart/form-data">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-6">
@@ -24,6 +24,11 @@
                                                 <input type="text" name="descr" class="form-control" />
                                             </div>
                                         </div>
+                    <div class="col-md-4 mt-3">
+    <label>Attachment</label>
+    <input type="file" name="attachment" class="form-control" required
+           accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>     
+</div>
                 </div>
             </div>
             

@@ -105,7 +105,7 @@
     }).then((result) => {
       if (result.isConfirmed) {
           $.ajax({
-              url: '/purchase-receipts/delete/' + id,
+              url: `${baseUrl}/purchase-receipts/delete/` + id,
               type: 'GET',
               success: function(response) {
                   Swal.fire(
@@ -126,6 +126,7 @@
       }
   });
   }
+  
 
 </script>
 

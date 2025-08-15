@@ -138,7 +138,7 @@
                                             <select class="add-product form-control">
 
                                                 @foreach ($products as $product)
-                                                    <option data-name="{{ $product->name }}" value="{{ $product->id }}">
+                                                    <option data-name="{{ $product->name }}" data-unit="{{ $product->unit }}" value="{{ $product->id }}">
                                                         {{ $product->name }} - {{ $product->particular->name }}</option>
                                                 @endforeach
                                             </select>
@@ -152,7 +152,7 @@
                                 <!--Item Header-->
                                 <div>
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label for="simpleinput">Product</label>
                                         </div>
                                         <div class="col-md-3">
@@ -160,6 +160,9 @@
                                         </div>
                                         <div class="col-md-2">
                                             <label for="simpleinput">Rate</label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="simpleinput">Required By</label>
                                         </div>
                                         <div class="col-md-1 align-self-center ">
 
@@ -223,6 +226,8 @@
 
                     let pid = $('.add-product').val();
                     let name = $(`.add-product option:selected`).attr('data-name');
+                    let unit = $(`.add-product option:selected`).attr('data-unit');
+                    console.log(index)
                     if (name) {
 
                         let dupprocut = true;
@@ -240,15 +245,18 @@
                         if (dupprocut) {
                             index = index + 1;
                             $('.line-items').append(`<div class="row py-1"> 
-                                <div class="col-md-6" >
+                                <div class="col-md-4" >
                                    <input class="line_item_id" type="hidden" name="items[${index}][id]"  value="${pid}" />
-                                   <input readonly name="items[${index}][name]" class="form-control" value="${name}" />
+                                   <input readonly name="items[${index}][name]" class="form-control" value="${name} ${unit}" />
                                 </div>
                                 <div class="col-md-3" >
                                     <input min="1" value="1" step=".01" required name="items[${index}][qty]" type="number"  class="form-control" />
                                 </div>
                                 <div class="col-md-2" >
                                     <input min="1" value="1" step=".01" required name="items[${index}][rate]" type="number"  class="form-control" />
+                                </div>
+                                <div class="col-md-2" >
+                                    <input  required name="items[${index}][required]" type="text"  class="form-control" required/>
                                 </div>
                                  <div class="col-md-1 align-self-center " >
                                     <button type="button" class="delete_item normal-btn d-block" ><i class="fa fa-times" ></i></button>

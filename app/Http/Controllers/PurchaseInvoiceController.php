@@ -22,30 +22,30 @@ class PurchaseInvoiceController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    if ($request->ajax()) {
-        $data = PurchaseInvoice::select('*');
-        return Datatables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function($row){
-                    $view = "<a href=".route('purchase-invoice.view', $row->id)." class='btn btn-info mr-1'>View</a>";
-                    $edit = "<a href=".route('purchase-invoice.edit', $row->id)." class='btn btn-warning mr-1'>Edit</a>";
-                    return $view.$edit;
-                })
-                ->editColumn('date', function($row) {
-                    return \Carbon\Carbon::parse($row->date)->format('d-m-Y');
-                })
-                ->editColumn('due_date', function($row) {
-                    return $row->due_date ? \Carbon\Carbon::parse($row->due_date)->format('d-m-Y') : 'N/A';
-                })
-                ->editColumn('cartage', function($row) {
-                    return number_format($row->cartage, 2);
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+    {
+        if ($request->ajax()) {
+            $data = PurchaseInvoice::select('*');
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row){
+                        $view = "<a href=".route('purchase-invoice.view', $row->id)." class='btn btn-info mr-1'>View</a>";
+                        $edit = "<a href=".route('purchase-invoice.edit', $row->id)." class='btn btn-warning mr-1'>Edit</a>";
+                        return $view.$edit;
+                    })
+                    ->editColumn('date', function($row) {
+                        return \Carbon\Carbon::parse($row->date)->format('d-m-Y');
+                    })
+                    ->editColumn('due_date', function($row) {
+                        return $row->due_date ? \Carbon\Carbon::parse($row->due_date)->format('d-m-Y') : 'N/A';
+                    })
+                    ->editColumn('cartage', function($row) {
+                        return number_format($row->cartage, 2);
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+        }
+        return view('pages.purchase-invoices.index');
     }
-    return view('pages.purchase-invoices.index');
-}
 
 
  
@@ -104,6 +104,20 @@ public function store(Request $request)
     $serial = ($last) ? $last->serial + 1 : 1;
     $serialNo = 'PI-'.$date->format('ym').str_pad($serial, 3, '0', STR_PAD_LEFT);
     
+    $attachmentPath = null;
+    if ($request->hasFile('attachment')) {
+        // Either use move() OR store(), not both
+        // Option 1: Using move()
+        $fileName = uniqid() . '.' . $request->file('attachment')->getClientOriginalExtension();
+        $request->file('attachment')->move(public_path('attachments'), $fileName);
+        $attachmentPath = 'attachments/' . $fileName;
+        
+        // OR Option 2: Using store() (preferred for Laravel)
+        // $attachmentPath = $request->file('attachment')->store('attachments', 'public');
+    } else {
+        $attachmentPath = null;
+    }
+    
     // Create the invoice
     $invoice = PurchaseInvoice::create([
         "serial_no" => $serialNo,
@@ -112,6 +126,7 @@ public function store(Request $request)
         'date' => $request->date,
         'cartage' => $request->cartge,
         'descr' => $request->descr,
+        'attachmentPath' => $attachmentPath,
     ]);
      
     // Add items to the invoice

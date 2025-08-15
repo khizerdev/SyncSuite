@@ -49,7 +49,7 @@
         @if(isset($_GET['purchase_id']))
         <?php  $purchase = \App\Models\Purchase::find($_GET['purchase_id']);  ?>
          
-        <form class="myform"  method="post" action="{{route('purchase-receipts.store')}}"  >
+        <form class="myform"  method="post" action="{{route('purchase-receipts.store')}}"  enctype="multipart/form-data">
           <input name="purchase_id" type="hidden" value="{{$purchase->id}}" class=" form-control" />
           @csrf
         
@@ -117,10 +117,11 @@
                                                 <input type="text" name="descr" class="form-control" />
                                             </div>
                                         </div>
-                  {{-- <div class="col-md-5" >
-                      <label for="simpleinput">Vendor Address</label>
-                      <input readonly type="text" value="{{$purchase->vendor->address}}"  class="form-control" />   
-                  </div> --}}
+                  <div class="col-md-4 mt-3">
+    <label>Attachment</label>
+    <input type="file" name="attachment" class="form-control" required
+           accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>     
+</div>
               </div>
               </div>
             </div>

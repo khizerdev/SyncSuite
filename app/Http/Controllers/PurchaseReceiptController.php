@@ -121,8 +121,30 @@ class PurchaseReceiptController extends Controller
             $items = [];
 
         }
-
-        $receipt = PurchaseReceipt::create(['date' => $request->date,'descr' => $request->descr, 'purchase_id' => $request->purchase_id, "serial_no" => $serial_no, "serial" => $last, "party_challan" => $request->party_challan, ]);
+      
+    $attachmentPath = null;
+    if ($request->hasFile('attachment')) {
+        // Either use move() OR store(), not both
+        // Option 1: Using move()
+        $fileName = uniqid() . '.' . $request->file('attachment')->getClientOriginalExtension();
+        $request->file('attachment')->move(public_path('attachments'), $fileName);
+        $attachmentPath = 'attachments/' . $fileName;
+        
+        // OR Option 2: Using store() (preferred for Laravel)
+        // $attachmentPath = $request->file('attachment')->store('attachments', 'public');
+    } else {
+        $attachmentPath = null;
+    }
+    
+        $receipt = PurchaseReceipt::create([
+            'date' => $request->date,
+            'descr' => $request->descr, 
+            'purchase_id' => $request->purchase_id, 
+            "serial_no" => $serial_no, 
+            "serial" => $last, 
+            "party_challan" => $request->party_challan,
+            'attachmentPath' => $attachmentPath,
+            ]);
 
         foreach ($items as $key => $value)
         {

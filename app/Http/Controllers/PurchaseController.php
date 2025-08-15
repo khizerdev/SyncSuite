@@ -100,7 +100,8 @@ class PurchaseController extends Controller
                     "product_id" => $item["id"],
                     "purchase_id" => $purchase->id,
                     "qty" => $item["qty"],
-                    "rate" => $item["rate"]
+                    "rate" => $item["rate"],
+                    "required" => $item["required"]
                 ]);
 
                 // B. Update Main department inventory
