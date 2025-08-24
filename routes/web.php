@@ -34,6 +34,7 @@ use App\Http\Controllers\SupplyReceiptController;
 use App\Http\Controllers\ErpDepartmentController;
 use App\Http\Controllers\SubErpDepartmentController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\BatchController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +53,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('vendors/{id}/edit', [App\Http\Controllers\VendorController::class, 'edit'])->name('vendors.edit');
         Route::put('vendors/{id}', [App\Http\Controllers\VendorController::class, 'update'])->name('vendors.update');
         Route::get('vendors/{id}', [App\Http\Controllers\VendorController::class, 'destroy'])->name('vendors.destroy');
+        
+        Route::resource('batches', BatchController::class);
+        Route::get('get-than-supplies/{department}', [BatchController::class, 'getThanSupplies'])->name('get.than.supplies');
+        Route::get('get-than-supply-items/{thanSupply}', [BatchController::class, 'getThanSupplyItems'])->name('get.than.supply.items');
+        
+        Route::get('than-supplies/{department}', [BatchController::class, 'getThanSuppliesApi']);
+        Route::get('than-supply-items/{thanSupply}', [BatchController::class, 'getThanSupplyItemsApi']);
         
         Route::get('products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
         Route::get('products/create', [App\Http\Controllers\ProductController::class, 'create'])->name('products.create');

@@ -41,4 +41,9 @@ class ThanSupply extends Model
     {
         return $this->hasMany(SupplyReceipt::class, 'than_supply_id');
     }
+    
+    public function thanSupplyItems(): HasMany
+    {
+        return $this->hasMany(ThanSupplyItem::class);
+    }
 }

@@ -206,6 +206,7 @@
                                         ['title' => 'Than Issue', 'route' => 'than-issues.index'],
                                         ['title' => 'Than Supply', 'route' => 'than-supplies.index'],
                                         ['title' => 'Receive Supply', 'route' => 'supply-receipts.index'],
+                                        ['title' => 'Batch', 'route' => 'batches.index'],
                                     ],
                                 ],
                             ];
