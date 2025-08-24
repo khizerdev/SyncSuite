@@ -17,11 +17,12 @@ class SupplyReceiptController extends Controller
             return DataTables::of($data)
             ->addColumn('action', function($row){
                 // $editUrl = route('supply-receipts.edit', $row->id);
-                // $deleteUrl = route('supply-receipts.destroy', $row->id);
+                $deleteUrl = route('supply-receipts.destroy', $row->id);
 
                 // $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
-                // $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/supply-receipts/\', \'DELETE\')" class="delete btn btn-danger btn-sm">Delete</button>';
-                // return $btn;
+                $btn = '';
+                $btn .= '<button onclick="deleteData(\'' . $row->id . '\', \'/supply-receipts/destroy/\', \'GET\')" class="delete btn btn-danger btn-sm">Delete</button>';
+                return $btn;
                 return '';
             })
             ->addColumn('serial_no', function($row) {
@@ -82,5 +83,22 @@ class SupplyReceiptController extends Controller
         }
         
         return redirect()->back()->with('success', 'Supplies received successfully!');
+    }
+    
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        try {
+            $supply = SupplyReceipt::findOrFail($id);
+
+            $supply->delete();
+
+            return response()->json(['message' => 'Deleted successfully'], 200);
+        } catch (\Exception $e) {
+            dd($e);
+            return response()->json(['message' => 'Failed to delete', 'error' => $e->getMessage()], 500);
+        }
     }
 }

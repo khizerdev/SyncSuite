@@ -195,6 +195,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('supply-receipts')->group(function() {
             Route::get('/create', [SupplyReceiptController::class, 'create'])->name('supply-receipts.create');
             Route::get('/index', [SupplyReceiptController::class, 'index'])->name('supply-receipts.index');
+            Route::get('/destroy/{id}', [SupplyReceiptController::class, 'destroy'])->name('supply-receipts.destroy');
             Route::get('/get-supplies', [SupplyReceiptController::class, 'getSupplies'])->name('supply-receipts.get-supplies');
             Route::post('/', [SupplyReceiptController::class, 'store'])->name('supply-receipts.store');
         });

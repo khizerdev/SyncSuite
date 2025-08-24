@@ -409,28 +409,37 @@ class AttendanceController extends Controller
 
     public function updateAttendanceTable()
 {
-    $lastAttendance = DB::table('attendances')->latest('datetime')->first();
+    // Get today's date and calculate the date one month ago
+    $today = Carbon::today();
+    $oneMonthAgo = $today->copy()->subMonth();
+    
+    // Delete all attendance records from the past month
+    DB::table('attendances')
+        ->whereBetween('datetime', [$oneMonthAgo->toDateString(), $today->toDateString()])
+        ->delete();
 
-    if (!$lastAttendance) {
-        return response()->json(['message' => 'No records found in attendances table'], 404);
-    }
-
-    $lastDate = \Carbon\Carbon::parse($lastAttendance->datetime)->addDay()->toDateString();
-    $startDate = $lastDate;
-    $endDate = Carbon::yesterday()->toDateString();
-
+    // Get all records from CHECKINOUT table for the past month
     $recordsInRange = DB::connection('mysql2')->table('CHECKINOUT')
         ->select('USERID', DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time'))
         ->get()
-        ->filter(function ($record) use ($startDate, $endDate) {
-            $checktime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time)->format('Y-m-d');
-            return $checktime >= $startDate && $checktime <= $endDate;
+        ->filter(function ($record) use ($oneMonthAgo, $today) {
+            try {
+                $checktime = Carbon::createFromFormat('m/d/y H:i:s', $record->clean_time);
+                return $checktime >= $oneMonthAgo && $checktime <= $today;
+            } catch (\Exception $e) {
+                return false;
+            }
         });
 
     if ($recordsInRange->isEmpty()) {
-        return response()->json(['message' => 'No records found in the given date range', 'startDate' => $startDate, 'endDate' => $endDate], 404);
+        return response()->json([
+            'message' => 'No records found in the given date range', 
+            'startDate' => $oneMonthAgo->toDateString(), 
+            'endDate' => $today->toDateString()
+        ], 404);
     }
 
+    // Update user_infos table
     DB::table('user_infos')->truncate();
 
     $userInfoRecords = DB::connection('mysql2')->table('USERINFO')
@@ -462,7 +471,7 @@ class AttendanceController extends Controller
                     'datetime' => $datetime,
                 ];
             } catch (\Exception $e) {
-                dd($e);
+                continue; // Skip invalid records
             }
         }
 
@@ -473,8 +482,9 @@ class AttendanceController extends Controller
 
     return response()->json([
         'message' => 'Attendance and user_infos updated successfully',
-        'startDate' => $startDate,
-        'endDate' => $endDate
+        'startDate' => $oneMonthAgo->toDateString(),
+        'endDate' => $today->toDateString(),
+        'records_processed' => $recordsInRange->count()
     ]);
 }
 

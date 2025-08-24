@@ -62,11 +62,9 @@
     }).then((result) => {
       if (result.isConfirmed) {
           $.ajax({
-              url: baseUrl + '/supply-receipts/' + id,
+              url: baseUrl + '/supply-receipts/destroy/' + id,
               type: 'GET',
-              data: {
-                  "_token": "{{ csrf_token() }}",
-              },
+              
               success: function(response) {
                   Swal.fire(
                       'Deleted!',
