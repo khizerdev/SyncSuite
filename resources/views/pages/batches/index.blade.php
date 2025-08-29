@@ -19,38 +19,17 @@
             </div>
 
                 <div class="card-body">
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="table">
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Reference Number</th>
                 <th>Department</th>
-                <th>Number of Items</th>
-                <th>Created At</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($batches as $batch)
-                <tr>
-                    <td>{{ $batch->reference_number }}</td>
-                    <td>{{ $batch->department->name }}</td>
-                    <td>{{ $batch->batchItems->count() }}</td>
-                    <td>{{ $batch->created_at->format('Y-m-d H:i') }}</td>
-                    <td>
-                        <!--<a href="#" class="btn btn-sm btn-info">View</a>-->
-                        <!--<a href="#" class="btn btn-sm btn-warning">Edit</a>-->
-                        <form action="#" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="text-center">No batches found.</td>
-                </tr>
-            @endforelse
+           
         </tbody>
     </table>
                 </div>
@@ -65,60 +44,56 @@
 
 @endsection
 
-@section('scripts')
+@section('script')
 
 <script type="text/javascript">
 
   function deleteRecord(id) {
-    const baseUrl = "{{env('APP_URL')}}"
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-          $.ajax({
-              url: baseUrl + '/branches/' + id,
-              type: 'GET',
-              data: {
-                  "_token": "{{ csrf_token() }}",
-              },
-              success: function(response) {
-                  Swal.fire(
-                      'Deleted!',
-                      'The branch has been deleted.',
-                      'success'
-                  );
-                  $('#table').DataTable().ajax.reload();
-              },
-              error: function(xhr) {
-                  const message = xhr.responseJSON.error ? xhr.responseJSON.error : 'There was an error while deleting'
-                  Swal.fire(
-                      'Error!',
-                      message,
-                      'error'
-                  );
-              }
-          });
-      }
-  });
-  }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('batches.destroy', ':id') }}".replace(':id', id),
+                        type: 'DELETE',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                        },
+                        success: function(response) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The batch has been deleted.',
+                                'success'
+                            );
+                            $('#table').DataTable().ajax.reload();
+                        },
+                        error: function(xhr) {
+                            Swal.fire(
+                                'Error!',
+                                'There was an error deleting the branch.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        }
 
   $(document).ready(function() {
       var dataTable = $('#table').DataTable({
           processing: true,
           serverSide: true,
-          ajax: "{{ route('branches.index') }}",
+          ajax: "{{ route('batches.index') }}",
           columns: [
               { data: 'id', name: 'id' },
-              { data: 'name', name: 'name' },
-              { data: 'contact_number', name: 'contact_number' },
-              { data: 'address', name: 'address' },
-              { data: 'email', name: 'email' },
+              { data: 'reference_number', name: 'reference_number' },
+              { data: 'department', name: 'department' },
               { data: 'action', name: 'action', orderable: false, searchable: false }
           ]
       });

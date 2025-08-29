@@ -35,6 +35,7 @@ use App\Http\Controllers\ErpDepartmentController;
 use App\Http\Controllers\SubErpDepartmentController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\BatchController;
+use App\Http\Controllers\LotController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -54,11 +55,16 @@ Route::middleware(['auth'])->group(function () {
         Route::put('vendors/{id}', [App\Http\Controllers\VendorController::class, 'update'])->name('vendors.update');
         Route::get('vendors/{id}', [App\Http\Controllers\VendorController::class, 'destroy'])->name('vendors.destroy');
         
+        Route::resource('lots', LotController::class);
+        Route::get('/lot/products-by-department', [LotController::class, 'getProductsByDepartment'])->name('lots.products-by-department');
+        
         Route::resource('batches', BatchController::class);
+        Route::get('/than-supply-items-by-department/{departmentId}', [BatchController::class, 'getThanSupplyItemsByDepartment']);
+        
         Route::get('get-than-supplies/{department}', [BatchController::class, 'getThanSupplies'])->name('get.than.supplies');
         Route::get('get-than-supply-items/{thanSupply}', [BatchController::class, 'getThanSupplyItems'])->name('get.than.supply.items');
         
-        Route::get('than-supplies/{department}', [BatchController::class, 'getThanSuppliesApi']);
+        Route::get('than-supply/{department}', [BatchController::class, 'getThanSuppliesApi']);
         Route::get('than-supply-items/{thanSupply}', [BatchController::class, 'getThanSupplyItemsApi']);
         
         Route::get('products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');

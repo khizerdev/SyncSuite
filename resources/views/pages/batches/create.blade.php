@@ -12,38 +12,52 @@
                         </div>
                         <div class="card-body">
                             <form id="batchForm" action="{{ route('batches.store') }}" method="POST">
-        @csrf
-        <div class="form-group">
-            <label for="reference_number">Reference Number</label>
-            <input type="text" class="form-control" id="reference_number" name="reference_number" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="department_id">Department</label>
-            <select class="form-control" id="department_id" name="department_id" required>
-                <option value="">Select Department</option>
-                @foreach($departments as $department)
-                    <option value="{{ $department->id }}">{{ $department->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="than_supply_id">Than Supply</label>
-            <select class="form-control" id="than_supply_id" name="than_supply_id" disabled>
-                <option value="">Select Than Supply</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label>Than Supply Items</label>
-            <div id="items-container" style="border: 1px solid #ddd; padding: 15px; max-height: 300px; overflow-y: auto;">
-                <p class="text-muted">Please select a department and than supply first</p>
-            </div>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Create Batch</button>
-    </form>
+                                @csrf
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="reference_number" class="form-label fw-bold">Reference Number</label>
+                                            <input type="text" class="form-control form-control-lg" id="reference_number" name="reference_number" required placeholder="Enter reference number">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="department_id" class="form-label fw-bold">Department</label>
+                                            <select class="form-control form-control-lg" id="department_id" name="department_id" required>
+                                                <option value="">Select Department</option>
+                                                @foreach($departments as $department)
+                                                    <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label fw-bold">Available Than Supply Items</label>
+                                    <div class="search-box">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" id="item-search" class="form-control" placeholder="Search items...">
+                                            <span class="input-group-text" id="selected-count">0 selected</span>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="select-all">
+                                            <label class="form-check-label" for="select-all">
+                                                Select all items
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="items-container" class="mt-3">
+                                        <p class="text-center text-muted py-5">Please select a department to view available items</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                    <button type="button" class="btn btn-secondary me-md-2" onclick="window.history.back()">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Create Batch</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -56,66 +70,122 @@
 @section('script')
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const departmentSelect = document.getElementById('department_id');
-    const thanSupplySelect = document.getElementById('than_supply_id');
-    const itemsContainer = document.getElementById('items-container');
-    
-    // When department changes
-    departmentSelect.addEventListener('change', function() {
-        const departmentId = this.value;
-        
-        if (departmentId) {
-            thanSupplySelect.disabled = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const departmentSelect = document.getElementById('department_id');
+            const itemsContainer = document.getElementById('items-container');
+            const itemSearch = document.getElementById('item-search');
+            const selectAll = document.getElementById('select-all');
+            const selectedCount = document.getElementById('selected-count');
+            let allItems = [];
             
-            // Fetch than supplies for this department
-            fetch(`${baseUrl}/than-supplies/${departmentId}`)
-                .then(response => response.json())
-                .then(data => {
-                    thanSupplySelect.innerHTML = '<option value="">Select Than Supply</option>';
-                    data.forEach(supply => {
-                        thanSupplySelect.innerHTML += `<option value="${supply.id}">${supply.serial_no}</option>`;
-                    });
-                });
+            // When department changes
+            departmentSelect.addEventListener('change', function() {
+                const departmentId = this.value;
                 
-            itemsContainer.innerHTML = '<p class="text-muted">Please select a than supply</p>';
-        } else {
-            thanSupplySelect.disabled = true;
-            thanSupplySelect.innerHTML = '<option value="">Select Than Supply</option>';
-            itemsContainer.innerHTML = '<p class="text-muted">Please select a department first</p>';
-        }
-    });
-    
-    // When than supply changes
-    thanSupplySelect.addEventListener('change', function() {
-        const thanSupplyId = this.value;
-        
-        if (thanSupplyId) {
-            // Fetch than supply items
-            fetch(`${baseUrl}/than-supply-items/${thanSupplyId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        itemsContainer.innerHTML = '';
-                        data.forEach(item => {
-                            itemsContainer.innerHTML += `
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="than_supply_item_ids[]" value="${item.id}" id="item-${item.id}">
-                                    <label class="form-check-label" for="item-${item.id}">
-                                        ${item.serial_no}
-                                    </label>
+                if (departmentId) {
+                    // Show loading state
+                    itemsContainer.innerHTML = `
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading items...</p>
+                        </div>
+                    `;
+                    
+                    // Fetch all than supply items for this department
+                    fetch(`${baseUrl}/than-supply-items-by-department/${departmentId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            allItems = data;
+                            renderItems(allItems);
+                            updateSelectedCount();
+                        })
+                        .catch(error => {
+                            itemsContainer.innerHTML = `
+                                <div class="alert alert-danger text-center">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Error loading items. Please try again.
                                 </div>
                             `;
                         });
-                    } else {
-                        itemsContainer.innerHTML = '<p class="text-muted">No items found for this than supply</p>';
-                    }
+                } else {
+                    itemsContainer.innerHTML = '<p class="text-center text-muted py-5">Please select a department to view available items</p>';
+                    allItems = [];
+                    updateSelectedCount();
+                }
+            });
+            
+            // Search functionality
+            itemSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredItems = allItems.filter(item => 
+                    item.serial_no.toLowerCase().includes(searchTerm) || 
+                    (item.description && item.description.toLowerCase().includes(searchTerm))
+                );
+                renderItems(filteredItems);
+            });
+            
+            // Select all functionality
+            selectAll.addEventListener('change', function() {
+                const checkboxes = itemsContainer.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                    toggleItemSelection(checkbox);
                 });
-        } else {
-            itemsContainer.innerHTML = '<p class="text-muted">Please select a than supply</p>';
-        }
-    });
-});
-</script>
+                updateSelectedCount();
+            });
+            
+            // Render items in the container
+            function renderItems(items) {
+                if (items.length === 0) {
+                    itemsContainer.innerHTML = '<p class="text-center text-muted py-5">No items found for this department</p>';
+                    return;
+                }
+                
+                itemsContainer.innerHTML = '';
+                items.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'item-card';
+                    itemElement.innerHTML = `
+                        <div class="form-check">
+                            <input class="form-check-input item-checkbox" type="checkbox" name="than_supply_item_ids[]" 
+                                value="${item.id}" id="item-${item.id}" onchange="toggleItemSelection(this)">
+                            <label class="form-check-label w-100" for="item-${item.id}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${item.serial_no}</strong>
+                                        <span class="item-details">${item.description || 'No description available'}</span>
+                                    </div>
+                                    <div class="text-muted">
+                                        <small>Supply: ${item.than_supply_serial_no}</small>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                    itemsContainer.appendChild(itemElement);
+                });
+            }
+            
+            // Update selected count
+            function updateSelectedCount() {
+                const selectedItems = itemsContainer.querySelectorAll('input[type="checkbox"]:checked');
+                selectedCount.textContent = `${selectedItems.length} selected`;
+            }
+            
+            // Global function to toggle item selection
+            window.toggleItemSelection = function(checkbox) {
+                const itemCard = checkbox.closest('.item-card');
+                if (checkbox.checked) {
+                    itemCard.classList.add('selected');
+                } else {
+                    itemCard.classList.remove('selected');
+                    selectAll.checked = false;
+                }
+                updateSelectedCount();
+            };
+        });
+    </script>
 
 @endsection

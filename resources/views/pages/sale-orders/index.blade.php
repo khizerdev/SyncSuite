@@ -23,6 +23,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Sale No</th>
                                         <th>Customer</th>
                                         <th>Order Status</th>
                                         <th>Order Reference</th>
@@ -100,6 +101,10 @@
                 columns: [{
                         data: 'id',
                         name: 'id'
+                    },
+                    {
+                        data: 'sale_no',
+                        name: 'sale_no'
                     },
                     {
                         data: 'customer.name',
