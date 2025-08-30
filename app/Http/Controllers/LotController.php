@@ -7,18 +7,30 @@ use App\Models\InventoryDepartment;
 use App\Models\Lot;
 use App\Models\Shift;
 use Illuminate\Http\Request;
+use DataTables;
 
 class LotController extends Controller
 {
     public function index(Request $request)
-    {
-       
+     {
+        if ($request->ajax()) {
+             $data = Lot::with('batch','shift')->latest()->get();
+             return DataTables::of($data)
+                ->addColumn('action', function($row){
+                    $editUrl = route('loans.edit', $row->id);
+                    $deleteUrl = route('loans.destroy', $row->id);
+
+                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm">Edit</a>';
+                    $btn .= ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm">Delete</button>';
+                    return $btn;
+                })
+                 ->rawColumns(['action'])
+                 ->make(true);
+        }
         
-        $lots = Lot::all();
-        $batches = Batch::all();
-        
-        return view('pages.lots.index', compact('lots', 'batches'));
-    }
+        return view('pages.lots.index');
+     }
+
     
     public function create()
     {

@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-
-
 @section('content')
     <section class="content-header">
         <div class="container-fluid">
@@ -19,54 +17,24 @@
                         </div>
 
                         <div class="card-body">
-                            @if($lots->count() > 0)
+                            
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
+                            <table class="table table-striped table-bordered" id="table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>#</th>
                                         <th>Batch</th>
                                         <th>Shift</th>
                                         <th>Start Time</th>
                                         <th>End Time</th>
                                         <th>Run Time (min)</th>
-                                        <th>Products Count</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach($lots as $lot)
-                                        <tr>
-                                            <td>{{ $lot->id }}</td>
-                                            <td>{{ $lot->batch->reference_number }}</td>
-                                            <td>{{ $lot->shift->name }}</td>
-                                            <td>{{ $lot->start_time->format('M d, Y H:i') }}</td>
-                                            <td>{{ $lot->end_time->format('M d, Y H:i') }}</td>
-                                            <td>{{ $lot->run_time }}</td>
-                                            <td>{{ $lot->products->count() }}</td>
-                                            <td>
-                                                <!--<a href="{{ route('lots.show', $lot->id) }}" class="btn btn-info btn-sm">View</a>-->
-                                                <!--<a href="{{ route('lots.edit', $lot->id) }}" class="btn btn-warning btn-sm">Edit</a>-->
-                                                <form action="{{ route('lots.destroy', $lot->id) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" 
-                                                            onclick="return confirm('Are you sure you want to delete this lot?')">Delete</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
                             </table>
                         </div>
 
-                        <!-- Pagination -->
-                        
-                    @else
-                        
-                            No lots found. 
-                        
-                    @endif
+                
                         </div>
 
                     </div>
@@ -79,8 +47,10 @@
 @endsection
 
 @section('script')
-    <script type="text/javascript">
+    
+   <script type="text/javascript">
         function deleteRecord(id) {
+            const baseUrl = "{{ env('APP_URL') }}"
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -92,7 +62,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('loans.destroy', ':id') }}".replace(':id', id),
+                        url: "{{ route('lots.destroy', ':id') }}".replace(':id', id),
                         type: 'DELETE',
                         data: {
                             "_token": "{{ csrf_token() }}",
@@ -100,15 +70,17 @@
                         success: function(response) {
                             Swal.fire(
                                 'Deleted!',
-                                'The branch has been deleted.',
+                                '',
                                 'success'
                             );
                             $('#table').DataTable().ajax.reload();
                         },
                         error: function(xhr) {
+                            const message = xhr.responseJSON.error ? xhr.responseJSON.error :
+                                'There was an error while deleting'
                             Swal.fire(
                                 'Error!',
-                                'There was an error deleting the branch.',
+                                message,
                                 'error'
                             );
                         }
@@ -116,28 +88,39 @@
                 }
             });
         }
+    </script>
 
+    <script>
         $(document).ready(function() {
-            // DataTable initialization
-            var dataTable = $('#table').DataTable({
+
+            var table = $('#table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('loans.index') }}",
-                columns: [{
+                ajax: "{{ route('lots.index') }}",
+                columns: [
+                    {
                         data: 'id',
                         name: 'id'
                     },
                     {
-                        data: 'employee_name',
-                        name: 'employee'
+                        data: 'batch.reference_number',
+                        name: 'batch'
                     },
                     {
-                        data: 'amount',
-                        name: 'amount'
+                        data: 'shift.name',
+                        name: 'shift'
                     },
                     {
-                        data: 'month',
-                        name: 'month'
+                        data: 'start_time',
+                        name: 'start_time'
+                    },
+                    {
+                        data: 'end_time',
+                        name: 'end_time'
+                    },
+                    {
+                        data: 'run_time',
+                        name: 'run_time'
                     },
                     {
                         data: 'action',
@@ -147,7 +130,7 @@
                     }
                 ]
             });
-
         });
     </script>
+    
 @endsection
