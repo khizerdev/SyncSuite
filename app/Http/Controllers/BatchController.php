@@ -112,18 +112,21 @@ class BatchController extends Controller
     }
     
     public function getThanSupplyItemsByDepartment($departmentId)
-{
-    $thanSupplyItems = ThanSupplyItem::whereHas('thanSupply', function($query) use ($departmentId) {
-        $query->where('department_id', $departmentId);
-    })->with('thanSupply')->get();
-    
-    return response()->json($thanSupplyItems->map(function($item) {
-        return [
-            'id' => $item->id,
-            'serial_no' => $item->serial_no,
-            'description' => $item->description,
-            'than_supply_serial_no' => $item->thanSupply->serial_no
-        ];
-    }));
-}
+    {
+        $thanSupplyItems = ThanSupplyItem::whereHas('thanSupply', function($query) use ($departmentId) {
+            $query->where('department_id', $departmentId);
+        })
+        ->whereDoesntHave('batchItems') // Exclude items that are already in batch_items
+        ->with('thanSupply')
+        ->get();
+        
+        return response()->json($thanSupplyItems->map(function($item) {
+            return [
+                'id' => $item->id,
+                'serial_no' => $item->serial_no,
+                'description' => $item->description,
+                'than_supply_serial_no' => $item->thanSupply->serial_no
+            ];
+        }));
+    }
 }

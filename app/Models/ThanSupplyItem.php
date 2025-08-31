@@ -16,6 +16,11 @@ class ThanSupplyItem extends Model
     {
         return $this->belongsTo(ThanSupply::class);
     }
+    
+    public function batchItems()
+    {
+        return $this->hasMany(BatchItem::class, 'than_supply_item_id');
+    }
 
   
 }
