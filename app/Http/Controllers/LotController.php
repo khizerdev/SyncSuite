@@ -39,6 +39,41 @@ class LotController extends Controller
         
         return view('pages.lots.create', compact('batches', 'shiftMachines'));
     }
+    
+    public function getBatchDetails($batchId)
+    {
+        try {
+            $batch = Batch::with([
+                'department',
+                'batchItems.thanSupplyItem' => function($query) {
+                    $query->select('id', 'serial_no'); // Add other fields you need
+                }
+            ])->findOrFail($batchId);
+            
+            return response()->json([
+                'success' => true,
+                'batch' => [
+                    'id' => $batch->id,
+                    'name' => $batch->name,
+                    'reference_number' => $batch->reference_number,
+                    'department' => $batch->department,
+                    'batch_items' => $batch->batchItems->map(function($item) {
+                        return [
+                            'id' => $item->id,
+                            'than_supply_item_id' => $item->than_supply_item_id,
+                            'serial_no' => $item->thanSupplyItem->serial_no ?? 'N/A',
+                            // Add other batch item fields you need
+                        ];
+                    })
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch not found'
+            ], 404);
+        }
+    }
 
     public function getProductsByDepartment(Request $request)
     {

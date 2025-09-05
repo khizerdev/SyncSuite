@@ -47,6 +47,58 @@
                                     </select>
                                 </div>
                             </div>
+                            
+                            <!-- Batch Details Section -->
+<div id="batch-details" class="row mb-3" style="display: none;">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Batch Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Reference Number:</strong> <span id="batch-reference"></span></p>
+                        <p><strong>Department:</strong> <span id="batch-department"></span></p>
+                    </div>
+                </div>
+                
+                <!-- Batch Items Section -->
+                <div class="mt-3">
+                    <h6>Batch Items</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item ID</th>
+                                    <th>Serial Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-items-tbody">
+                                <!-- Items will be populated via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="no-items-message" class="text-muted" style="display: none;">
+                        No items found for this batch.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading indicator -->
+<div id="batch-loading" class="row mb-3" style="display: none;">
+    <div class="col-md-12">
+        <div class="text-center">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-2">Loading batch details...</span>
+        </div>
+    </div>
+</div>
 
                             {{-- Times --}}
                             <div class="row mb-3">
@@ -160,6 +212,74 @@
 
 @section('script')
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const batchSelect = document.getElementById('batch_id');
+    const batchDetails = document.getElementById('batch-details');
+    const batchLoading = document.getElementById('batch-loading');
+    
+    batchSelect.addEventListener('change', function() {
+        const batchId = this.value;
+        
+        if (batchId) {
+            // Show loading indicator
+            batchLoading.style.display = 'block';
+            batchDetails.style.display = 'none';
+            
+            // Fetch batch details
+            fetch(`${baseUrl}/batch/${batchId}/details`)
+                .then(response => response.json())
+                .then(data => {
+                    batchLoading.style.display = 'none';
+                    
+                    if (data.success) {
+                        displayBatchDetails(data.batch);
+                        batchDetails.style.display = 'block';
+                    } else {
+                        alert('Error loading batch details: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    batchLoading.style.display = 'none';
+                    console.error('Error:', error);
+                    alert('Error loading batch details. Please try again.');
+                });
+        } else {
+            // Hide details if no batch selected
+            batchDetails.style.display = 'none';
+            batchLoading.style.display = 'none';
+        }
+    });
+    
+    function displayBatchDetails(batch) {
+        // Update batch basic info
+        
+        document.getElementById('batch-reference').textContent = batch.reference_number || 'N/A';
+        document.getElementById('batch-department').textContent = batch.department ? batch.department.name : 'N/A';
+        
+        // Update batch items
+        const tbody = document.getElementById('batch-items-tbody');
+        const noItemsMessage = document.getElementById('no-items-message');
+        
+        tbody.innerHTML = '';
+        
+        if (batch.batch_items && batch.batch_items.length > 0) {
+            noItemsMessage.style.display = 'none';
+            
+            batch.batch_items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.than_supply_item_id}</td>
+                    <td>${item.serial_no}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            noItemsMessage.style.display = 'block';
+        }
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const batchSelect = document.getElementById('batch_id');
     const startTimeInput = document.getElementById('start_time');

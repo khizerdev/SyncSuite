@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
         
         Route::resource('batches', BatchController::class);
         Route::get('/than-supply-items-by-department/{departmentId}', [BatchController::class, 'getThanSupplyItemsByDepartment']);
+        Route::get('/batch/{batchId}/details', [LotController::class, 'getBatchDetails'])->name('batch.details');
         
         Route::get('get-than-supplies/{department}', [BatchController::class, 'getThanSupplies'])->name('get.than.supplies');
         Route::get('get-than-supply-items/{thanSupply}', [BatchController::class, 'getThanSupplyItems'])->name('get.than.supply.items');
