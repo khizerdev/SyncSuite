@@ -130,9 +130,8 @@
                                     'route' => 'products.index',
                                     'children' => [
                                         ['title' => 'Products', 'route' => 'products.index'],
-                                        ['title' => 'Product Type', 'route' => 'product-types.index'],
-                                        ['title' => 'Materials', 'route' => 'materials.index'],
-                                        ['title' => 'Particulars', 'route' => 'particulars.index'],
+                                        ['title' => 'Sub Category', 'route' => 'materials.index'],
+                                        ['title' => 'Category', 'route' => 'particulars.index'],
                                     ],
                                 ],
                                 [

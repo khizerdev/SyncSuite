@@ -22,6 +22,13 @@ class BatchController extends Controller
             ->addColumn('department', function ($row) {
                 return $row->department->name;
             })
+            ->addColumn('items', function ($row) {
+            $serialNumbers = $row->batchItems
+                ->pluck('thanSupplyItem.serial_no')
+                ->filter() // Remove null values
+                ->implode(', ');
+            return $serialNumbers ?: 'No items';
+        })
                ->addColumn('action', function($row){
                    $editUrl = route('batches.edit', $row->id);
                    $deleteUrl = route('batches.destroy', $row->id);

@@ -261,8 +261,8 @@ class SalaryController extends Controller
                                     'period' => $period,
                                     'start_date' => $startDate,
                                     'end_date' => $endDate,
-                                    'loan_deducted' => ($loan && $loanException) ? 0 : $loanInstallmentAmount,
-                                    'loan_id' => ($loan && $loanException) ? null : $loan->id,
+                                    'loan_deducted' => $loan ? ($loanException ? 0 : $loanInstallmentAmount) : 0,
+                                    'loan_id' => $loan ? ($loanException ? null : $loan->id) : null,
                                     'advance_id' => $advance ? $advance->id : null,
                                 ];
                                 

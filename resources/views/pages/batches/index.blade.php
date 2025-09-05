@@ -25,6 +25,7 @@
                 <th>Id</th>
                 <th>Reference Number</th>
                 <th>Department</th>
+                <th>Thans</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -94,6 +95,7 @@
               { data: 'id', name: 'id' },
               { data: 'reference_number', name: 'reference_number' },
               { data: 'department', name: 'department' },
+              { data: 'items', name: 'items', orderable: false, searchable: true },
               { data: 'action', name: 'action', orderable: false, searchable: false }
           ]
       });
