@@ -29,6 +29,45 @@ class AttendanceController extends Controller
 
         return $matches[0] ?? [];
     }
+    public function import2(Request $request)
+    {
+        // Validate file upload
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        // Store uploaded file temporarily
+        $filePath = $request->file('excel_file')->store('temp');
+
+        // Load spreadsheet
+        $spreadsheet = IOFactory::load(storage_path('app/' . $filePath));
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        $data = [];
+
+        // Loop through rows (skip header)
+        foreach ($rows as $index => $row) {
+            if ($index == 0) continue; // skip first row (headers)
+
+            $userId = $row[0];       // USERID column
+            $badgeNumber = $row[1];  // Badgenumber column
+
+            if (!empty($userId) && !empty($badgeNumber)) {
+                $data[] = [
+                    'id'   => $userId,
+                    'code' => $badgeNumber,
+                ];
+            }
+        }
+
+        // Insert all rows at once
+        if (!empty($data)) {
+            DB::table('user_infos')->insert($data);
+        }
+
+        return back()->with('success', 'Imported ' . count($data) . ' records successfully!');
+    }
 
     private function parseSqlData(string $sql): array
     {
