@@ -34,7 +34,7 @@ class ThanIssueItem extends Model
 
     public function dailyProductionItem()
     {
-        return $this->belongsTo(DailyProductionItem::class);
+        return $this->belongsTo(DailyProductionItem::class , 'daily_production_item_id');
     }
 
     public function productGroup()

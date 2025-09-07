@@ -24,7 +24,7 @@ class ThanIssue extends Model
 
     public function items()
     {
-        return $this->hasMany(ThanIssueItem::class, "daily_production_id");
+        return $this->hasMany(ThanIssueItem::class);
     }
 
     public function department()

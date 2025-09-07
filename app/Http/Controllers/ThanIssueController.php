@@ -147,27 +147,140 @@ protected function generateItemSerial($prefix)
     }
 
     public function edit(ThanIssue $thanIssue)
-    {
-        $productGroups = ProductGroup::all();
-        $departments = Department::all();
-        $parties = Party::all();
-        return view('pages.than-issues.edit', compact('thanIssue', 'productGroups', 'departments', 'parties'));
+{
+    $productGroups = ProductGroup::all();
+    $designs = FabricMeasurement::all();
+    
+    // Load the than issue with its items and related data
+    $thanIssue->load([
+        'items.dailyProductionItem.design',
+        'items.dailyProductionItem.color',
+        'items.dailyProductionItem.saleOrderItem',
+        'items.fabricMeasurements'
+    ]);
+    
+    $thanIssueItems = $thanIssue->items;
+
+    return view('pages.than-issues.edit', compact(
+        'thanIssue', 
+        'productGroups', 
+        'designs',
+        'thanIssueItems'
+    ));
+}
+
+public function update(Request $request, ThanIssue $thanIssue)
+{
+    $validated = $request->validate([
+        'date' => 'required|date',
+        'product_group_id' => 'required|exists:product_groups,id',
+        'production_search' => 'nullable|string',
+        'lace_qty' => 'required|array',
+        'lace_qty.*' => 'numeric|min:0',
+        'weight' => 'required|array',
+        'weight.*' => 'numeric|min:0',
+        'designs.*' => 'required|array|min:1',
+        'designs.*.*' => 'exists:fabric_measurements,id',
+        'remarks' => 'nullable|string'
+    ]);
+
+    // Extract daily_production_item_ids and sequences from the lace_qty/weight keys
+    $itemsData = [];
+    foreach ($validated['lace_qty'] as $key => $value) {
+        // Handle both existing item IDs and new item format (parentId-sequence)
+        if (strpos($key, '-') !== false) {
+            [$parentId, $sequence] = explode('-', $key);
+        } else {
+            $parentId = $key;
+            $sequence = 1;
+        }
+        
+        $itemsData[] = [
+            'key' => $key,
+            'parentId' => $parentId,
+            'sequence' => $sequence,
+            'lace_qty' => $value,
+            'weight' => $validated['weight'][$key],
+            'designs' => $validated['designs'][$key] ?? []
+        ];
     }
 
-    public function update(Request $request, ThanIssue $thanIssue)
-    {
-        $validated = $request->validate([
-            'issue_date' => 'required|date',
-            'product_group_id' => 'required|exists:product_groups,id',
-            'job_type' => 'required|in:department,party',
-            'department_id' => 'required_if:job_type,department|exists:departments,id',
-            'party_id' => 'required_if:job_type,party|exists:parties,id',
+    DB::transaction(function () use ($validated, $itemsData, $thanIssue) {
+        
+        // Update the main Than Issue
+        $thanIssue->update([
+            'issue_date' => $validated['date'],
+            'product_group_id' => $validated['product_group_id'],
+            'remarks' => $validated['remarks'] ?? null
         ]);
 
-        $thanIssue->update($validated);
+        // Get existing items for comparison
+        $existingItems = $thanIssue->items()->with('fabricMeasurements')->get();
+        $existingItemIds = $existingItems->pluck('id')->toArray();
+        $processedItemIds = [];
 
-        return redirect()->route('than-issues.index')->with('success', 'Than Issue updated successfully.');
-    }
+        // Process each item
+        foreach ($itemsData as $item) {
+            // Check if this is an existing item (numeric key) or new item (contains hyphen)
+            $isExistingItem = is_numeric($item['key']);
+            
+            if ($isExistingItem) {
+                // Update existing item
+                $thanIssueItem = $existingItems->where('id', $item['key'])->first();
+                
+                if ($thanIssueItem) {
+                    $thanIssueItem->update([
+                        'product_group_id' => $validated['product_group_id'],
+                        'lace_qty' => $item['lace_qty'],
+                        'weight' => $item['weight']
+                    ]);
+
+                    // Update fabric measurements
+                    $thanIssueItem->fabricMeasurements()->sync($item['designs']);
+                    $processedItemIds[] = $thanIssueItem->id;
+                }
+            } else {
+                // Create new item
+                $dailyItem = DailyProductionItem::with('saleOrderItem')->find($item['parentId']);
+                
+                if ($dailyItem) {
+                    $thanIssueItem = ThanIssueItem::create([
+                        'than_issue_id' => $thanIssue->id,
+                        'daily_production_item_id' => $item['parentId'],
+                        'product_group_id' => $validated['product_group_id'],
+                        'quantity' => 1,
+                        'lace_qty' => $item['lace_qty'],
+                        'weight' => $item['weight']
+                    ]);
+
+                    // Attach fabric measurements to the new than issue item
+                    if (!empty($item['designs'])) {
+                        $thanIssueItem->fabricMeasurements()->attach($item['designs']);
+                    }
+                }
+            }
+        }
+
+        // Delete items that were removed (not in the processed list)
+        $itemsToDelete = array_diff($existingItemIds, $processedItemIds);
+        
+        if (!empty($itemsToDelete)) {
+            // First detach fabric measurements relationships
+            foreach ($itemsToDelete as $itemId) {
+                $item = ThanIssueItem::find($itemId);
+                if ($item) {
+                    $item->fabricMeasurements()->detach();
+                }
+            }
+            
+            // Then delete the items
+            ThanIssueItem::whereIn('id', $itemsToDelete)->delete();
+        }
+    });
+
+    return redirect()->route('than-issues.index')
+        ->with('success', 'Than Issue updated successfully.');
+}
 
     public function destroy(ThanIssue $thanIssue)
     {
