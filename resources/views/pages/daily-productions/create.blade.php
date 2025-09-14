@@ -39,8 +39,7 @@
                                             <select name="machine_id" class="form-control" required>
                                                 <option value="">Select Machine</option>
                                                 @foreach ($machines as $machine)
-                                                    <option value="{{ $machine->id }}">{{ $machine->name }}
-                                                        ({{ $machine->model }})
+                                                    <option value="{{ $machine->id }}">{{ $machine->code }}
                                                     </option>
                                                 @endforeach
                                             </select>

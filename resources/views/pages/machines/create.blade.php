@@ -38,7 +38,7 @@
 
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="code">Machine Code</label>
+                                            <label for="code">Machine Number</label>
                                             <input type="text" id="code" name="code" class="form-control"
                                                 required>
                                         </div>
@@ -63,13 +63,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="number">Machine Number</label>
-                                            <input type="text" id="number" name="number" class="form-control"
-                                                required>
-                                        </div>
-                                    </div>
+                                 
 
                                     <div class="col-sm-6">
                                         <div class="form-group">

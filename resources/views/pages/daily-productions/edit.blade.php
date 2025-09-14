@@ -46,7 +46,7 @@
                                                 @foreach ($machines as $machine)
                                                     <option value="{{ $machine->id }}"
                                                         {{ $dailyProduction->machine_id == $machine->id ? 'selected' : '' }}>
-                                                        {{ $machine->name }} ({{ $machine->model }})
+                                                        {{ $machine->code }}
                                                     </option>
                                                 @endforeach
                                             </select>

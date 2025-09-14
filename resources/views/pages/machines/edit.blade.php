@@ -43,7 +43,7 @@
 
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="code">Machine Code</label>
+                                            <label for="code">Machine Number</label>
                                             <input type="text" id="code" name="code" class="form-control"
                                                 value="{{ $machine->code }}">
                                         </div>
@@ -71,13 +71,6 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label for="number">Machine Number</label>
-                                            <input type="text" id="number" name="number" class="form-control"
-                                                value="{{ $machine->number }}">
-                                        </div>
-                                    </div>
 
                                     <div class="col-sm-6">
                                         <div class="form-group">
