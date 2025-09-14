@@ -6,6 +6,7 @@ use App\Models\ProductionPlanning;
 use App\Models\SaleOrderItem;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class ProductionPlanningController extends Controller
 {
@@ -42,42 +43,142 @@ class ProductionPlanningController extends Controller
         'date' => 'required|date',
         'machine_id' => 'required|exists:machines,id',
         'sale_order_id' => 'required|exists:sale_orders,id',
-        'selected_item' => 'required|exists:sale_order_items,id',
-        'items' => 'required|array',
-        'items.*.planned_qty' => 'required|integer|min:1',
-        'items.*.planned_lace_qty' => 'required|integer|min:0',
+        'selected_items' => 'required|array|min:1',
+        'selected_items.*' => 'exists:sale_order_items,id',
     ]);
 
-    // Get the selected item ID from either selected_item or sale_order_item_id
-    $itemId = $request->selected_item ?? $request->sale_order_item_id;
+    $selectedItems = $request->input('selected_items', []);
+    $errors = [];
+    $itemsData = [];
+
+    // Use database transaction for data consistency
+    DB::beginTransaction();
     
-    // Get the sale order item to validate quantities
-    $saleOrderItem = SaleOrderItem::findOrFail($itemId);
+    try {
+        // First, validate all selected items and collect their data
+        foreach ($selectedItems as $itemId) {
+            // Get the planned quantities for this specific item
+            $plannedQtyKey = "planned_qty_{$itemId}";
+            $plannedLaceQtyKey = "planned_lace_qty_{$itemId}";
+            
+            $plannedQty = $request->input($plannedQtyKey);
+            $plannedLaceQty = $request->input($plannedLaceQtyKey);
+            
+            // Validate that quantities are provided
+            if (empty($plannedQty) || (empty($plannedLaceQty) && $plannedLaceQty !== '0')) {
+                $errors[] = "Missing planned quantities for item ID: {$itemId}";
+                continue;
+            }
+            
+            // Additional validation for numeric values
+            if (!is_numeric($plannedQty) || !is_numeric($plannedLaceQty)) {
+                $errors[] = "Invalid quantity format for item ID: {$itemId}";
+                continue;
+            }
+            
+            $plannedQty = (int) $plannedQty;
+            $plannedLaceQty = (int) $plannedLaceQty;
+            
+            // Basic validation
+            if ($plannedQty < 1) {
+                $errors[] = "Planned quantity must be at least 1 for item ID: {$itemId}";
+                continue;
+            }
+            
+            if ($plannedLaceQty < 0) {
+                $errors[] = "Planned lace quantity cannot be negative for item ID: {$itemId}";
+                continue;
+            }
+            
+            // Get the sale order item to validate quantities
+            $saleOrderItem = SaleOrderItem::findOrFail($itemId);
+            
+            // Validate against original quantities
+            if ($plannedQty > $saleOrderItem->qty) {
+                $errors[] = "Planned quantity ({$plannedQty}) cannot exceed original quantity ({$saleOrderItem->qty}) for item: {$saleOrderItem->design->design_code}";
+                continue;
+            }
+            
+            if ($plannedLaceQty > $saleOrderItem->lace_qty) {
+                $errors[] = "Planned lace quantity ({$plannedLaceQty}) cannot exceed original quantity ({$saleOrderItem->lace_qty}) for item: {$saleOrderItem->design->design_code}";
+                continue;
+            }
+            
+            // Store valid item data
+            $itemsData[] = [
+                'sale_order_item_id' => $itemId,
+                'planned_qty' => $plannedQty,
+                'planned_lace_qty' => $plannedLaceQty,
+                'design_code' => $saleOrderItem->design->design_code
+            ];
+        }
+        
+        // If there are validation errors, return them
+        if (!empty($errors)) {
+            DB::rollBack();
+            return back()->withErrors([
+                'validation_errors' => 'Please fix the following errors:',
+                'item_errors' => $errors
+            ])->withInput();
+        }
+        
+        // Check if production planning already exists for this date/machine/sale_order combination
+        $existingPlanning = ProductionPlanning::where([
+            'date' => $request->date,
+            'machine_id' => $request->machine_id,
+            'sale_order_id' => $request->sale_order_id,
+        ])->first();
+        
+        if ($existingPlanning) {
+            DB::rollBack();
+            return back()->withErrors([
+                'duplicate_error' => 'Production planning already exists for this sale order on the selected date and machine.'
+            ])->withInput();
+        }
+        
+        // Calculate total quantities across all items
+        $totalPlannedQty = array_sum(array_column($itemsData, 'planned_qty'));
+        $totalPlannedLaceQty = array_sum(array_column($itemsData, 'planned_lace_qty'));
+        
+        // Create the single production planning record
+        $productionPlanning = ProductionPlanning::create([
+            'date' => $request->date,
+            'machine_id' => $request->machine_id,
+            'sale_order_id' => $request->sale_order_id,
+        ]);
+        
+        // Create the linking records in a pivot/junction table
+        foreach ($itemsData as $itemData) {
+    DB::table('production_planning_items')->updateOrInsert(
+        [
+            'production_planning_id' => $productionPlanning->id,
+            'sale_order_item_id' => $itemData['sale_order_item_id'],
+        ],
+        [
+            'planned_qty' => $itemData['planned_qty'],
+            'planned_lace_qty' => $itemData['planned_lace_qty'],
+            'updated_at' => now(),
+            'created_at' => now(),
+        ]
+    );
+}
 
-    // Get the planned quantities from the items array
-    $plannedQty = $request->items[$itemId]['planned_qty'];
-    $plannedLaceQty = $request->items[$itemId]['planned_lace_qty'];
-
-    // Validate against original quantities
-    if ($plannedQty > $saleOrderItem->qty) {
-        return back()->withErrors(['planned_qty' => 'Planned quantity cannot exceed original quantity ('.$saleOrderItem->qty.')']);
+        
+        DB::commit();
+        
+        $itemCount = count($itemsData);
+        
+        
+        return redirect()->route('production-plannings.index')
+                         ->with('success', 'Success');
+                         
+    } catch (\Exception $e) {
+        DB::rollBack();
+        dd($e);
+        return back()->withErrors([
+            'system_error' => 'An error occurred while creating the production planning record. Please try again.'
+        ])->withInput();
     }
-
-    if ($plannedLaceQty > $saleOrderItem->lace_qty) {
-        return back()->withErrors(['planned_lace_qty' => 'Planned lace quantity cannot exceed original quantity ('.$saleOrderItem->lace_qty.')']);
-    }
-
-    // Create the production planning record
-    ProductionPlanning::create([
-        'date' => $request->date,
-        'machine_id' => $request->machine_id,
-        'sale_order_id' => $request->sale_order_id,
-        'planned_qty' => $plannedQty,
-        'planned_lace_qty' => $plannedLaceQty,
-    ]);
-
-    return redirect()->route('production-plannings.index')
-                     ->with('success', 'Production planning created successfully.');
 }
 
     public function edit(ProductionPlanning $productionPlanning)

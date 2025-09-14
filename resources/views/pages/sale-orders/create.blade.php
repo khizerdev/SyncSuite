@@ -198,6 +198,10 @@
 @section('script')
     <script type="text/javascript">
         $(document).ready(function() {
+            
+            var defaultStitchRate = {{ \App\Models\Setting::find(2)->value }};
+            var defaultLengthFactor = {{ \App\Models\Setting::find(1)->value }};
+            
             $(document).on('change', '.design-name', function() {
                 var section = $(this).closest('.form-section');
                 var selectedOption = $(this).find('option:selected');
@@ -254,12 +258,18 @@
                     alert('Please select a Design Name before adding new row');
                     return false;
                 }
-
+        
                 var newSection = $('.form-section:first').clone();
+                
+                // Clear all inputs except the ones that need default values
                 newSection.find('input').val('');
                 newSection.find('select').val('');
-                newSection.find('.stitch, .calculate, .amount').val('');
-
+                newSection.find('.stitch, .calculate_stitch, .amount, .rate').val('');
+                
+                // Set default values for stitch_rate and length_factor
+                newSection.find('.stitch-rate').val(defaultStitchRate);
+                newSection.find('.length-factor').val(defaultLengthFactor);
+        
                 if (afterSection) {
                     afterSection.after(newSection);
                 } else {

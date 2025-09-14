@@ -190,7 +190,9 @@
                                         ['title' => 'Gate Inward', 'route' => 'inward-general.index'],
                                     ],
                                 ],
-                                [
+                            ];
+                            
+                            $productionItems = [[
                                     'title' => 'Productions',
                                     'icon' => 'fas fa-circle',
                                     'route' => 'raw-materials.index',
@@ -208,8 +210,7 @@
                                         ['title' => 'Batch', 'route' => 'batches.index'],
                                         ['title' => 'Lot', 'route' => 'lots.index'],
                                     ],
-                                ],
-                            ];
+                                ]];
 
                             $hrItems = [
                                 [
@@ -344,6 +345,12 @@
                                 'children' => $purchaseItems,
                             ];
                             
+                            $productionParent = [
+                                'title' => 'Production',
+                                'icon' => 'fas fa-cogs',
+                                'children' => $productionItems,
+                            ];
+                            
                             $erpParent = [
                                 'title' => 'ERP',
                                 'icon' => 'fas fa-cogs',
@@ -363,14 +370,17 @@
                             ];
 
                             // Role-based logic to determine which parent menus to include
-                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles) && in_array('purchase', $authRoles)) {
-                                $navItems = [$erpParent, $hrParent, $superParent,$purchaseParent];
+                            
+                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles) && in_array('purchase', $authRoles) && in_array('production', $authRoles)) {
+                                $navItems = [$erpParent, $hrParent, $superParent,$purchaseParent,$productionParent];
                             } elseif (in_array('erp', $authRoles)) {
                                 $navItems = [$erpParent];
                             } elseif (in_array('hr', $authRoles)) {
                                 $navItems = [$hrParent];
                             } elseif (in_array('purchase', $authRoles)) {
                                 $navItems = [$purchaseParent];
+                            } elseif (in_array('production', $authRoles)) {
+                                $navItems = [$productionParent];
                             }
 
                             // If the user has the "super" role, include the Super menu

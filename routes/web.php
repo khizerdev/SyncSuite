@@ -47,7 +47,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     
-    Route::middleware(['role:super-admin|purchase|erp'])->group(function () {
+    Route::middleware(['role:super-admin|purchase|erp|production'])->group(function () {
         Route::get('vendors', [App\Http\Controllers\VendorController::class, 'index'])->name('vendors.index');
         Route::get('vendors/create', [App\Http\Controllers\VendorController::class, 'create'])->name('vendors.create');
         Route::post('vendors', [App\Http\Controllers\VendorController::class, 'store'])->name('vendors.store');
@@ -280,7 +280,7 @@ Route::middleware(['auth'])->group(function () {
     ->name('delete-day-entries');
     });
 
-    Route::middleware(['role:super-admin'])->group(function () {
+    Route::middleware(['role:super-admin|production'])->group(function () {
         Route::resource('accounts', AccountController::class);
         Route::resource('accounts-transfers', TransferController::class);
         Route::resource('accounts-customersreceivables', CustomerReceivableController::class);

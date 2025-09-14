@@ -29,4 +29,16 @@ class SaleOrderItem extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+    
+    public function productionPlannings()
+    {
+        return $this->belongsToMany(ProductionPlanning::class, 'production_planning_items')
+                    ->withPivot('planned_qty', 'planned_lace_qty', 'produced_qty', 'produced_lace_qty', 'status')
+                    ->withTimestamps();
+    }
+
+    public function planningItems()
+    {
+        return $this->hasMany(ProductionPlanningItem::class);
+    }
 }
