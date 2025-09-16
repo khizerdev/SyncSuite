@@ -94,9 +94,9 @@
                               </select>
                            </div>
                            <div class="col-md-6">
-                              <label for="sub_department">Sub Department</label>
-                              <select class="form-control" id="sub_department" name="sub_department" required disabled>
-                                 <option disabled value="">Select Sub-Department</option>
+                              <label for="sub_department">Sub Department <span class="text-muted">(Optional)</span></label>
+                              <select class="form-control" id="sub_department" name="sub_department" disabled>
+                                 <option value="">Select Sub-Department (Optional)</option>
                               </select>
                            </div>
                         </div>
@@ -118,10 +118,10 @@
                               </div>
                            </div>
                            <div class="col-md-6">
-                              <label for="type">Sub Category</label>
+                              <label for="type">Sub Category <span class="text-muted">(Optional)</span></label>
                               <div class="input-group">
-                                 <select class="form-control" id="type" name="type" required disabled>
-                                    <option disabled value="">Select Sub Category</option>
+                                 <select class="form-control" id="type" name="type" disabled>
+                                    <option value="">Select Sub Category (Optional)</option>
                                  </select>
                                  <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#typeModal">
                                    <i class="fas fa-plus"></i>
@@ -179,7 +179,7 @@ function loadSubDepartments(departmentId) {
             .then(response => response.json())
             .then(data => {
                 const subDeptSelect = document.getElementById('sub_department');
-                subDeptSelect.innerHTML = '<option disabled value="">Select Sub-Department</option>';
+                subDeptSelect.innerHTML = '<option value="">Select Sub-Department (Optional)</option>';
                 
                 data.forEach(subDept => {
                     const option = document.createElement('option');
@@ -192,7 +192,9 @@ function loadSubDepartments(departmentId) {
             })
             .catch(error => console.error('Error:', error));
     } else {
-        document.getElementById('sub_department').disabled = true;
+        const subDeptSelect = document.getElementById('sub_department');
+        subDeptSelect.innerHTML = '<option value="">Select Sub-Department (Optional)</option>';
+        subDeptSelect.disabled = true;
     }
 }
 
@@ -203,7 +205,7 @@ function loadTypes(categoryId) {
             .then(response => response.json())
             .then(data => {
                 const typeSelect = document.getElementById('type');
-                typeSelect.innerHTML = '<option disabled value="">Select Type</option>';
+                typeSelect.innerHTML = '<option value="">Select Sub Category (Optional)</option>';
                 
                 data.forEach(type => {
                     const option = document.createElement('option');
@@ -216,7 +218,9 @@ function loadTypes(categoryId) {
             })
             .catch(error => console.error('Error:', error));
     } else {
-        document.getElementById('type').disabled = true;
+        const typeSelect = document.getElementById('type');
+        typeSelect.innerHTML = '<option value="">Select Sub Category (Optional)</option>';
+        typeSelect.disabled = true;
     }
 }
 

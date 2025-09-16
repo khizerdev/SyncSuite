@@ -70,25 +70,25 @@ public function store(Request $request)
     // Validate the incoming request data
     $validatedData = $request->validate([
         'name' => 'required|string|max:255',
-        'sub_department' => 'required',
+        'sub_department' => 'nullable', // Changed from 'required' to 'nullable'
         'category' => 'required',
-        'type' => 'required',
+        'type' => 'nullable', // Changed from 'required' to 'nullable'
         'opening_quantity' => 'required|integer|min:0',
         'opening_inventory' => 'required|numeric|min:0',
         'total_price' => 'required|numeric|min:0',
         'min_qty_limit' => 'required|string|max:255',
         'unit' => 'required|string|max:11',
     ]);
-
+    
     // Generate a serial number (you can customize this as needed)
     $serialNo = 'PROD-' . Str::upper(Str::random(8));
-
+    
     // Create the product with mapped fields
     $product = Product::create([
         'name' => $validatedData['name'],
         'serial_no' => $serialNo,
-        'department_id' => $validatedData['sub_department'], // Mapping sub_department to department_id
-        'material_id' => $validatedData['type'], // Mapping type to material_id
+        'department_id' => $validatedData['sub_department'] ?: null, // Use null if empty
+        'material_id' => $validatedData['type'] ?: null, // Use null if empty
         'particular_id' => $validatedData['category'], // Mapping category to particular_id
         'qty' => $validatedData['opening_quantity'], // Mapping opening_quantity to qty
         'inventory_price' => $validatedData['opening_inventory'], // Mapping opening_inventory to inventory_price
@@ -96,7 +96,7 @@ public function store(Request $request)
         'min_qty_limit' => $validatedData['min_qty_limit'],
         'unit' => $validatedData['unit'],
     ]);
-
+    
     // Redirect with success message
     return redirect()->route('products.index')
         ->with('success', 'Product created successfully.');
