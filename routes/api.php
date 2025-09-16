@@ -111,7 +111,7 @@ Route::get('/then-issue/search', function(Request $request) {
             $query->where('sale_orders.sale_no', 'LIKE', "%{$searchTerm}%")
                   ->where('sale_orders.order_status', 'open');
         })
-        ->with(['dailyProductionItem.saleOrder'])
+        ->with(['dailyProductionItem','dailyProductionItem.saleOrder','thanIssue','dailyProductionItem.saleOrder.items.design'])
         ->get();
         
     return response()->json($items);

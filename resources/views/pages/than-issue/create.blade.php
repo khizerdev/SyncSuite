@@ -1,17 +1,82 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        /* Add these styles to your existing style section */
+        .search-container {
+            margin-bottom: 20px;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #searchResults {
+            display: none;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: -1px;
+            position: absolute;
+            width: calc(100% - 30px);
+            background: white;
+            z-index: 1000;
+        }
+        #searchResults li {
+            padding: 10px;
+            cursor: pointer;
+            list-style-type: none;
+            border-bottom: 1px solid #eee;
+        }
+        #searchResults li:hover {
+            background-color: #f5f5f5;
+        }
+        #selectedItems {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        #selectedItems li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #selectedItems li:last-child {
+            border-bottom: none;
+        }
+        .remove-btn {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .remove-btn:hover {
+            background-color: #cc0000;
+        }
+        .hidden-inputs {
+            display: none;
+        }
+    </style>
+
     <section class="content-header">
         <div class="container-fluid">
-            
             <div class="row">
                 <div class="col-md-12">
                     <div class="card card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title">Than Create</h3>
+                            <h3 class="card-title">Than Supply</h3>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('than-issues.store') }}" method="POST" id="thanIssueForm">
+                            <form action="{{ route('than-supplies.store') }}" method="POST" id="thanIssueForm">
                                 @csrf
 
                                 <div class="row">
@@ -22,43 +87,75 @@
                                                    value="{{ old('date', now()->format('Y-m-d')) }}" required>
                                         </div>
                                     </div>
-                                    
-                                    <div class="col-md-12" id="product_group_id">
+
+                                    <!-- Search and Selected Items Section -->
+                                    <div class="col-xs-12 col-sm-12 col-md-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="search-container">
+                                                    <h4>Add THAN Issue Items</h4>
+                                                    <input type="text" id="searchInput" placeholder="Search by serial number or product...">
+                                                    <ul id="searchResults"></ul>
+                                                    
+                                                    <h5>Selected Items</h5>
+                                                    <ul id="selectedItems"></ul>
+                                                    
+                                                    <!-- Hidden container for form inputs -->
+                                                    <div id="hiddenInputs" class="hidden-inputs"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rest of your existing form fields -->
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="product_group_id">Product Group</label>
-                                            <select class="form-control" id="product_group_id" name="product_group_id" required>
-                                                <option value="">Select Product Group</option>
-                                                @foreach($productGroups as $productGroup)
-                                                    <option value="{{ $productGroup->id }}" {{ old('product_group_id') == $productGroup->id ? 'selected' : '' }}>
-                                                        {{ $productGroup->code }}
+                                            <label>Job Type</label>
+                                            <div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="job_type" id="job_type_department" 
+                                                           value="department" {{ old('job_type') == 'department' ? 'checked' : '' }} required>
+                                                    <label class="form-check-label" for="job_type_department">Department</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="job_type" id="job_type_party" 
+                                                           value="party" {{ old('job_type') == 'party' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="job_type_party">Party</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6" id="department_field" 
+                                         style="{{ old('job_type') == 'department' ? '' : 'display: none;' }}">
+                                        <div class="form-group">
+                                            <label for="department_id">Department</label>
+                                            <select class="form-control" id="department_id" name="department_id">
+                                                <option value="">Select Department</option>
+                                                @foreach($departments as $department)
+                                                    <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
+                                                        {{ $department->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
 
-                                    <!-- Daily Productions Section -->
-                                    <div class="col-xs-12 col-sm-12 col-md-12">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h4 class="card-title">Daily Productions</h4>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="form-group">
-                                                    <strong>Search Daily Production:</strong>
-                                                    <input type="text" name="production_search" id="production_search"
-                                                        class="form-control"
-                                                        placeholder="Enter Production ID or Sale Order ID">
-                                                    <div id="production_search_results" class="mt-2"></div>
-                                                </div>
-
-                                                <div id="selected_productions">
-                                                    <!-- Selected items will appear here -->
-                                                </div>
-                                            </div>
+                                    <div class="col-md-6" id="party_field" 
+                                         style="{{ old('job_type') == 'party' ? '' : 'display: none;' }}">
+                                        <div class="form-group">
+                                            <label for="party_id">Party</label>
+                                            <select class="form-control" id="party_id" name="party_id">
+                                                <option value="">Select Party</option>
+                                                @foreach($parties as $party)
+                                                    <option value="{{ $party->id }}" {{ old('party_id') == $party->id ? 'selected' : '' }}>
+                                                        {{ $party->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="remarks">Remarks</label>
@@ -76,247 +173,173 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 @endsection
 
 @section('script')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get designs passed from controller
-        const designs = @json($designs ?? []);
-
-        // Initialize Select2 for design dropdowns
-        function initSelect2(element) {
-            $(element).select2({
-                placeholder: "Select Designs",
-                allowClear: true,
-                data: designs.map(design => ({
-                    id: design.id,
-                    text: design.design_code,
-                    description: design.description
-                })),
-                templateResult: formatDesign,
-                templateSelection: formatDesignSelection,
-                escapeMarkup: function (markup) { return markup; }
-            });
-        }
-
-        function formatDesign(design) {
-            if (design.loading) return design.text;
-            
-            var markup = "<div class='select2-result-design clearfix'>" +
-                "<div class='select2-result-design__title'>" + design.text + "</div>";
-            
-            if (design.description) {
-                markup += "<div class='select2-result-design__description'>" + design.description + "</div>";
-            }
-            
-            markup += "</div>";
-            return markup;
-        }
-
-        function formatDesignSelection(design) {
-            return design.text;
-        }
-
-        // Daily Production Search and Selection
-        const searchInput = $('#production_search');
-        const resultsDiv = $('#production_search_results');
-        const selectedDiv = $('#selected_productions');
-        let selectedItems = [];
-
-        // Debounce search
-        let debounceTimer;
-        searchInput.on('input', function() {
-            clearTimeout(debounceTimer);
-            const searchTerm = $(this).val().trim();
-
-            if (searchTerm.length > 1) {
-                debounceTimer = setTimeout(() => {
-                    fetchProductions(searchTerm);
-                }, 300);
+        // Toggle department/party fields based on job type selection
+        $('input[name="job_type"]').change(function() {
+            if ($(this).val() === 'department') {
+                $('#department_field').show();
+                $('#party_field').hide();
+                $('#party_id').val('');
             } else {
-                resultsDiv.empty();
+                $('#department_field').hide();
+                $('#party_field').show();
+                $('#department_id').val('');
             }
         });
+
+        // Search and selection functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const selectedItemsList = document.getElementById('selectedItems');
+        const form = document.getElementById('thanIssueForm');
+        const hiddenInputs = document.getElementById('hiddenInputs');
         
-        const baseUrl = "{{env('APP_URL')}}"
-        function fetchProductions(searchTerm) {
-            $.get(`${baseUrl}/api/daily-productions/search?q=${encodeURIComponent(searchTerm)}`, function(data) {
-                displayProductionResults(data);
-            }).fail(function() {
-                resultsDiv.html('<div class="text-danger">Error fetching data</div>');
-            });
-        }
+        let selectedItems = [];
+        let searchTimeout = null;
 
-        function displayProductionResults(productions) {
-            let html = '<ul class="list-group">';
+        // Search items when typing
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value.trim();
             
-            productions.forEach(production => {
-                html += `
-                    <li class="list-group-item">
-                        <strong>Production #${production.id}</strong> (${production.date})<br>
-                        Machine: ${production.machine?.name || 'N/A'}<br>
-                        Shift: ${production.shift?.name || 'N/A'}`;
-                
-                if (production.items && production.items.length > 0) {
-                    html += `<ul class="list-group mt-2">`;
-                    
-                    production.items.forEach(item => {
-                        console.log(item)
-                        // Skip if already selected
-                        const isSelected = selectedItems.some(i => i.parentId === item.id);
-                        const itemClass = isSelected ? 'bg-light text-muted' : '';
-                        
-                        html += `
-                            <li class="list-group-item list-group-item-action ${itemClass}" 
-                                data-id="${item.id}"
-                                onclick="handleItemClick(${item.id}, '${item.sale_order_id}', ${item.than_qty}, this, '${item.design?.design_code || 'N/A'}', '${item.color?.title || 'N/A'}')">
-                                <strong>Sale Order #${item.sale_order_id}</strong><br>
-                                Design: ${item.design.design_code || 'N/A'}<br>
-                                Color: ${item.color.title || 'N/A'}<br>
-                                Than Qty: ${item.than_qty}
-                                ${isSelected ? '<span class="float-right text-success">✓ Selected</span>' : ''}
-                            </li>`;
-                    });
-                    
-                    html += `</ul>`;
-                }
-                
-                html += `</li>`;
-            });
-            
-            html += '</ul>';
-            resultsDiv.html(html);
-        }
-
-        // Global click handler
-        window.handleItemClick = function(itemId, saleOrderId, thanQty, element, designName, colorName) {
-            // Check if already selected (using parentId to track the original item)
-            const isSelected = selectedItems.some(item => item.parentId === itemId);
-            
-            if (isSelected) {
-                // Remove all items with this parentId
-                selectedItems = selectedItems.filter(item => item.parentId !== itemId);
-                $(element).removeClass('bg-light text-muted');
-                $(element).find('.float-right').remove();
-            } else {
-                // Prompt user for number of items to include
-                const itemCount = prompt(`How many items do you want to include? (Max: ${thanQty})`, thanQty);
-                
-                if (itemCount === null) return; // User cancelled
-                
-                const count = parseInt(itemCount);
-                
-                if (count <= 0) return;
-                
-                // Add new items - one for each count
-                for (let i = 1; i <= count; i++) {
-                    selectedItems.push({
-                        id: `${itemId}-${i}`, // Unique ID for each row
-                        parentId: itemId,     // Original item ID
-                        sale_order_id: saleOrderId,
-                        design_name: designName,
-                        color_name: colorName,
-                        than_qty: thanQty,
-                        sequence: i            // Track position (1 to count)
-                    });
-                }
-                $(element).addClass('bg-light text-muted');
-                $(element).append('<span class="float-right text-success">✓ Selected</span>');
-            }
-            
-            renderSelectedItems();
-        };
-
-        // Render selected items table with one row per than_qty
-        function renderSelectedItems() {
-            if (selectedItems.length === 0) {
-                selectedDiv.html('<div class="alert alert-info">No items selected yet</div>');
+            if (searchTerm.length < 0) {
+                searchResults.style.display = 'none';
                 return;
             }
-
-            let html = `
-                <div class="table-responsive mt-3">
-                    <table class="table table-bordered">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Sale #</th>
-                                <th>Design</th>
-                                <th>Color</th>
-                                <th>Designs</th>
-                                <th>Lace Qty</th>
-                                <th>Weight</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-
-            // Sort by parentId and sequence for better display
-            selectedItems.sort((a, b) => {
-                if (a.parentId === b.parentId) {
-                    return a.sequence - b.sequence;
-                }
-                return a.parentId - b.parentId;
-            });
-
-            selectedItems.forEach((item, index) => {
-                html += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.sale_order_id}</td>
-                        <td>${item.design_name}</td>
-                        <td>${item.color_name}</td>
-                        <td>
-                            <select class="form-control design-select" name="designs[${item.id}][]" multiple="multiple" style="width: 100%;">
-                                <!-- Options will be loaded from controller data -->
-                            </select>
-                        </td>
-                        <td>
-                            <input type="number" class="form-control" name="lace_qty[${item.id}]" value="${index}"  required step="0.01" min="0">
-                        </td>
-                        <td>
-                            <input type="number" class="form-control" name="weight[${item.id}]" value="${index}" required step="0.01" min="0">
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSelectedItem(${item.parentId})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-            });
-
-            html += `</tbody></table></div>`;
-            selectedDiv.html(html);
             
-            // Initialize Select2 for all design dropdowns with preloaded data
-            $('.design-select').each(function() {
-                initSelect2(this);
+            searchTimeout = setTimeout(() => {
+                fetchSearchResults(searchTerm);
+            }, 300);
+        });
+
+        // Click outside to close search results
+        document.addEventListener('click', function(e) {
+            if (e.target !== searchInput) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // Fetch search results from API
+        const baseUrl = "{{env('APP_URL')}}"
+        function fetchSearchResults(searchTerm) {
+            fetch(`${baseUrl}/api/then-issue/search?search=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                });
+        }
+
+        // Display search results
+        function displaySearchResults(items) {
+            searchResults.innerHTML = '';
+            
+            if (items.length === 0) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            items.forEach(item => {
+                const li = document.createElement('li');
+                console.log(item)
+                li.textContent = `${item.serial_no} - Than ${item.than_issue?.serial_no || 'N/A'} - (Qty: ${item.quantity}) - Design ${item.daily_production_item?.sale_order?.items[0]?.design?.design_code || 'N/A'}`;
+                li.dataset.itemId = item.id;
+                li.dataset.itemData = JSON.stringify(item);
+                
+                li.addEventListener('click', function() {
+                    addSelectedItem(JSON.parse(this.dataset.itemData));
+                    searchResults.style.display = 'none';
+                    searchInput.value = '';
+                });
+                
+                searchResults.appendChild(li);
+            });
+            
+            searchResults.style.display = 'block';
+        }
+
+        // Add item to selected items
+        function addSelectedItem(item) {
+            // Check if item is already selected
+            if (selectedItems.some(selected => selected.id === item.id)) {
+                return;
+            }
+            
+            selectedItems.push(item);
+            updateSelectedItemsList();
+            updateHiddenInputs();
+        }
+
+        // Remove item from selected items
+        function removeSelectedItem(index) {
+            selectedItems.splice(index, 1);
+            updateSelectedItemsList();
+            updateHiddenInputs();
+        }
+
+        // Update the selected items list display
+        function updateSelectedItemsList() {
+            selectedItemsList.innerHTML = '';
+            
+            if (selectedItems.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'No items selected';
+                selectedItemsList.appendChild(li);
+                return;
+            }
+            
+            selectedItems.forEach((item, index) => {
+                const li = document.createElement('li');
+                
+                const itemText = document.createElement('span');
+                itemText.textContent = `${item.serial_no} - ${item.product_group?.name || 'N/A'} (Qty: ${item.quantity})`;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.className = 'remove-btn';
+                removeBtn.type = 'button'; // Important: prevent form submission
+                removeBtn.addEventListener('click', () => removeSelectedItem(index));
+                
+                li.appendChild(itemText);
+                li.appendChild(removeBtn);
+                selectedItemsList.appendChild(li);
             });
         }
 
-        // Global remove function for all items with same parentId
-        window.removeSelectedItem = function(itemId) {
-            selectedItems = selectedItems.filter(item => item.parentId !== itemId);
-            renderSelectedItems();
+        // Update hidden form inputs
+        function updateHiddenInputs() {
+            hiddenInputs.innerHTML = '';
             
-            // Update search results to show item as available again
-            $(`[data-id="${itemId}"]`).removeClass('bg-light text-muted')
-                .find('.float-right').remove();
-        };
+            selectedItems.forEach((item, index) => {
+                // Create hidden inputs for each field
+                createHiddenInput(`items[${index}][id]`, item.id);
+                createHiddenInput(`items[${index}][than_issue_id]`, item.than_issue_id);
+                createHiddenInput(`items[${index}][daily_production_item_id]`, item.daily_production_item_id);
+                createHiddenInput(`items[${index}][product_group_id]`, item.product_group_id);
+                createHiddenInput(`items[${index}][quantity]`, item.quantity);
+                createHiddenInput(`items[${index}][serial_no]`, item.serial_no);
+            });
+        }
 
-        // Form submission
-        $('#thanIssueForm').on('submit', function(e) {
-            if (selectedItems.length === 0) {
-                e.preventDefault();
-                alert('Please add at least one production item');
-            }
-        });
+        // Helper function to create hidden inputs
+        function createHiddenInput(name, value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            hiddenInputs.appendChild(input);
+        }
+
+        // Initialize with empty selected items list
+        updateSelectedItemsList();
     });
 </script>
 @endsection
