@@ -37,7 +37,7 @@ class InventoryController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('total_in', function($row) {
-                    return $row->purchaseOrderItems->sum('qty');
+                    return $row->qty + $row->purchaseOrderItems->sum('qty');
                 })
                 ->addColumn('total_out', function($row) {
                     return 0; // Default to 0 since no sales
@@ -72,45 +72,69 @@ class InventoryController extends Controller
                     ->toJson();
             }
     
-            // Original ledger functionality
-            $purchaseItems = PurchaseOrderItems::with(['purchase'])
-                ->where('product_id', $id)
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'date' => $item->created_at,
-                        'type' => 'IN',
-                        'reference' => 'PO-' . $item->purchase->id,
-                        'serial_no' => $item->purchase->serial_no,
-                        'in' => $item->qty,
-                        'out' => 0,
-                        'created_at' => $item->created_at
-                    ];
-                });
-    
-            // Combine all transactions and sort by date
-            $allTransactions = collect($purchaseItems)
-                ->sortBy('created_at');
-    
-            // Calculate running balance
-            $runningBalance = 0;
-            $ledgerEntries = $allTransactions->map(function ($item) use (&$runningBalance) {
-                $runningBalance += $item['in'] - $item['out'];
-                $item['balance'] = $runningBalance;
-                return $item;
-            });
-    
-            return DataTables::of($ledgerEntries)
-                ->addIndexColumn()
-                ->addColumn('type_badge', function($row) {
-                    $badgeClass = $row['type'] == 'IN' ? 'bg-success' : 'bg-danger';
-                    return '<span class="badge ' . $badgeClass . '">' . $row['type'] . '</span>';
-                })
-                ->addColumn('date_formatted', function($row) {
-                    return $row['date']->format('Y-m-d H:i');
-                })
-                ->rawColumns(['type_badge'])
-                ->toJson();
+      
+// Get the product to access the opening quantity
+$product = Product::find($id);
+$openingQty = $product ? $product->qty : 0;
+
+// Create opening balance entry if there's an opening quantity
+$openingEntry = [];
+if ($openingQty > 0) {
+    $openingEntry = [[
+        'date' => $product->created_at ?? now(),
+        'type' => 'OPENING',
+        'reference' => 'Opening Balance',
+        'serial_no' => '-',
+        'in' => $openingQty,
+        'out' => 0,
+        'created_at' => $product->created_at ?? now()
+    ]];
+}
+
+// Original ledger functionality
+$purchaseItems = PurchaseOrderItems::with(['purchase'])
+    ->where('product_id', $id)
+    ->get()
+    ->map(function ($item) {
+        return [
+            'date' => $item->created_at,
+            'type' => 'IN',
+            'reference' => 'PO-' . $item->purchase->id,
+            'serial_no' => $item->purchase->serial_no,
+            'in' => $item->qty,
+            'out' => 0,
+            'created_at' => $item->created_at
+        ];
+    });
+
+// Combine opening balance with all transactions and sort by date
+$allTransactions = collect($openingEntry)
+    ->merge($purchaseItems)
+    ->sortBy('created_at');
+
+// Calculate running balance starting with opening balance
+$runningBalance = 0;
+$ledgerEntries = $allTransactions->map(function ($item) use (&$runningBalance) {
+    $runningBalance += $item['in'] - $item['out'];
+    $item['balance'] = $runningBalance;
+    return $item;
+});
+
+return DataTables::of($ledgerEntries)
+    ->addIndexColumn()
+    ->addColumn('type_badge', function($row) {
+        $badgeClass = match($row['type']) {
+            'IN' => 'bg-success',
+            'OPENING' => 'bg-info',
+            default => 'bg-danger'
+        };
+        return '<span class="badge ' . $badgeClass . '">' . $row['type'] . '</span>';
+    })
+    ->addColumn('date_formatted', function($row) {
+        return $row['date']->format('Y-m-d H:i');
+    })
+    ->rawColumns(['type_badge'])
+    ->toJson();
         }
     
         $departments = Department::all();
