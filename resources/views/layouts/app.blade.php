@@ -142,12 +142,16 @@
                                         ['title' => 'Purchase Order', 'route' => 'purchases.index'],
                                         ['title' => 'GRN', 'route' => 'purchase-receipts.index'],
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
-                                        ['title' => 'Inventory', 'route' => 'inventory.index'],
                                         ['title' => 'ERP Departments', 'route' => 'erp-departments.index'],
                                         ['title' => 'Sub ERP Departments', 'route' => 'sub-erp-departments.index'],
                                     ],
                                 ]
                             ];
+                            
+                            $storeItems = [
+                                        ['title' => 'Inventory', 'icon' => 'fas fa-circle', 'route' => 'inventory.index'],
+                            ];
+                            
                             $erpItems = [
                                 [
                                     'title' => 'Branch',
@@ -345,6 +349,12 @@
                                 'children' => $purchaseItems,
                             ];
                             
+                            $storeParent = [
+                                'title' => 'Store',
+                                'icon' => 'fas fa-cogs',
+                                'children' => $storeItems,
+                            ];
+                            
                             $productionParent = [
                                 'title' => 'Production',
                                 'icon' => 'fas fa-cogs',
@@ -371,8 +381,8 @@
 
                             // Role-based logic to determine which parent menus to include
                             
-                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles) && in_array('purchase', $authRoles) && in_array('production', $authRoles)) {
-                                $navItems = [$erpParent, $hrParent, $superParent,$purchaseParent,$productionParent];
+                            if (in_array('hr', $authRoles) && in_array('erp', $authRoles) && in_array('purchase', $authRoles) && in_array('production', $authRoles) && in_array('store', $authRoles)) {
+                                $navItems = [$erpParent, $hrParent, $superParent,$purchaseParent,$productionParent,$storeParent];
                             } elseif (in_array('erp', $authRoles)) {
                                 $navItems = [$erpParent];
                             } elseif (in_array('hr', $authRoles)) {
@@ -381,6 +391,8 @@
                                 $navItems = [$purchaseParent];
                             } elseif (in_array('production', $authRoles)) {
                                 $navItems = [$productionParent];
+                            } elseif (in_array('store', $authRoles)) {
+                                $navItems = [$storeParent];
                             }
 
                             // If the user has the "super" role, include the Super menu

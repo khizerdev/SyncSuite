@@ -139,13 +139,19 @@ Route::middleware(['auth'])->group(function () {
         Route::put('materials/{id}', [App\Http\Controllers\MaterialController::class, 'update'])->name('materials.update');
         Route::get('materials/{id}', [App\Http\Controllers\MaterialController::class, 'destroy'])->name('materials.destroy');
         
-          Route::resource('inventory', App\Http\Controllers\InventoryController::class);
-        // Route::post('inventory/{product}/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer');
-        Route::post('/inventory/bulk-transfer', [InventoryController::class, 'transfer'])
-     ->name('inventory.bulk-transfer');
-        Route::get('/bulk/inventory', [InventoryController::class, 'bulk_transfer'])
-     ->name('inventory.bulk_transfer');
+          
     });
+    
+    Route::middleware(['role:super-admin|store'])->group(function () {
+        
+        Route::resource('inventory', App\Http\Controllers\InventoryController::class);
+            // Route::post('inventory/{product}/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer');
+            Route::post('/inventory/bulk-transfer', [InventoryController::class, 'transfer'])
+         ->name('inventory.bulk-transfer');
+            Route::get('/bulk/inventory', [InventoryController::class, 'bulk_transfer'])
+         ->name('inventory.bulk_transfer');
+    });
+    
     
 
     Route::middleware(['role:super-admin|erp'])->group(function () {

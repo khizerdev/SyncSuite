@@ -98,7 +98,7 @@ class AttendanceController extends Controller
     {
         // Validate the uploaded file
         $request->validate([
-            'excel_file' => 'required|file'
+            'excel_file' => 'required|mimes:xlsx,xls'
         ]);
 
         try {
