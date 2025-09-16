@@ -228,7 +228,7 @@ class PurchaseReceiptController extends Controller
     {
 
         $receipt = PurchaseReceipt::find($id);
-        return view('purchase-receipts.view', compact('receipt'));
+        return view('pages.purchase-receipts.view', compact('receipt'));
 
     }
 
