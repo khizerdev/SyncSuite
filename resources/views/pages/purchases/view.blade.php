@@ -201,8 +201,8 @@
                   <div class="invoice" >
                       <div class="invoice-address px-3">
                           <div style="display: flex;padding:11px 0px;" class="text-center">
-                              <img src="https://ahmedfabrics.com.pk/Software/public/ahmed.JPG" width="220" />
-                              <p style="flex:1;color:black;text-align: left;margin-left: 5px;margin-bottom: 0;display: table;margin-top: auto;font-weight: 700;"   >D/94, Shershah Road, SITE Karachi Tel: 325706012</p>
+                              <img src="https://ahmedfabrics.com.pk/paramount/public/uploads/logo.png" width="220" />
+                              <p style="flex:1;color:black;text-align: left;margin-left: 5px;margin-bottom: 0;display: table;margin-top: auto;font-weight: 700;"   >L-4/3 Israr Ahmad Alvi St, Federal B Area Block 21 Industrial Area, Karachi, 75950, Pakistan</p>
                               <h6>PO-{{$module->date->format('ym') }}{{ str_pad(intval($module->serial), 3, '0', STR_PAD_LEFT) }}</h6>
                           </div>
                           <div class="order-details" >
@@ -230,6 +230,7 @@
                                               <th> # </th>
                                               <th> Product </th>
                                               <th> Quantity</th>
+                                              <th> Rate</th>
                                           </tr>        
                                       </thead>
                                       <tbody>
@@ -238,6 +239,7 @@
                                               <td>{{$key + 1}}</td>
                                               <td>{{$item->product->name}}</td>
                                               <td>{{$item->qty}}</td>
+                                              <td>{{$item->rate}}</td>
                                           </tr>
                                           @endforeach
                                       </tbody>

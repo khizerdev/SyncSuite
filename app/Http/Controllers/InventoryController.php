@@ -55,91 +55,120 @@ class InventoryController extends Controller
      }
      
      public function show($id, Request $request)
-    {
-        $product = Product::with('departments')->findOrFail($id);
-        
-        if ($request->ajax()) {
-            // Check if this is a request for department inventory
-            if ($request->has('department_inventory')) {
-                return DataTables::of($product->departments)
-                    ->addIndexColumn()
-                    ->addColumn('department_name', function($department) {
-                        return $department->name;
-                    })
-                    ->addColumn('quantity', function($department) {
-                        return $department->pivot->quantity;
-                    })
-                    ->toJson();
-            }
+{
+    $product = Product::with('departments')->findOrFail($id);
     
-      
-// Get the product to access the opening quantity
-$product = Product::find($id);
-$openingQty = $product ? $product->qty : 0;
-
-// Create opening balance entry if there's an opening quantity
-$openingEntry = [];
-if ($openingQty > 0) {
-    $openingEntry = [[
-        'date' => $product->created_at ?? now(),
-        'type' => 'OPENING',
-        'reference' => 'Opening Balance',
-        'serial_no' => '-',
-        'in' => $openingQty,
-        'out' => 0,
-        'created_at' => $product->created_at ?? now()
-    ]];
-}
-
-// Original ledger functionality
-$purchaseItems = PurchaseOrderItems::with(['purchase'])
-    ->where('product_id', $id)
-    ->get()
-    ->map(function ($item) {
-        return [
-            'date' => $item->created_at,
-            'type' => 'IN',
-            'reference' => 'PO-' . $item->purchase->id,
-            'serial_no' => $item->purchase->serial_no,
-            'in' => $item->qty,
-            'out' => 0,
-            'created_at' => $item->created_at
-        ];
-    });
-
-// Combine opening balance with all transactions and sort by date
-$allTransactions = collect($openingEntry)
-    ->merge($purchaseItems)
-    ->sortBy('created_at');
-
-// Calculate running balance starting with opening balance
-$runningBalance = 0;
-$ledgerEntries = $allTransactions->map(function ($item) use (&$runningBalance) {
-    $runningBalance += $item['in'] - $item['out'];
-    $item['balance'] = $runningBalance;
-    return $item;
-});
-
-return DataTables::of($ledgerEntries)
-    ->addIndexColumn()
-    ->addColumn('type_badge', function($row) {
-        $badgeClass = match($row['type']) {
-            'IN' => 'bg-success',
-            'OPENING' => 'bg-info',
-            default => 'bg-danger'
-        };
-        return '<span class="badge ' . $badgeClass . '">' . $row['type'] . '</span>';
-    })
-    ->addColumn('date_formatted', function($row) {
-        return $row['date']->format('Y-m-d H:i');
-    })
-    ->rawColumns(['type_badge'])
-    ->toJson();
+    if ($request->ajax()) {
+        // Check if this is a request for department inventory
+        if ($request->has('department_inventory')) {
+            return DataTables::of($product->departments)
+                ->addIndexColumn()
+                ->addColumn('department_name', function($department) {
+                    return $department->name;
+                })
+                ->addColumn('quantity', function($department) {
+                    return $department->pivot->quantity;
+                })
+                ->toJson();
         }
-    
-        $departments = Department::all();
-        return view('pages.inventory.show', compact('product', 'departments'));
+
+        // Get the product to access the opening quantity
+        $product = Product::find($id);
+        $openingQty = $product ? $product->qty : 0;
+
+        // Create opening balance entry if there's an opening quantity
+        $openingEntry = [];
+        if ($openingQty > 0) {
+            $openingEntry = [[
+                'date' => $product->created_at ?? now(),
+                'type' => 'OPENING',
+                'reference' => 'Opening Balance',
+                'serial_no' => '-',
+                'in' => $openingQty,
+                'out' => 0,
+                'created_at' => $product->created_at ?? now()
+            ]];
+        }
+
+        // Get purchase items (IN transactions)
+        $purchaseItems = PurchaseOrderItems::with(['purchase'])
+            ->where('product_id', $id)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => $item->created_at,
+                    'type' => 'IN',
+                    'reference' => 'PO-' . $item->purchase->id,
+                    'serial_no' => $item->purchase->serial_no,
+                    'in' => $item->qty,
+                    'out' => 0,
+                    'created_at' => $item->created_at
+                ];
+            });
+
+        // Calculate stock transfers to departments (OUT transactions)
+        // We'll assume each department's current quantity represents the total transferred
+        $departmentTransfers = [];
+        $totalTransferred = 0;
+        
+        foreach ($product->departments as $department) {
+            $transferredQty = $department->pivot->quantity;
+            if ($transferredQty > 0) {
+                $departmentTransfers[] = [
+                    'date' => $department->pivot->created_at ?? now(),
+                    'type' => 'OUT',
+                    'reference' => 'DEPT-TRF',
+                    'serial_no' => '-',
+                    'in' => 0,
+                    'out' => $transferredQty,
+                    'created_at' => $department->pivot->created_at ?? now(),
+                    'notes' => 'Transfer to ' . $department->name
+                ];
+                $totalTransferred += $transferredQty;
+            }
+        }
+
+        // If you want to track individual transfers rather than cumulative amounts,
+        // you would need to add a transfer history mechanism
+
+        // Combine opening balance with all transactions and sort by date
+        $allTransactions = collect($openingEntry)
+            ->merge($purchaseItems)
+            ->merge($departmentTransfers)
+            ->sortBy('created_at');
+
+        // Calculate running balance starting with opening balance
+        $runningBalance = 0;
+        $ledgerEntries = $allTransactions->map(function ($item) use (&$runningBalance) {
+            $runningBalance += $item['in'] - $item['out'];
+            $item['balance'] = $runningBalance;
+            return $item;
+        });
+
+        return DataTables::of($ledgerEntries)
+            ->addIndexColumn()
+            ->addColumn('type_badge', function($row) {
+                $badgeClass = match($row['type']) {
+                    'IN' => 'bg-success',
+                    'OPENING' => 'bg-info',
+                    'OUT' => 'bg-danger',
+                    default => 'bg-secondary'
+                };
+                return '<span class="badge ' . $badgeClass . '">' . $row['type'] . '</span>';
+            })
+            ->addColumn('date_formatted', function($row) {
+                return $row['date']->format('Y-m-d H:i');
+            })
+            ->addColumn('notes', function($row) {
+                return $row['notes'] ?? '-';
+            })
+            ->rawColumns(['type_badge'])
+            ->toJson();
     }
+
+    $departments = Department::all();
+    return view('pages.inventory.show', compact('product', 'departments'));
+}
     
     public function bulk_transfer(){
         return view('pages.inventory.transfer');
