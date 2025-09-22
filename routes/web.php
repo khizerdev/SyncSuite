@@ -36,6 +36,7 @@ use App\Http\Controllers\SubErpDepartmentController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\LotController;
+use App\Http\Controllers\ProductSaleOrderController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('vendors/{id}/edit', [App\Http\Controllers\VendorController::class, 'edit'])->name('vendors.edit');
         Route::put('vendors/{id}', [App\Http\Controllers\VendorController::class, 'update'])->name('vendors.update');
         Route::get('vendors/{id}', [App\Http\Controllers\VendorController::class, 'destroy'])->name('vendors.destroy');
+        Route::resource('product_sale_orders', ProductSaleOrderController::class);
         
         Route::resource('lots', LotController::class);
         Route::get('/lot/products-by-department', [LotController::class, 'getProductsByDepartment'])->name('lots.products-by-department');

@@ -140,6 +140,7 @@
                                     'route' => 'purchases.index',
                                     'children' => [
                                         ['title' => 'Purchase Order', 'route' => 'purchases.index'],
+                                        ['title' => 'Product Sale Order', 'route' => 'product_sale_orders.index'],
                                         ['title' => 'GRN', 'route' => 'purchase-receipts.index'],
                                         ['title' => 'Purchase Invoice', 'route' => 'purchase-invoice.index'],
                                         ['title' => 'ERP Departments', 'route' => 'erp-departments.index'],
