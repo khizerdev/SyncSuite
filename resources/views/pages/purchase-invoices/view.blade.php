@@ -120,20 +120,9 @@
 @endsection
 @section('content')
 <div class="container-fluid">
-   
-  <!-- start page title -->
-    <div class="row">
-      <div class="col-12 mt-4">
-          <div class="page-title-box d-flex align-items-center justify-content-between">
-              <h4 class="mb-0 font-size-18">View Purchase Invoice</h4>
-              <div class="page-title-right">
-          </div>
-      </div>
-    </div>
-  <!-- end page title -->
+
 
    <?php
-   
      $vendor = $invoice->items[0]->receipt->receipt->purchase->vendor;
     
    ?>
@@ -159,14 +148,10 @@
                         
                     </div>
                     <div class="col-6 text-left">
-        
-                        <img class="logo" src="{{asset('/admin/images/logo.jpeg')}}" />
-                        <span class="title">Paramount Lace</span>
+         
+                        <img class="logo" style="width: 200px" src="https://ahmedfabrics.com.pk/paramount/public/uploads/logo.png" />
                         <ul>
-                            <li>PLOT # D-94 A SHERSHA ROAD</li>
-                            <li>Site, Karachi</li>
-                            <li>NTN:2654077-7</li>
-                            <li>STRN:3277876235794</li>
+                            <li>L-4/3 Israr Ahmad Alvi St, Federal B Area Block 21 Industrial Area, Karachi, 75950, Pakistan</li>
                         </ul>
                     </div>
                     <div class="col-6 text-right">

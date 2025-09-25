@@ -94,7 +94,7 @@ class PurchaseReceiptController extends Controller
 
         $request->validate(['date' => 'required', ]);
 
-        $date = Carbon::createFromFormat('Y-m-d\TH:i', $request->date);
+        $date = Carbon::createFromFormat('Y-m-d', $request->date);
         $last = PurchaseReceipt::whereYear('date', date($date->format('Y')))
             ->whereMonth('date', date($date->format('m')))
             ->orderBy('serial', 'DESC')
@@ -174,7 +174,7 @@ class PurchaseReceiptController extends Controller
 
         $number = intval($request->serial_no);
         $serial = str_pad(intval($request->serial_no) , 3, '0', STR_PAD_LEFT);
-        $date = Carbon::createFromFormat('Y-m-d\TH:i', $request->date)->format('ym');
+        $date = Carbon::createFromFormat('Y-m-d', $request->date)->format('ym');
         
         
         $serial_no = 'PR-' . $date . $serial;

@@ -138,7 +138,7 @@ public function store(Request $request)
         ]);
     }
      
-    return redirect()->route('pages.purchase-invoice.index', $invoice->id)
+    return redirect()->route('purchase-invoice.index', $invoice->id)
                     ->with('success', 'Purchase Invoice Generated');
 }
 

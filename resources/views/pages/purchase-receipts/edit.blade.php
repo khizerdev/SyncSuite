@@ -95,7 +95,7 @@
                 </div>
                 <div class="col-md-3">
                     <label for="simpleinput">Date</label>
-                    <input required type="datetime-local" name="date" value="{{ $receipt->date->format('Y-m-d\TH:i:s') }}" class="form-control" />
+                    <input required type="date" name="date" value="{{ $receipt->date->format('Y-m-d') }}" class="form-control" />
                 </div>
                 
                 <div class="col-md-3" >

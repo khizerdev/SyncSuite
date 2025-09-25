@@ -102,7 +102,7 @@
                 <div class="row" >
                   <div class="col-md-4" >
                       <label for="simpleinput">Date</label>
-                      <input required type="datetime-local" name="date" class="form-control" />
+                      <input required type="date" name="date" class="form-control" />
                        @if($errors->has('date'))
 			                <div class="error text-danger">{{ $errors->first('date') }}</div>
 			            @endif
