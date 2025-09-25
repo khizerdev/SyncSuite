@@ -224,37 +224,46 @@
                           
                           </div>
                               <div class="invoice-header">
-                                  <table>
-                                      <thead>
-                                          <tr>
-                                              <th> # </th>
-                                              <th> Product </th>
-                                              <th> Quantity</th>
-                                              <th> Rate</th>
-                                          </tr>        
-                                      </thead>
-                                      <tbody>
-                                          @foreach($module->items as $key => $item )
-                                          <tr>
-                                              <td>{{$key + 1}}</td>
-                                              <td>{{$item->product->name}}</td>
-                                              <td>{{$item->qty}}</td>
-                                              <td>{{$item->rate}}</td>
-                                          </tr>
-                                          @endforeach
-                                      </tbody>
-                                  </table>
-                                  <div class="d-flex" >
-                                      <p class="sign-text text-center text-dark" ></p>          
-                                      <p class="sign-text text-center text-dark" ></p>
-                                      <p class="sign-text text-center text-dark" ></p>
-                                      <p class="sign-text text-center text-dark" ></p>          
-                                  </div>
-                                  <div class="d-flex" >
-                                      <p class="sign text-center text-dark" >Approved by</p>
-                                      <p class="sign text-center text-dark" >Recieved by</p>          
-                              </div>
-                              </div>
+    <table>
+        <thead>
+            <tr>
+                <th> # </th>
+                <th> Product </th>
+                <th> Unit </th>
+                <th> Quantity</th>
+                <th> Rate</th>
+                <th> Total</th>
+            </tr>        
+        </thead>
+        <tbody>
+            @foreach($module->items as $key => $item )
+            <tr>
+                <td>{{$key + 1}}</td>
+                <td>{{$item->product->name}}</td>
+                <td>{{$item->product->unit ?? 'N/A'}}</td>
+                <td>{{$item->qty}}</td>
+                <td>{{number_format($item->rate, 2)}}</td>
+                <td>{{number_format($item->qty * $item->rate, 2)}}</td>
+            </tr>
+            @endforeach
+            <tr>
+                <td colspan="5" class="text-right"><strong>Grand Total:</strong></td>
+                <td><strong>{{number_format($module->items->sum(function($item) { return $item->qty * $item->rate; }), 2)}}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="d-flex">
+        <p class="sign-text text-center text-dark"></p>          
+        <p class="sign-text text-center text-dark"></p>
+        <p class="sign-text text-center text-dark"></p>
+        <p class="sign-text text-center text-dark"></p>          
+    </div>
+    <div class="d-flex">
+        <p class="sign text-center text-dark">Approved by</p>
+        <p class="sign text-center text-dark">Received by</p>          
+    </div>
+</div>
                       </div>  
                   </div>
                       

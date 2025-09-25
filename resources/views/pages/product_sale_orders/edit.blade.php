@@ -114,18 +114,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="status">Status</label>
-                                                <select name="status" class="form-control" required>
-                                                    <option value="pending" {{ $product_sale_order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                    <option value="completed" {{ $product_sale_order->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                                    <option value="cancelled" {{ $product_sale_order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        
+                                      
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="simpleinput">Description</label>

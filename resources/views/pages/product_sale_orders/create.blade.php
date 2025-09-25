@@ -107,16 +107,6 @@
                                             </div>
                                         </div>
                                         
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="status">Status</label>
-                                                <select name="status" class="form-control" required>
-                                                    <option value="pending">Pending</option>
-                                                    <option value="completed">Completed</option>
-                                                    <option value="cancelled">Cancelled</option>
-                                                </select>
-                                            </div>
-                                        </div>
                                         <div class="col-md-5">
                                             <div class="form-group">
                                                 <label for="simpleinput">Description</label>

@@ -171,81 +171,96 @@
                  <hr>
                       <?php  $total = 0; ?>
                             <div class="invoice-header">
-                                <table >
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Rceipt</th>
-                                            <th>Product</th>
-                                            <th>Quantity</th>
-                                            <th>Rate</th>
-                                            <th>GST</th>
-                                            <th>Total</th>
-                                        </tr>        
-                                    </thead>
-                                    <tbody>
-                                     <?php 
-                                        $gsubtotal = 0;
-                                        $ggst = 0;
-                                        $gtotal = 0;
-                                      ?>
-                                      
-                                         @foreach($invoice->items as $key => $invoiceItem)
-                                           <?php  
-                                                
-                                          
-                                                $receiptItem = $invoiceItem->receipt;
-                                               
-                                                $subtotal = $receiptItem->qty * $receiptItem->rate; 
-                                                $calgst = $subtotal * ($invoiceItem->gst /  100);
-                                                $total = $subtotal + $calgst; 
-                                                $gsubtotal += $subtotal;
-                                                
-                                                $ggst += $calgst;
-                                                $gtotal += $subtotal +  $calgst;
-                                                $party_challan = $invoiceItem->receipt->receipt->party_challan;
-                                          ?>
-                                                <tr>
-                                                    <td style="width:10px;"  class="text-center" >{{$key + 1}}</td>
-                                                    <td>{{$receiptItem->receipt->serial_no}} - {{$invoiceItem->receipt->receipt->purchase->serial_no}} </td>
-                                                    <td>{{$receiptItem->product->title}}</td>
-                                                    <td class="text-center" >{{$receiptItem->qty}}</td>
-                                                    <td class="text-center">{{$receiptItem->rate}}</td>
-                                                    <td class="text-center">{{$invoiceItem->gst}}</td>
-                                                    <td class="text-center" >{{number_format($total,2)}}</td>
-                                                </tr>
-                                        @endforeach
-                                        <p>
-                                            Party Challan {{$party_challan}}
-                                        </p>
-                                        <tr>
-                                            
-                                            <td style="border: 0px;vertical-align: bottom;" rowspan="3" colspan="5">
-                                                <p class="m-0" >Lorem Ipsum is simply dummy text of the printing and typesetting industry.Lorem Ipsum has <br> been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scram</p>
-                                            </td>
-                                            <td style="font-weight: bold" class="text-center">Subtotal:</td>
-                                            <td class="text-center">{{number_format($gsubtotal,2)}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="font-weight: bold" class="text-center">GST:</td>
-                                            <td class="text-center">{{number_format($ggst,2)}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="font-weight: bold" class="text-center">Grand Total:</td>
-                                            <td class="text-center" >{{number_format($gtotal+$invoice->cartage,2)}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="border:none" colspan="1" class="text-center">
-                                                <p class="sign" >Approved by</p>
-                                            </td>
-                                            <td style="border:none"  colspan="4"></td>
-                                            <td style="border:none" colspan="3" class="text-center" >
-                                                 <p class="sign" >Recieved by</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Receipt</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>GST</th>
+                <th>Total</th>
+            </tr>        
+        </thead>
+        <tbody>
+            <?php 
+                $gsubtotal = 0;
+                $ggst = 0;
+                $gtotal = 0;
+            ?>
+            
+            @foreach($invoice->items as $key => $invoiceItem)
+                <?php  
+                    $receiptItem = $invoiceItem->receipt;
+                    $subtotal = $receiptItem->qty * $receiptItem->rate; 
+                    $calgst = $subtotal * ($invoiceItem->gst / 100);
+                    $total = $subtotal + $calgst; 
+                    $gsubtotal += $subtotal;
+                    $ggst += $calgst;
+                    $gtotal += $subtotal + $calgst;
+                    $party_challan = $invoiceItem->receipt->receipt->party_challan;
+                ?>
+                <tr>
+                    <td style="width:10px;" class="text-center">{{$key + 1}}</td>
+                    <td>{{$receiptItem->receipt->serial_no}} - {{$invoiceItem->receipt->receipt->purchase->serial_no}}</td>
+                    <td>{{$receiptItem->product->title}}</td>
+                    <td class="text-center">{{$receiptItem->qty}}</td>
+                    <td class="text-center">{{$receiptItem->rate}}</td>
+                    <td class="text-center">{{$invoiceItem->gst}}</td>
+                    <td class="text-center">{{number_format($total,2)}}</td>
+                </tr>
+            @endforeach
+            
+            <!-- Party Challan Row -->
+            <tr>
+                <td colspan="7" style="text-align: left; padding: 10px;">
+                    <strong>Party Challan: {{$party_challan}}</strong>
+                </td>
+            </tr>
+            
+            <!-- Description and Summary Section -->
+            <tr>
+                <td colspan="5" style="border: 0px; vertical-align: top; padding: 15px;">
+                    <p class="m-0">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it.</p>
+                </td>
+                <td style="font-weight: bold;" class="text-center">Subtotal:</td>
+                <td class="text-center">{{number_format($gsubtotal,2)}}</td>
+            </tr>
+            
+            <tr>
+                <td colspan="5" style="border: 0px;"></td>
+                <td style="font-weight: bold;" class="text-center">GST:</td>
+                <td style="font-weight: bold;" class="text-center">{{number_format($ggst,2)}}</td>
+            </tr>
+            
+            <tr>
+                <td colspan="5" style="border: 0px;"></td>
+                <td style="font-weight: bold;" class="text-center">Cartage:</td>
+                <td style="font-weight: bold;" class="text-center">{{number_format($invoice->cartage,2)}}</td>
+            </tr>
+            
+            <tr>
+                <td colspan="5" style="border: 0px;"></td>
+                <td style="font-weight: bold;" class="text-center">Grand Total:</td>
+                <td style="font-weight: bold;" class="text-center">{{number_format($gtotal+$invoice->cartage,2)}}</td>
+            </tr>
+            
+            <!-- Signature Section -->
+            <tr>
+                <td colspan="3" style="border: none; text-align: center; padding-top: 30px;">
+                    <p class="sign">Approved by</p>
+                    <div style="border-top: 1px solid #000; margin-top: 20px; width: 150px; margin: 20px auto 0;"></div>
+                </td>
+                <td style="border: none;"></td>
+                <td colspan="3" style="border: none; text-align: center; padding-top: 30px;">
+                    <p class="sign">Received by</p>
+                    <div style="border-top: 1px solid #000; margin-top: 20px; width: 150px; margin: 20px auto 0;"></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
                      </div>
                 </div>
             </div>

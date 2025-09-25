@@ -128,14 +128,23 @@
                                 <!--Item Header-->
                                 <div>
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-3">
                                             <label for="simpleinput">Product</label>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label for="simpleinput">Quantity</label>
+                                        <div class="col-md-2">
+                                            <label for="simpleinput">Unit</label>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label for="simpleinput">Qty</label>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label for="simpleinput">Rate</label>
                                         </div>
                                         <div class="col-md-2">
-                                            <label for="simpleinput">Rate</label>
+                                            <label for="simpleinput">Total</label>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="simpleinput">Required By</label>
                                         </div>
                                         <div class="col-md-1 align-self-center ">
 
@@ -146,32 +155,44 @@
 
                                 <div class="line-items">
                                     @foreach ($module->items as $key => $item)
-                                        <div class="row py-1 ">
-                                            <input class="line_item_id" type="hidden"
-                                                name="items[{{ $key }}][id]" value="{{ $item->id }}" />
+    <div class="row py-1 line-item-row">
+        <input class="line_item_id" type="hidden"
+            name="items[{{ $key }}][id]" value="{{ $item->id }}" />
 
-                                            <div class="col-md-6">
-                                                <input readonly name="items[{{ $key }}][name]"
-                                                    class="form-control" value="{{ $item->product->name }}" />
-                                                <input value="{{ $item->product_id }}"
-                                                    name="items[{{ $key }}][product_id]" type="hidden" />
-                                            </div>
-                                            <div class="col-md-3">
-                                                <input min="1" step=".01" value="{{ $item->qty }}" required
-                                                    name="items[{{ $key }}][qty]" type="number"
-                                                    class="form-control" />
-                                            </div>
-                                            <div class="col-md-2">
-                                                <input min="1" step=".01" value="{{ $item->rate }}" required
-                                                    name="items[{{ $key }}][rate]" type="number"
-                                                    class="form-control" />
-                                            </div>
-                                            <div class="col-md-1 align-self-center ">
-                                                <button type="button" class="delete_item normal-btn d-block"><i
-                                                        class="fa fa-times"></i></button>
-                                            </div>
-                                        </div>
-                                    @endforeach
+        <div class="col-md-3">
+            <input readonly name="items[{{ $key }}][name]"
+                class="form-control" value="{{ $item->product->name }}" />
+            <input value="{{ $item->product_id }}"
+                name="items[{{ $key }}][product_id]" type="hidden" />
+        </div>
+        <div class="col-md-2">
+            <input readonly class="form-control bg-light" value="{{ $item->product->unit ?? 'N/A' }}" />
+        </div>
+        <div class="col-md-1">
+            <input min="1" step=".01" value="{{ $item->qty }}" required
+                name="items[{{ $key }}][qty]" type="number"
+                class="form-control qty-input" data-index="{{ $key }}" />
+        </div>
+        <div class="col-md-1">
+            <input min="1" step=".01" value="{{ $item->rate }}" required
+                name="items[{{ $key }}][rate]" type="number"
+                class="form-control rate-input" data-index="{{ $key }}" />
+        </div>
+        <div class="col-md-2">
+            <input readonly name="items[{{ $key }}][total]" type="number"
+                class="form-control total-input bg-light" 
+                value="{{ number_format($item->qty * $item->rate, 2) }}" 
+                data-index="{{ $key }}" />
+        </div>
+        <div class="col-md-2">
+            <input  class="form-control bg-light" value="{{ $item->required ?? 'N/A' }}" />
+        </div>
+        <div class="col-md-1 align-self-center">
+            <button type="button" class="delete_item normal-btn d-block"><i
+                    class="fa fa-times"></i></button>
+        </div>
+    </div>
+@endforeach
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 pt-5 py-3  text-center">
@@ -189,74 +210,86 @@
 
     @section('script')
         <script>
-            $(document).ready(function() {
+    $(document).ready(function() {
+        var index = <?php echo count($module->items); ?>;
 
-                var index = <?php echo count($module->items); ?>;
+        $(`[name='vendor_id']`).on('change', function() {
+            let customer = $(`[name='vendor_id'] option:selected`);
+            $('.vendor_id').val(customer.attr('data-id'));
+            $('.vendor_address').val(customer.attr('data-address'));
+        }).change();
 
-                $(`[name='vendor_id']`).on('change', function() {
+        $('.add_item').click(function() {
+            let pid = $('.add-product').val();
+            let name = $(`.add-product option:selected`).attr('data-name');
+            let unit = $(`.add-product option:selected`).attr('data-unit');
+            let dupprocut = true;
 
-                    let customer = $(`[name='vendor_id'] option:selected`);
-                    $('.vendor_id').val(customer.attr('data-id'));
-                    $('.vendor_address').val(customer.attr('data-address'));
-                }).change();
-
-
-                //    $('.product-type').on('change', function() {
-
-                //       $('.add-product').empty();
-                //       let type = $(this).val();
-
-                //       js_obj_data.forEach(function(index,key) {
-                //          if(index.type == type){
-                //             $('.add-product').append(`<option data-name="${index.title}" value="${index.id}" >${index.title}</option>`);
-                //          }
-                //       });
-
-                //    }).change(); 
-
-
-                $('.add_item').click(function() {
-
-                    let pid = $('.add-product').val();
-                    let name = $(`.add-product option:selected`).attr('data-name');
-                    let dupprocut = true;
-
-                    $('.line-items').children().each(function() {
-                        let line_item_id = $(this).find('.line_item_id').val();
-                        if (line_item_id == pid) {
-                            toastr.error('Can Not Add Duplicate Product');
-                            dupprocut = false
-
-                        }
-                    });
-
-                    if (dupprocut) {
-
-                        index = index + 1;
-                        $('.line-items').append(` <div class="row py-1 " > 
-                              <div class="col-md-6" >
-                                <input class="line_item_id" type="hidden" name="items[${index}][product_id]"  value="${pid}" />
-                                <input readonly name="items[${index}][name]" class="form-control" value="${name}" />
-                              </div>
-                              <div class="col-md-3" >
-                                    <input min="1" value="1" step=".01" required name="items[${index}][qty]" type="number"  class="form-control" />
-                                </div>
-                                <div class="col-md-2" >
-                                    <input min="1" value="1" step=".01" required name="items[${index}][rate]" type="number"  class="form-control" />
-                                </div>
-                              <div class="col-md-1 align-self-center " >
-                                  <button type="button" class="delete_item normal-btn d-block" ><i class="fa fa-times" ></i></button>
-                              </div>
-                        </div>`);
-                    }
-
-                });
-
-
-                $('.line-items').on("click", ".delete_item", function() {
-                    $(this).parent().parent().remove();
-                });
-
+            $('.line-items').children().each(function() {
+                let line_item_id = $(this).find('.line_item_id').val();
+                if (line_item_id == pid) {
+                    toastr.error('Can Not Add Duplicate Product');
+                    dupprocut = false
+                }
             });
-        </script>
+
+            if (dupprocut) {
+                index = index + 1;
+                $('.line-items').append(`<div class="row py-1 line-item-row"> 
+                    <div class="col-md-3">
+                        <input class="line_item_id" type="hidden" name="items[${index}][product_id]" value="${pid}" />
+                        <input readonly name="items[${index}][name]" class="form-control" value="${name}" />
+                    </div>
+                    <div class="col-md-1">
+                        <input readonly class="form-control bg-light" value="${unit}" />
+                    </div>
+                    <div class="col-md-2">
+                        <input min="1" value="1" step=".01" required name="items[${index}][qty]" type="number" class="form-control qty-input" data-index="${index}" />
+                    </div>
+                    <div class="col-md-2">
+                        <input min="1" value="1" step=".01" required name="items[${index}][rate]" type="number" class="form-control rate-input" data-index="${index}" />
+                    </div>
+                    <div class="col-md-2">
+                        <input readonly name="items[${index}][total]" type="number" class="form-control total-input bg-light" value="0" data-index="${index}" />
+                    </div>
+                    <div class="col-md-1 align-self-center">
+                        <input required name="items[${index}][required]" type="text" class="form-control" required/>
+                    </div>
+                    <div class="col-md-1 align-self-center">
+                        <button type="button" class="delete_item normal-btn d-block"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>`);
+                
+                // Calculate initial total
+                calculateTotal(index);
+            }
+        });
+
+        // Calculate total when qty or rate changes for existing items
+        $('.line-items').on("input", ".qty-input, .rate-input", function() {
+            let rowIndex = $(this).data('index');
+            calculateTotal(rowIndex);
+        });
+
+        function calculateTotal(index) {
+            let qty = parseFloat($(`.qty-input[data-index="${index}"]`).val()) || 0;
+            let rate = parseFloat($(`.rate-input[data-index="${index}"]`).val()) || 0;
+            let total = qty * rate;
+            
+            $(`.total-input[data-index="${index}"]`).val(total.toFixed(2));
+        }
+
+        // Calculate totals for existing items on page load
+        $('.line-item-row').each(function() {
+            let rowIndex = $(this).find('.qty-input').data('index');
+            if (rowIndex !== undefined) {
+                calculateTotal(rowIndex);
+            }
+        });
+
+        $('.line-items').on("click", ".delete_item", function() {
+            $(this).closest('.row.py-1').remove();
+        });
+    });
+</script>
     @endsection

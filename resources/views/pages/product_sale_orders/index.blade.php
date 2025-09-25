@@ -70,7 +70,6 @@
                                         <th>Customer</th>
                                         <th>Total Amount</th>
                                         <th>Payment Method</th>
-                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -96,15 +95,7 @@
                                                     <span class="badge badge-warning">Loan</span>
                                                 @endif
                                             </td>
-                                            <td>
-                                                @if($order->status == 'completed')
-                                                    <span class="status-badge status-completed">Completed</span>
-                                                @elseif($order->status == 'pending')
-                                                    <span class="status-badge status-pending">Pending</span>
-                                                @else
-                                                    <span class="status-badge status-cancelled">Cancelled</span>
-                                                @endif
-                                            </td>
+                                           
                                             <td class="action-buttons">
                                                 <a href="{{ route('product_sale_orders.show', $order->id) }}" class="btn btn-info btn-sm">View</a>
                                                 <a href="{{ route('product_sale_orders.edit', $order->id) }}" class="btn btn-primary btn-sm">Edit</a>

@@ -114,30 +114,45 @@ public function store(Request $request)
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProductRequest $request, $id)
-    {
-        try {
-            $product = Product::findOrFail($id);
+    public function update(Request $request, $id)
+{
+    // Validate with same rules as store
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'sub_department' => 'nullable',
+        'category' => 'required',
+        'type' => 'nullable',
+        'qty' => 'required|integer|min:0',
+        'inventory_price' => 'required|numeric|min:0',
+        'total_price' => 'required|numeric|min:0',
+        'min_qty_limit' => 'required|string|max:255',
+        'unit' => 'required|string|max:11',
+    ]);
 
-            $validatedData = $request->validated();
+    try {
+        $product = Product::findOrFail($id);
 
-            $product->update($validatedData);
+        // Update with proper mappings
+        $product->update([
+            'name' => $validatedData['name'],
+            'department_id' => $validatedData['sub_department'] ?: null,
+            'material_id' => $validatedData['type'] ?: null,
+            'particular_id' => $validatedData['category'],
+            'qty' => $validatedData['qty'],
+            'inventory_price' => $validatedData['inventory_price'],
+            'total_price' => $validatedData['total_price'],
+            'min_qty_limit' => $validatedData['min_qty_limit'],
+            'unit' => $validatedData['unit'],
+        ]);
 
-            return response()->json([
-                'message' => 'Product updated successfully',
-            ], 200);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update product',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return redirect()->route('products.index')
+            ->with('success', 'Product updated successfully.');
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'Failed to update product: ' . $e->getMessage());
     }
+}
+
 
     /**
      * Remove the specified resource from storage.

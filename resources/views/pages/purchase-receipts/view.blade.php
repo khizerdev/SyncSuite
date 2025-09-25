@@ -229,46 +229,52 @@
                             
                         </div>
                                 <div class="invoice-header">
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                {{-- <th> Date </th>
-                                                <th> Due Date </th>
-                                                <th> Vendor Name </th>
-                                                <th> Vendor Address </th> --}}
-                                                <th> Product </th>
-                                                <th> Quantity </th>
-                                                <th> Rate </th>
-                                                <th> Total</th>
-                                            </tr>        
-                                        </thead>
-                                        <tbody>
-                                            @foreach($receipt->items as $key => $item )
-                                        
-                                            <tr>
-                                                {{-- <td class="text-center">{{date('d-m-y', strtotime($receipt->date))}}</td>
-                                                <td class="text-center">{{$receipt->due_date->format('M-d-Y')}}</td>
-                                                <td class="text-center">{{$purchase->vendor->name}}</td>
-                                                <td class="text-center">{{$purchase->vendor->address}}</td> --}}
-                                                <td class="text-center">{{$item->product->name}}</td>
-                                                <td class="text-center">{{$item->qty}}</td>
-                                                <td class="text-center">{{$item->rate}}</td>
-                                                <td class="text-center">{{$item->total}}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex" >
-                                        <p class="sign-text text-center text-dark" ></p>          
-                                        <p class="sign-text text-center text-dark" ></p>
-                                        <p class="sign-text text-center text-dark" ></p>
-                                        <p class="sign-text text-center text-dark" ></p>          
-                                    </div>
-                                    <div class="d-flex" >
-                                        <p class="sign text-center text-dark" >Approved by</p>
-                                        <p class="sign text-center text-dark" >Recieved by</p>          
-                                </div>
-                                </div>
+    <table>
+        <thead>
+            <tr>
+                <th> Product </th>
+                <th> Quantity </th>
+                <th> Rate </th>
+                <th> Total</th>
+            </tr>        
+        </thead>
+        <tbody>
+            @php
+                $grandTotal = 0;
+            @endphp
+            
+            @foreach($receipt->items as $key => $item )
+            @php
+                $itemTotal = $item->total; // Using the existing total field
+                $grandTotal += $itemTotal;
+            @endphp
+            <tr>
+                <td class="text-center">{{$item->product->name}}</td>
+                <td class="text-center">{{$item->qty}}</td>
+                <td class="text-center">{{number_format($item->rate, 2)}}</td>
+                <td class="text-center">{{number_format($itemTotal, 2)}}</td>
+            </tr>
+            @endforeach
+            
+            <!-- Grand Total Row -->
+            <tr style="border-top: 2px solid #000; font-weight: bold;">
+                <td colspan="3" class="text-right">Grand Total:</td>
+                <td class="text-center">{{number_format($grandTotal, 2)}}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="d-flex">
+        <p class="sign-text text-center text-dark"></p>          
+        <p class="sign-text text-center text-dark"></p>
+        <p class="sign-text text-center text-dark"></p>
+        <p class="sign-text text-center text-dark"></p>          
+    </div>
+    <div class="d-flex">
+        <p class="sign text-center text-dark">Approved by</p>
+        <p class="sign text-center text-dark">Received by</p>          
+    </div>
+</div>
                         </div>  
                     </div>
                         
