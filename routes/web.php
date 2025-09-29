@@ -37,6 +37,7 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\ProductSaleOrderController;
+use App\Http\Controllers\ReceiveLoanController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -280,6 +281,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/miss-scan', [MissScanController::class, 'index'])->name('miss-scan.index');
         Route::post('/miss-scan/resolve', [MissScanController::class, 'resolve'])->name('miss-scan.resolve');
+        Route::resource('receive_loans', ReceiveLoanController::class);
         
         
         Route::get('/fixed-dept-attendance', [App\Http\Controllers\AttendanceController::class, 'fixedDeptAttendance'])->name('fixed-dept-attendance');

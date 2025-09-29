@@ -19,7 +19,7 @@ class ProductSaleOrder extends Model
     ];
     
     protected $casts = [
-        'date' => 'date', // This will automatically cast the date field to a Carbon instance
+        'date' => 'date', 
     ];
 
     protected $table = 'product_sale_orders';
@@ -32,5 +32,10 @@ class ProductSaleOrder extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+    
+    public function receiveLoan()
+    {
+        return $this->hasOne(ReceiveLoan::class);
     }
 }

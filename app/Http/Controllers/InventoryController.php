@@ -10,6 +10,8 @@ use App\Http\Requests\Department\UpdateDepartmentRequest;
 use App\Models\PurchaseOrderItems;
 use App\Models\Product;
 use App\Models\Department;
+use App\Models\ReceiveLoanItem;
+use App\Models\ReceiveLoan;
 use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
@@ -106,8 +108,24 @@ class InventoryController extends Controller
                 ];
             });
 
+        // Get receive loan items (IN transactions)
+        $receiveLoanItems = ReceiveLoanItem::with(['receiveLoan'])
+            ->where('product_id', $id)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => $item->receiveLoan->date ?? $item->created_at,
+                    'type' => 'IN',
+                    'reference' => 'RL-' . $item->receiveLoan->id,
+                    'serial_no' => '-',
+                    'in' => $item->qty,
+                    'out' => 0,
+                    'created_at' => $item->created_at,
+                    'notes' => $item->receiveLoan->description ?? 'Receive Loan'
+                ];
+            });
+
         // Calculate stock transfers to departments (OUT transactions)
-        // We'll assume each department's current quantity represents the total transferred
         $departmentTransfers = [];
         $totalTransferred = 0;
         
@@ -128,12 +146,10 @@ class InventoryController extends Controller
             }
         }
 
-        // If you want to track individual transfers rather than cumulative amounts,
-        // you would need to add a transfer history mechanism
-
         // Combine opening balance with all transactions and sort by date
         $allTransactions = collect($openingEntry)
             ->merge($purchaseItems)
+            ->merge($receiveLoanItems) // Add receive loan items
             ->merge($departmentTransfers)
             ->sortBy('created_at');
 
@@ -157,8 +173,13 @@ class InventoryController extends Controller
                 return '<span class="badge ' . $badgeClass . '">' . $row['type'] . '</span>';
             })
             ->addColumn('date_formatted', function($row) {
-                return $row['date']->format('Y-m-d H:i');
-            })
+    // Check if it's already a Carbon instance, otherwise parse it
+    $date = $row['date'] instanceof \Carbon\Carbon 
+        ? $row['date'] 
+        : \Carbon\Carbon::parse($row['date']);
+    
+    return $date->format('Y-m-d H:i');
+})
             ->addColumn('notes', function($row) {
                 return $row['notes'] ?? '-';
             })
