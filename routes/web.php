@@ -38,6 +38,7 @@ use App\Http\Controllers\BatchController;
 use App\Http\Controllers\LotController;
 use App\Http\Controllers\ProductSaleOrderController;
 use App\Http\Controllers\ReceiveLoanController;
+use App\Http\Controllers\NeedleReportController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('vendors/{id}', [App\Http\Controllers\VendorController::class, 'update'])->name('vendors.update');
         Route::get('vendors/{id}', [App\Http\Controllers\VendorController::class, 'destroy'])->name('vendors.destroy');
         Route::resource('product_sale_orders', ProductSaleOrderController::class);
+        
+        Route::get('/reports/needle', [NeedleReportController::class, 'index'])->name('needle.index');
+        Route::post('/reports/needle', [NeedleReportController::class, 'report'])->name('needle.report');
         
         Route::resource('lots', LotController::class);
         Route::get('/lot/products-by-department', [LotController::class, 'getProductsByDepartment'])->name('lots.products-by-department');
@@ -157,7 +161,7 @@ Route::middleware(['auth'])->group(function () {
     
     
 
-    Route::middleware(['role:super-admin|erp'])->group(function () {
+    Route::middleware(['role:super-admin|erp|production'])->group(function () {
         
         Route::get('customers', [App\Http\Controllers\CustomerController::class, 'index'])->name('customers.index');
         Route::get('customers/create', [App\Http\Controllers\CustomerController::class, 'create'])->name('customers.create');

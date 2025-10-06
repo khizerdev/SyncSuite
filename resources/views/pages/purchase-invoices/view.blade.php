@@ -204,7 +204,7 @@
                 <tr>
                     <td style="width:10px;" class="text-center">{{$key + 1}}</td>
                     <td>{{$receiptItem->receipt->serial_no}} - {{$invoiceItem->receipt->receipt->purchase->serial_no}}</td>
-                    <td>{{$receiptItem->product->title}}</td>
+                    <td>{{$receiptItem->product->name}}</td>
                     <td class="text-center">{{$receiptItem->qty}}</td>
                     <td class="text-center">{{$receiptItem->rate}}</td>
                     <td class="text-center">{{$invoiceItem->gst}}</td>

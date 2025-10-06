@@ -203,7 +203,7 @@
                             <div style="display: flex;padding:11px 0px;" class="text-center">
                                 <img class="logo" style="width: 200px" src="https://ahmedfabrics.com.pk/paramount/public/uploads/logo.png" />
                                 <p style="flex:1;color:black;text-align: left;margin-left: 5px;margin-bottom: 0;display: table;margin-top: auto;font-weight: 700;"   >L-4/3 Israr Ahmad Alvi St, Federal B Area Block 21 Industrial Area, Karachi, 75950, Pakistan</p>
-                                <h6>PR-{{$purchase->date->format('ym') }}{{ str_pad(intval($purchase->serial), 3, '0', STR_PAD_LEFT) }}</h6>
+                                <h6>PR-{{$purchase->date->format('ym') }}{{ str_pad(intval($receipt->serial), 3, '0', STR_PAD_LEFT) }}</h6>
                             </div>
                             <div class="order-details" >
                                 <div class="row">
