@@ -27,7 +27,6 @@ class UpdateMachineRequest extends FormRequest
             'code' => 'required|string|max:255',
             'manufacturer_id' => 'required|exists:manufacturers,id', // Assuming manufacturer is selected from a dropdown linked to a manufacturers table
             'name' => 'required|string|max:255',
-            'number' => 'required|string|max:255|',
             'purchased_date' => 'required|date_format:Y-m-d', // Assuming date format is Y-m-d
             'model_date' => 'required|date_format:Y-m-d', // Assuming date format is Y-m-d
             'capacity' => 'required|integer|min:1', // Assuming capacity is an integer
