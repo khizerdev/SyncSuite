@@ -23,7 +23,7 @@ class ProductionPlanning extends Model
     public function items()
     {
         return $this->belongsToMany(SaleOrderItem::class, 'production_planning_items')
-                    ->withPivot('planned_qty', 'planned_lace_qty', 'produced_qty', 'produced_lace_qty', 'status')
+                    ->withPivot('planned_qty', 'planned_lace_qty')
                     ->withTimestamps();
     }
 

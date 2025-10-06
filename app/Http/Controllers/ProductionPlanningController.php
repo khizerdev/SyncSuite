@@ -18,8 +18,10 @@ class ProductionPlanningController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
                     $editUrl = route('production-plannings.edit', $row->id);
+                    $showUrl = route('production-plannings.show', $row->id);
                     
-                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm">Edit</a>';
+                    $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2">Edit</a>';
+                    $btn .= '<a href="'.$showUrl.'" class="edit btn btn-success btn-sm">View</a>';
                     $btn .= ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm">Delete</button>';
                     
                     // $btn = $edit;
@@ -35,6 +37,13 @@ class ProductionPlanningController extends Controller
     public function create()
     {
         return view('pages.production_plannings.create');
+    }
+    
+    public function show($id)
+    {
+        $productionPlanning = ProductionPlanning::with('planningItems')->find($id);
+        
+        return view('pages.production_plannings.view', compact('productionPlanning'));
     }
 
    public function store(Request $request)

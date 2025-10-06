@@ -39,6 +39,7 @@ use App\Http\Controllers\LotController;
 use App\Http\Controllers\ProductSaleOrderController;
 use App\Http\Controllers\ReceiveLoanController;
 use App\Http\Controllers\NeedleReportController;
+use App\Http\Controllers\DailyProductionReportController;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/reports/needle', [NeedleReportController::class, 'index'])->name('needle.index');
         Route::post('/reports/needle', [NeedleReportController::class, 'report'])->name('needle.report');
+        Route::get('/reports/daily-production', [DailyProductionReportController::class, 'index'])
+    ->name('daily-production-report.index');
         
         Route::resource('lots', LotController::class);
         Route::get('/lot/products-by-department', [LotController::class, 'getProductsByDepartment'])->name('lots.products-by-department');
