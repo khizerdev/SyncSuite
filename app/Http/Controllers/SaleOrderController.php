@@ -18,8 +18,11 @@ class SaleOrderController extends Controller
             return DataTables::of($data)
             ->addColumn('action', function($row){
                 $editUrl = route('sale-orders.edit', $row->id);
+                $showUrl = route('sale-orders.show', $row->id);
 
                 $btn = '<a href="'.$editUrl.'" class="edit btn btn-primary btn-sm mr-2"><i class="fas fa-edit" aria-hidden="true"></i></a>';
+                
+                $btn .= '<a href="'.$showUrl.'" class="edit btn btn-success btn-sm mr-2"><i class="fas fa-eye" aria-hidden="true"></i></a>';
 
                 
                 $btn .= ' <button onclick="deleteRecord('.$row->id.')" class="delete btn btn-danger btn-sm">Delete</button>';
@@ -40,6 +43,40 @@ class SaleOrderController extends Controller
         $customers = Customer::all();
         return view('pages.sale-orders.create', compact('customers'));
     }
+    
+    public function show($id)
+{
+    $saleOrder = SaleOrder::with([
+        'customer',
+        'items.design',
+        'items.color'
+    ])->findOrFail($id);
+    
+    $totalAmount = $saleOrder->items->sum(function($item) {
+        return $item->amount ?? ($item->quantity * $item->rate);
+    });
+    
+    $amountInWords = $this->convertAmountToWords($totalAmount);
+    
+    return view('pages.sale-orders.show', compact('saleOrder', 'amountInWords'));
+}
+
+private function convertAmountToWords($amount)
+{
+    $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
+    
+    // Split into rupees and paisas
+    $rupees = floor($amount);
+    $paisas = round(($amount - $rupees) * 100);
+    
+    $words = strtoupper($formatter->format($rupees));
+    
+    if ($paisas > 0) {
+        $words .= ' AND PAISAS ' . strtoupper($formatter->format($paisas));
+    }
+    
+    return $words . ' ONLY';
+}
 
     public function store(Request $request)
     {
