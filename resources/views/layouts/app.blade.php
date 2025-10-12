@@ -199,20 +199,23 @@
                             ];
                             
                             $productionItems = [
-    ['title' => 'Raw Materials', 'icon' => 'fas fa-circle', 'route' => 'raw-materials.index'],
-    ['title' => 'Sale Orders', 'icon' => 'fas fa-circle', 'route' => 'sale-orders.index'],
-    ['title' => 'Master Design', 'icon' => 'fas fa-circle', 'route' => 'fabric-measurements.index'],
-    ['title' => 'Color Code', 'icon' => 'fas fa-circle', 'route' => 'color-codes.index'],
-    ['title' => 'Production Planning', 'icon' => 'fas fa-circle', 'route' => 'production-plannings.index'],
-    ['title' => 'Daily Production', 'icon' => 'fas fa-circle', 'route' => 'daily-productions.index'],
-    ['title' => 'Product Group', 'icon' => 'fas fa-circle', 'route' => 'product-groups.index'],
-    ['title' => 'Than Issue', 'icon' => 'fas fa-circle', 'route' => 'than-issues.index'],
-    ['title' => 'Than Supply', 'icon' => 'fas fa-circle', 'route' => 'than-supplies.index'],
-    ['title' => 'Receive Supply', 'icon' => 'fas fa-circle', 'route' => 'supply-receipts.index'],
-    ['title' => 'Batch', 'icon' => 'fas fa-circle', 'route' => 'batches.index'],
-    ['title' => 'Lot', 'icon' => 'fas fa-circle', 'route' => 'lots.index'],
-    ['title' => 'Needle Report', 'icon' => 'fas fa-circle', 'route' => 'needle.index'],
-];
+                                ['title' => 'Raw Materials', 'icon' => 'fas fa-circle', 'route' => 'raw-materials.index'],
+                                ['title' => 'Sale Orders', 'icon' => 'fas fa-circle', 'route' => 'sale-orders.index'],
+                                ['title' => 'Master Design', 'icon' => 'fas fa-circle', 'route' => 'fabric-measurements.index'],
+                                ['title' => 'Color Code', 'icon' => 'fas fa-circle', 'route' => 'color-codes.index'],
+                                ['title' => 'Production Planning', 'icon' => 'fas fa-circle', 'route' => 'production-plannings.index'],
+                                ['title' => 'Daily Production', 'icon' => 'fas fa-circle', 'route' => 'daily-productions.index'],
+                                ['title' => 'Product Group', 'icon' => 'fas fa-circle', 'route' => 'product-groups.index'],
+                                ['title' => 'Than Issue', 'icon' => 'fas fa-circle', 'route' => 'than-issues.index'],
+                                ['title' => 'Than Supply', 'icon' => 'fas fa-circle', 'route' => 'than-supplies.index'],
+                                ['title' => 'Receive Supply', 'icon' => 'fas fa-circle', 'route' => 'supply-receipts.index'],
+                                ['title' => 'Batch', 'icon' => 'fas fa-circle', 'route' => 'batches.index'],
+                                ['title' => 'Lot', 'icon' => 'fas fa-circle', 'route' => 'lots.index'],
+                                ['title' => 'Needle Report', 'icon' => 'fas fa-circle', 'route' => 'needle.index'],
+                                ['title' => 'Daily Production Report', 'icon' => 'fas fa-circle', 'route' => 'daily-production-report.index'],
+                                ['title' => 'Production Planning Report', 'icon' => 'fas fa-circle', 'route' => 'production-planning.report'],
+                            
+                            ];
 
 
                             $hrItems = [

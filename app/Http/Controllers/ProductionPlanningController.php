@@ -7,6 +7,7 @@ use App\Models\SaleOrderItem;
 use Illuminate\Http\Request;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ProductionPlanningController extends Controller
 {
@@ -37,6 +38,35 @@ class ProductionPlanningController extends Controller
     public function create()
     {
         return view('pages.production_plannings.create');
+    }
+    
+    public function reportForm()
+    {
+        return view('pages.reports.production_planning.index');
+    }
+
+    public function generateReport(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $startDate = Carbon::parse($request->start_date)->startOfDay();
+        $endDate = Carbon::parse($request->end_date)->endOfDay();
+
+        $productionPlannings = ProductionPlanning::with([
+            'machine',
+            'items.saleOrder.customer',
+            'items.design',
+            'items.color'
+        ])
+        ->whereBetween('date', [$startDate, $endDate])
+        ->orderBy('date', 'asc')
+        ->orderBy('machine_id', 'asc')
+        ->get();
+
+        return view('pages.reports.production_planning.show', compact('productionPlannings', 'startDate', 'endDate'));
     }
     
     public function show($id)

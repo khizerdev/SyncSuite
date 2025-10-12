@@ -64,6 +64,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reports/needle', [NeedleReportController::class, 'report'])->name('needle.report');
         Route::get('/reports/daily-production', [DailyProductionReportController::class, 'index'])
     ->name('daily-production-report.index');
+    
+
+        Route::get('/production-planning/report', [ProductionPlanningController::class, 'reportForm'])->name('production-planning.report');
+        Route::post('/production-planning/report', [ProductionPlanningController::class, 'generateReport'])->name('production-planning.report.generate');
         
         Route::resource('lots', LotController::class);
         Route::get('/lot/products-by-department', [LotController::class, 'getProductsByDepartment'])->name('lots.products-by-department');
