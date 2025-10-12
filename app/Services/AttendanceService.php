@@ -62,42 +62,39 @@ class AttendanceService
         $processedAttendances = $this->processAttendanceRecords($attendances, $groupedAttendances);
         $calculatedMinutes = $this->calculateWorkingMinutes($processedAttendances['groupedAttendances'],$gazetteHolidays);
         
+        
         if ($this->isContract) {
             // Daily minutes
             $calculatedMinutes['dailyMinutes'] = array_map(function($val) {
                 return $val > 0 ? 720 : $val;
             }, $calculatedMinutes['dailyMinutes']);
             
-            // Early check-in minutes
-            $calculatedMinutes['earlyCheckinMinutes'] = array_fill(
-                0, 
-                count($calculatedMinutes['earlyCheckinMinutes']), 
-                0
-            );
+       
             
-            // Early check-out minutes
-            $calculatedMinutes['earlyCheckoutMinutes'] = array_fill(
-                0, 
-                count($calculatedMinutes['earlyCheckoutMinutes']), 
-                0
-            );
+             foreach ($calculatedMinutes['earlyCheckinMinutes'] as $date => $value) {
+    $calculatedMinutes['earlyCheckinMinutes'][$date] = 0;
+}
             
-            // Early lateMinutes minutes
-            $calculatedMinutes['lateMinutes'] = array_fill(
-                0, 
-                count($calculatedMinutes['lateMinutes']), 
-                0
-            );
+         
+            foreach ($calculatedMinutes['earlyCheckoutMinutes'] as $date => $value) {
+    $calculatedMinutes['earlyCheckoutMinutes'][$date] = 0;
+}
+  
+          
             
-            // Early overMinutes minutes
-            $calculatedMinutes['overMinutes'] = array_fill(
-                0, 
-                count($calculatedMinutes['overMinutes']), 
-                0
-            );
-            
-        }
+             foreach ($calculatedMinutes['lateMinutes'] as $date => $value) {
+    $calculatedMinutes['lateMinutes'][$date] = 0;
+}
+        
+            foreach ($calculatedMinutes['overMinutes'] as $date => $value) {
+    $calculatedMinutes['overMinutes'][$date] = 0;
+}
+
+
+
       
+        }
+    
 
         $missScanCount = $this->getMissScanCount($processedAttendances['groupedAttendances']);
         // dd($calculatedMinutes['totalHolidayMinutesWorked']);
@@ -113,7 +110,6 @@ class AttendanceService
             }
         }
         
-        // dd($calculatedMinutes);
         foreach ($processedAttendances['groupedAttendances'] as $date => &$entries) {
             // dd($entries);
             $dailyMinutes = 0;
@@ -135,6 +131,7 @@ class AttendanceService
             // Add dailyMinutes to each entry for the date
             foreach ($entries as &$entry) {
                 $entry['dailyMinutes'] = $dailyMinutes;
+              
                 $entry['overMinutes'] = $calculatedMinutes['overMinutes'][$date];
                 $entry['earlyMinutes'] = $calculatedMinutes['earlyCheckinMinutes'][$date];
                 $entry['earlyOutMinutes'] = $calculatedMinutes['earlyCheckoutMinutes'][$date];
@@ -585,6 +582,7 @@ private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
         $gazatteMinutes = 0;
 
         foreach ($groupedAttendances as $date => $entries) {
+            
             $shiftTimes = $this->getShiftTimes($date);
             $results = $this->calculateDailyMinutes($entries, $shiftTimes, $date,$gazetteHolidays);
             // dd($results);
@@ -601,6 +599,7 @@ private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
             $overMinutes[$date] = $results['overtimeMinutes'];
             
         }
+        
         return [
             'dailyMinutes' => $dailyMinutes,
             'totalMinutesWorked' => $totalMinutesWorked,
