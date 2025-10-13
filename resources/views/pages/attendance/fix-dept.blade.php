@@ -4,7 +4,7 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
 
                     <div class="card card-primary">
                         <div class="card-header">
@@ -29,9 +29,24 @@
                                         <label for="date">Date</label>
                                         <input type="date" class="form-control" id="date" name="date" value="{{ $date ?? date('Y-m-d') }}" required>
                                     </div>
-                                    <div class="form-group col-md-2" style="align-self: flex-end;">
+                                
+                                    
+                                    <div class="form-group col-md-3">
+                                        <label for="shift_id">Shift</label>
+                                        <select class="form-control" id="shift_id" name="shift_id">
+                                            <option value="">All Shifts</option>
+                                            @foreach($shifts as $shift)
+                                                <option value="{{ $shift->id }}" {{ (isset($shiftId) && $shiftId == $shift->id) ? 'selected' : '' }}>
+                                                    {{ $shift->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                
+                                    <div class="form-group col-md-12" style="text-align: right;">
                                         <button type="submit" class="btn btn-primary">Generate Report</button>
                                     </div>
+                                  
                                 </div>
                             </form>
                                         @if(isset($processedEmployees))
@@ -40,8 +55,11 @@
                                     
                                     <form id="attendanceForm" method="POST" action="{{ route('delete-day-entries') }}">
     @csrf
-    <input type="hidden" name="department_id" value="{{ $departmentId }}">
-    <input type="hidden" name="date" value="{{ $date }}">
+    <input type="hidden" name="department_id" value="{{ $departmentId ?? '' }}">
+        <input type="hidden" name="date" value="{{ $date ?? '' }}">
+        @if(isset($shiftId) && $shiftId)
+            <input type="hidden" name="shift_id" value="{{ $shiftId }}">
+        @endif
     
     <div class="table-responsive mt-3">
         <table class="table table-bordered">

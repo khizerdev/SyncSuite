@@ -13,6 +13,7 @@ use App\Models\Attendance;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\UserInfo;
+use App\Models\Shift;
 use App\Models\Department;
 use App\Services\AttendanceService;
 use Carbon\Carbon;
@@ -358,57 +359,49 @@ class AttendanceController extends Controller
     }
     
     public function getAttendanceEntries(Request $request)
-    {
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'date' => 'required|date',
-            'type' => 'required|in:checkin,checkout'
-        ]);
+{
+    $request->validate([
+        'employee_id' => 'required|exists:employees,id',
+        'date' => 'required|date',
+    ]);
 
-        $date = Carbon::parse($request->date);
-        
-        $employee = Employee::findOrFail($request->employee_id);
-        
-        // Get all entries for the selected date
-        $entries = Attendance::where('code', $employee->userInfo->id)
-            ->whereDate('datetime', $date)
-            ->orderBy('datetime', 'asc')
-            ->get();
+    $employee = Employee::findOrFail($request->employee_id);
 
-        if ($entries->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No attendance records found for this date'
-            ]);
-        }
-
-        // If only one entry exists, treat it as check-in
-        if ($entries->count() === 1) {
-            if ($request->type === 'checkin') {
-                return response()->json([
-                    'status' => 'success',
-                    'entry' => $entries->first(),
-                    'current_time' => Carbon::parse($entries->first()->datetime)->format('H:i')
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Checkout entry not found'
-                ]);
-            }
-        }
-
-        // For multiple entries
-        $entry = $request->type === 'checkin' 
-            ? $entries->first()  // First entry for check-in
-            : $entries->last();  // Last entry for check-out
-
+    if (!$employee->userInfo) {
         return response()->json([
-            'status' => 'success',
-            'entry' => $entry,
-            'current_time' => Carbon::parse($entry->datetime)->format('H:i')
+            'status' => 'error',
+            'message' => 'UserInfo not found for selected employee'
         ]);
     }
+
+    $date = Carbon::parse($request->date)->toDateString();
+
+    $entries = Attendance::where('code', $employee->userInfo->id)
+        ->whereDate('datetime', $date)
+        ->orderBy('datetime', 'asc')
+        ->get();
+
+    if ($entries->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No attendance records found for this date'
+        ]);
+    }
+
+    // Map entries to return id and formatted time
+    $formattedEntries = $entries->map(function($entry) {
+        return [
+            'id' => $entry->id,
+            'time' => Carbon::parse($entry->datetime)->format('H:i')
+        ];
+    });
+
+    return response()->json([
+        'status' => 'success',
+        'entries' => $formattedEntries
+    ]);
+}
+
 
     public function updateAttendance(Request $request)
     {
@@ -448,16 +441,13 @@ class AttendanceController extends Controller
 
     public function updateAttendanceTable()
 {
-    // Get today's date and calculate the date one month ago
     $today = Carbon::today();
-    $oneMonthAgo = $today->copy()->subMonth();
+    $oneMonthAgo = $today->copy()->subMonth(2);
     
-    // Delete all attendance records from the past month
     DB::table('attendances')
         ->whereBetween('datetime', [$oneMonthAgo->toDateString(), $today->toDateString()])
         ->delete();
 
-    // Get all records from CHECKINOUT table for the past month
     $recordsInRange = DB::connection('mysql2')->table('CHECKINOUT')
         ->select('USERID', DB::raw('TRIM(BOTH \'"\' FROM CHECKTIME) as clean_time'))
         ->get()
@@ -478,7 +468,6 @@ class AttendanceController extends Controller
         ], 404);
     }
 
-    // Update user_infos table
     DB::table('user_infos')->truncate();
 
     $userInfoRecords = DB::connection('mysql2')->table('USERINFO')
@@ -497,7 +486,6 @@ class AttendanceController extends Controller
         DB::table('user_infos')->insert($newUserInfos);
     }
 
-    // Insert attendances
     $chunkSize = 200;
     $recordsInRange->chunk($chunkSize)->each(function ($chunk) {
         $attendanceData = [];
@@ -510,7 +498,7 @@ class AttendanceController extends Controller
                     'datetime' => $datetime,
                 ];
             } catch (\Exception $e) {
-                continue; // Skip invalid records
+                continue;
             }
         }
 
@@ -528,25 +516,34 @@ class AttendanceController extends Controller
 }
 
     public function fixedDeptAttendance()
-    {
-        $departments = Department::all();
-        return view('pages.attendance.fixed-dept', compact('departments'));
-    }
-    
-    public function generateFixedDeptReport(Request $request)
+{
+    $departments = Department::all();
+    $shifts = Shift::all(); // Add this line
+    return view('pages.attendance.fixed-dept', compact('departments', 'shifts'));
+}
+
+public function generateFixedDeptReport(Request $request)
 {
     $request->validate([
         'department_id' => 'required|exists:departments,id',
-        'date' => 'required|date'
+        'date' => 'required|date',
+        'shift_id' => 'nullable|exists:shifts,id' // Add shift validation
     ]);
-
+    
     $departmentId = $request->department_id;
     $date = $request->date;
-
-    $employees = Employee::where('department_id', $departmentId)
-        ->with(['userInfo'])
-        ->get();
-
+    $shiftId = $request->shift_id;
+    
+    // Modified query to filter by shift if provided
+    $employeesQuery = Employee::where('department_id', $departmentId)
+        ->with(['userInfo', 'shift']); // Add shift relationship
+    
+    if ($shiftId) {
+        $employeesQuery->where('shift_id', $shiftId);
+    }
+    
+    $employees = $employeesQuery->get();
+    
     $processedEmployees = [];
     
     foreach ($employees as $employee) {
@@ -554,13 +551,13 @@ class AttendanceController extends Controller
         $checkIn = null;
         $checkOut = null;
         $workingHours = null;
-
+        
         if ($employee->userInfo) {
             $attendances = Attendance::where('code', $employee->userInfo->id)
                 ->whereDate('datetime', $date)
                 ->orderBy('datetime', 'asc')
                 ->get();
-
+                
             if ($attendances->isNotEmpty()) {
                 $checkIn = $attendances->first()->datetime;
                 
@@ -572,7 +569,7 @@ class AttendanceController extends Controller
                 }
             }
         }
-
+        
         $processedEmployees[] = [
             'employee' => $employee,
             'check_in' => $checkIn,
@@ -582,10 +579,11 @@ class AttendanceController extends Controller
             'has_attendance' => $attendances->isNotEmpty()
         ];
     }
-
-    $departments = Department::all();
     
-    return view('pages.attendance.fixed-dept', compact('departments', 'processedEmployees', 'departmentId', 'date'));
+    $departments = Department::all();
+    $shifts = Shift::all(); // Add this line
+    
+    return view('pages.attendance.fixed-dept', compact('departments', 'shifts', 'processedEmployees', 'departmentId', 'date', 'shiftId'));
 }
 
 public function deleteDayEntries(Request $request)
