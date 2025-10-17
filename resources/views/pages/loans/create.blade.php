@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
+ <style>
+        .select2-container--bootstrap4 .select2-selection {
+            height: calc(2.25rem + 2px) !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+            line-height: calc(2.25rem + 2px) !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+            height: calc(2.25rem + 2px) !important;
+        }
+    </style>
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -26,11 +37,11 @@
 
                                 <div class="mb-3 col-3">
                                     <label for="employee_id" class="form-label">Employee</label>
-                                    <select class="form-control" id="employee_id" name="employee_id" required>
+                                    <select class="form-control select2" id="employee_id" name="employee_id" required>
                                         <option value="">Select an employee</option>
                                         @foreach ($employees as $employee)
                                             <option value="{{ $employee->id }}" data-salary="{{ $employee->salary }}">
-                                                {{ $employee->name }}</option>
+                                                {{ $employee->name }} - {{ $employee->department->name ?? 'N/A' }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -66,6 +77,17 @@
 
 @section('script')
     <script>
+    $(document).ready(function() {
+            // Initialize Select2 with Bootstrap 4 theme
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select Employee',
+                allowClear: true,
+                width: '100%'
+            });
+
+           
+        });
         document.addEventListener('DOMContentLoaded', function() {
             const employeeSelect = document.getElementById('employee_id');
             const salaryInput = document.getElementById('salary');

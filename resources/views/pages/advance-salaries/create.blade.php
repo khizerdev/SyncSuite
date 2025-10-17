@@ -1,6 +1,18 @@
 @extends('layouts.app')
 
+
 @section('content')
+    <style>
+        .select2-container--bootstrap4 .select2-selection {
+            height: calc(2.25rem + 2px) !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+            line-height: calc(2.25rem + 2px) !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+            height: calc(2.25rem + 2px) !important;
+        }
+    </style>
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -28,10 +40,10 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="employee_id">Employee</label>
-                                            <select name="employee_id" id="employee_id" class="form-control" required>
+                                            <select name="employee_id" id="employee_id" class="form-control select2" required>
                                                 <option value="">Select Employee</option>
-                                                @foreach ($employees as $employee)
-                                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                                @foreach (\App\Models\Employee::all() as $employee)
+                                                    <option value="{{ $employee->id }}">{{ $employee->name }} - {{ $employee->department->name ?? 'N/A' }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -76,6 +88,14 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            // Initialize Select2 with Bootstrap 4 theme
+            $('#employee_id').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select Employee',
+                allowClear: true,
+                width: '100%'
+            });
+
             $('#employee_id').change(function() {
                 var employeeId = $(this).val();
 
