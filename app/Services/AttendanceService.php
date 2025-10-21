@@ -139,27 +139,39 @@ class AttendanceService
         }
         
         $cappedOverMinutes = array_map(
-            function($value) {
-                return $value > 150 ? 150 : 150;
-            },
-            $calculatedMinutes['overMinutes']
-        );
+    function($value) {
         
-        $cappedLateMinutes = array_map(
-            function($value) {
-                if($this->shift->id == "12"){
-                    if($value > 60){
-                        return $value - 60;
-                    } else {
-                        return $value;
-                    }
-                } else {
-                    return $value;
-                }
+        if($this->shift->id != "12") {
+            
+            if(isset($this->shift->overtime_limit) && 
+               $this->shift->overtime_limit !== null && 
+               $this->shift->overtime_limit > 0) {
                 
-            },
-            $calculatedMinutes['lateMinutes']
-        );
+                if($value > $this->shift->overtime_limit) {
+                    return $this->shift->overtime_limit;
+                }
+            }
+        }
+        return $value;
+    },
+    $calculatedMinutes['overMinutes']
+);
+
+$cappedLateMinutes = array_map(
+    function($value) {
+        if($this->shift->id == "12"){
+            if($value > 30){
+                return $value - 30;
+            } else {
+                return $value;
+            }
+        } else {
+            return $value;
+        }
+        
+    },
+    $calculatedMinutes['lateMinutes']
+);
         
       
         return [
@@ -405,52 +417,59 @@ class AttendanceService
     }
 
     private function determineDailyEntries($entries)
-{
+    {
     $nestedEntries = [];
     $currentCheckIn = null;
     $lastCheckOut = null;
-   
+
+    // Special condition for shift ID 12
+    if ($this->shift->id == 12) {
+        foreach ($entries as $entry) {
+            $entryTime = Carbon::parse($entry->datetime);
+
+            // Check if entry is between 7:00 AM and 5:00 PM
+            $startWindow = $entryTime->copy()->setTime(7, 0, 0);
+            $endWindow = $entryTime->copy()->setTime(17, 0, 0);
+
+            if ($entryTime->between($startWindow, $endWindow)) {
+                // Found first check-in in the window
+                $checkIn = $entryTime;
+                $checkOut = $entryTime->copy()->setTime(22, 30, 0);
+
+                $nestedEntries[] = [
+                    'checkIn' => $checkIn,
+                    'checkOut' => $checkOut,
+                ];
+
+                
+                return $nestedEntries;
+            }
+        }
+
+        // If no entry found between 7 AM and 5 PM
+        return $nestedEntries;
+    }
+
+    // --- Default logic for all other shifts ---
     foreach ($entries as $entry) {
         $entryTime = Carbon::parse($entry->datetime);
-        
-
-        // Handle special case for shift ID 2
-        // if ($this->shift->id == 12) {
-        //     $entryHour = (int)$entryTime->format('H');
-            
-            
-        //     if ($entryHour < 7) {
-        //         // dd($entry);
-                
-        //         if ($currentCheckIn) {
-        //             $nestedEntries[] = [
-        //                 'checkIn' => $currentCheckIn,
-        //                 'checkOut' => $entryTime
-        //             ];
-        //             $lastCheckOut = $entryTime;
-        //             $currentCheckIn = null;
-        //         }
-                
-        //         continue;
-        //     }
-        // }
 
         if (!$currentCheckIn) {
             // Ensure this is not immediately after the last checkout
-            if ($lastCheckOut && $lastCheckOut->diffInMinutes($entryTime) <= 30) {
+            if ($lastCheckOut && $lastCheckOut->diffInMinutes($entryTime) <= 5) {
                 continue;
             }
             $currentCheckIn = $entryTime;
             continue;
         }
 
-        if ($currentCheckIn->diffInMinutes($entryTime) > 30) {
+        if ($currentCheckIn->diffInMinutes($entryTime) > 5) {
             // Treat as a checkout for the current check-in
             $nestedEntries[] = [
                 'checkIn' => $currentCheckIn,
                 'checkOut' => $entryTime
             ];
-            $lastCheckOut = $entryTime; // Update last checkout time
+            $lastCheckOut = $entryTime;
             $currentCheckIn = null;
         }
     }
@@ -464,6 +483,7 @@ class AttendanceService
 
     return $nestedEntries;
 }
+
 
 
 private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
@@ -666,7 +686,9 @@ private function getCurrentDateEntries($attendances, $startIndex, $targetDate)
 
                 $overtimeMinutes += $minutes['overtime'];
                 $earlyCheckinMinutes += $minutes['earlyCheckin'];
-                $earlyCheckoutMinutes += $minutes['earlyCheckout'];
+                if ($key === array_key_last($entries)) {
+                    $earlyCheckoutMinutes += $minutes['earlyCheckout'];
+                }
                 if($key == 0){
                     $lateMinutes += $minutes['late'];
                 }
