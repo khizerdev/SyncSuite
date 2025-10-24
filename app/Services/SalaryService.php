@@ -71,7 +71,8 @@ class SalaryService
         $totalHoursWorked = $originalWorkingMinutes / 60;
 
         $timings = $this->calculateTimeDifference($this->employee->timings);
-        $hoursPerDay = intval($timings['formatted']);
+        $hoursPerDay = (float) $timings['formatted'];
+        
         $salaryPerHour = $this->employee->salary / $this->monthDays / $hoursPerDay;
         // dd($this->attendanceData['gazatteHolidays']);
         $regularPay = $totalHoursWorked * $salaryPerHour;
@@ -140,12 +141,12 @@ class SalaryService
         }
         // dd($this->attendanceData['holidayDays']);
         // dd($holidayWorkedDays);
-        $normalHolidayPay = ($this->attendanceData['holidayDays'] - $holidayWorkedDays) * $salaryPerHour * $hoursPerDay;
+        $normalHolidayPay = ($this->attendanceData['holidayDays']) * $salaryPerHour * $hoursPerDay;
         // dd($normalHolidayPay);
 
         $gazatteDaysWithoutWorked = 0;
         foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
-            if (in_array(Carbon::parse($date)->format('Y-m-d'), $gazatteDates) && !in_array(Carbon::parse($date)->format('l'), $this->holidays) && $value == 0) {
+            if (in_array(Carbon::parse($date)->format('Y-m-d'), $gazatteDates) && !in_array(Carbon::parse($date)->format('l'), $this->holidays)) {
                 $gazatteDaysWithoutWorked += 1;
             }
         }
@@ -197,7 +198,7 @@ class SalaryService
 
             $missAmount = ($missScanCount - $dayRatio) * $missScanPerDayAmount;
             $missDeductDays = $missScanCount;
-
+            
             $actualSalary += $missAmount;
             $missDaysAmount = $missScanCount * $missScanPerDayAmount - $missAmount;
         }
@@ -238,7 +239,7 @@ class SalaryService
             'period' => $this->period,
 
             'holidayHours' => number_format($holidayWorkingMinutes / 60, 2),
-            'totalExpectedWorkingHours' => number_format($this->attendanceData['workingDays'] * $hoursPerDay, 2),
+            'totalExpectedWorkingHours' => $this->attendanceData['workingDays'] * $hoursPerDay,
             // 'totalHoursWorked'          => $this->attendanceData['totalMinutesWorked'] / 60,
             'totalHoursWorked' => number_format($originalWorkingMinutes / 60, 2),
             'totalWorkingDays' => $this->attendanceData['workingDays'],
@@ -265,7 +266,7 @@ class SalaryService
             'totalLateMinutes' => number_format($lateMinutes, 2),
             'totalLateDays' => count($this->attendanceData['lateMinutes']),
             'missDeductDays' => $missDeductDays,
-            'missAmount' => $missDaysAmount,
+            'missAmount' => $missAmount,
             'missScanCount' => $missScanCount,
             'missScanCleared' => $missScanCleared ? 'Yes' : 'No',
             'sandwichDeduct' => $sandWhichViolations . ' Days - Amount ' . $perDayAmount * $sandWhichViolations,
