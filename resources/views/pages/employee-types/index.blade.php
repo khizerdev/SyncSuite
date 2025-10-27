@@ -79,6 +79,14 @@
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
+                            <label for="variant" class="form-label">Variant</label>
+                            <select class="form-control" id="variant" name="variant" required>
+                                <option value="">Select Variant</option>
+                                <option value="daily">Daily</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="holidays" class="form-label">Holidays</label>

@@ -48,6 +48,16 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
+                                    <div class="mb-3">
+                            <label for="variant" class="form-label">Variant</label>
+                            <select class="form-control" id="variant" name="variant" required>
+                                <option value="">Select Variant</option>
+                                <option value="daily" {{ $employeeType->variant == 'daily' ? 'selected' : '' }}>Daily</option>
+                                <option value="monthly" {{ $employeeType->variant == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            </select>
+                        </div>
+                                        </div>
+                                    <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="holidays" class="form-label">Holidays</label>
                                             <select multiple

@@ -45,6 +45,7 @@ class EmployeeTypeController extends Controller
         try {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
+            'variant' => 'required',
             'holidays' => 'required|array',
             'holidays.*' => 'string',
             'overtime' => 'required|in:yes,no',
@@ -91,6 +92,7 @@ class EmployeeTypeController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'variant' => 'required',
             'holidays' => 'required|array',
             'holiday_ratio' => 'nullable|numeric|min:0',
             'overtime' => 'required',
@@ -101,6 +103,7 @@ class EmployeeTypeController extends Controller
         $employeeType = EmployeeType::findOrFail($id);
         $employeeType->update([
             'name' => $request->name,
+            'variant' => $request->variant,
             'holidays' => implode(',', $request->holidays),
             'holiday_ratio' => $request->holiday_ratio,
             'overtime' => $request->overtime,

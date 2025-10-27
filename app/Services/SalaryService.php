@@ -73,7 +73,9 @@ class SalaryService
         $timings = $this->calculateTimeDifference($this->employee->timings);
         $hoursPerDay = (float) $timings['formatted'];
         
-        $salaryPerHour = $this->employee->salary / $this->monthDays / $hoursPerDay;
+        $monthDays = $this->employee->type->variant == "daily" ? 30 : $this->monthDays;
+        
+        $salaryPerHour = $this->employee->salary / $monthDays / $hoursPerDay;
         // dd($this->attendanceData['gazatteHolidays']);
         $regularPay = $totalHoursWorked * $salaryPerHour;
 
@@ -165,10 +167,15 @@ class SalaryService
         // dd($this->attendanceData['gazatteMinutes']);
 
         $missScanCount = $this->attendanceData['missScanCount'];
-        if($this->period){
-            $missScanCleared = Missscan::where('employee_id', $this->employee->id)->where('month', $this->attendanceData['month'])->where('year', $this->attendanceData['year'])->where('duration', $this->period)->first();
+        
+        if($this->period == "full_month"){
+            $missScanCleared = Missscan::where('employee_id', $this->employee->id)->where('month', $this->attendanceData['month'])->where('year', $this->attendanceData['year'])->where('duration', "full_month")->first();
         } else {
-            $missScanCleared = Missscan::where('employee_id', $this->employee->id)->where('month', $this->attendanceData['month'])->where('year', $this->attendanceData['year'])->first();
+            $missScanCleared = Missscan::where('employee_id', $this->employee->id)
+            ->where('month', $this->attendanceData['month'])
+            ->where('year', $this->attendanceData['year'])
+            ->where('duration', $this->period)
+            ->first();
         }
 
         $actualSalary = $regularPay + $holidayPay + $normalHolidayPay + $gazattePay;
@@ -189,9 +196,8 @@ class SalaryService
         $missDeductDays = 0;
         $missAmount = 0;
         $missScanPerDayAmount = 0;
-
         $missDaysAmount = 0;
-
+        
         if ($missScanCleared) {
             $missScanPerDayAmount = $this->employee->salary / $this->monthDays;
             $dayRatio = (int) floor($missScanCount / 3); // 0.33 => 0
@@ -202,6 +208,7 @@ class SalaryService
             $actualSalary += $missAmount;
             $missDaysAmount = $missScanCount * $missScanPerDayAmount - $missAmount;
         }
+        
 
         $perDayAmount = $this->employee->salary / $this->monthDays;
         $sanwichDeductedAmount = 0;
@@ -243,7 +250,7 @@ class SalaryService
             // 'totalHoursWorked'          => $this->attendanceData['totalMinutesWorked'] / 60,
             'totalHoursWorked' => number_format($originalWorkingMinutes / 60, 2),
             'totalWorkingDays' => $this->attendanceData['workingDays'],
-            'totalWorkedDays' => $this->attendanceData['workingDays'],
+            'totalWorkedDays' => $this->attendanceData['workingDays'] - $sandWhichViolations,
             // 'totalPresentDays'          => $this->attendanceData['presentDays'],
             // 'totalAbsentDays'           => $this->attendanceData['workingDays'] - $this->attendanceData['presentDays'],
 

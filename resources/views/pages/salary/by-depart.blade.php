@@ -190,15 +190,23 @@
                 $month = $months[$salary->month - 1];
                 
                 // Calculate gross salary
-                $grossSalary = floatval($result['regularPay'] ?? 0) +
-                    floatval($result['normalHolidayPay'] ?? 0) +
-                    floatval(preg_replace('/[^\d\.\-]/', '', $result['gazattePay'] ?? 0)) + 
-                    floatval($result['holidayPay'] ?? 0) +
-                    floatval($result['missAmount'] ?? 0);
+                $shifts = $result['employee']->shift;
+
+                $start = DateTime::createFromFormat('H:i:s', $shifts['start_time']);
+                $end = DateTime::createFromFormat('H:i:s', $shifts['end_time']);
+                
+                // If end time is earlier than start time, assume it's next day
+                if ($end < $start) {
+                    $end->modify('+1 day');
+                }
+                
+                $interval = $start->diff($end);
+                $totalHours = $interval->h + ($interval->i / 60) + ($interval->s / 3600);
+                $totalHoursFormatted = number_format($totalHours, 2);
                 
                 // Add to totals (convert all to float to avoid non-numeric errors)
                 $totals['totalWorkedDays'] += floatval($result['totalWorkedDays'] ?? 0);
-                $totals['grossSalary'] += $grossSalary;
+                $totals['grossSalary'] = round(floatval($result['salaryPerHour'] ?? 0) * $totalHoursFormatted * floatval($result['totalWorkedDays'] ?? 0));
                 $totals['allowance'] += floatval(str_replace(',', '', $result['totalOvertimePay'] ?? 0));
                 $totals['advanceDeducted'] += floatval($salary->advance_deducted ?? 0);
                 $totals['advance'] += floatval($salary->advance_deducted ?? 0);
@@ -227,7 +235,7 @@
                 <td><strong>{{ $result['employee']->name }}</strong></td>
                 <td><strong>{{ $result['employee']->designation }}</strong></td>
                 <td class="text-center">{{ $result['totalWorkedDays'] }}</td>
-                <td>{{ number_format($grossSalary, 2, '.', ',') }}</td>
+                <td>{{ $totals['grossSalary'] }}</td>
                 <td class="text-right">{{ str_replace(',', '', $result['totalOvertimePay']) }}</td>
                 <td class="d-print-none">{{ $month }}</td>
                 <td class="d-print-none">{{ $salary->advance_deducted }}</td>
