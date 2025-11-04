@@ -28,7 +28,7 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="department">Department</label>
-                                            <select id="department" name="department_id" class="form-control" required>
+                                            <select id="department" name="department_id" class="form-control" >
                                                 @foreach (App\Models\Department::all() as $item)
                                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                 @endforeach
@@ -47,7 +47,7 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="manufactured">Machine Manufactured</label>
-                                            <select id="manufactured" name="manufacturer_id" class="form-control" required>
+                                            <select id="manufactured" name="manufacturer_id" class="form-control" >
                                                 @foreach (App\Models\Manufacturer::all() as $item)
                                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                 @endforeach
@@ -59,7 +59,7 @@
                                         <div class="form-group">
                                             <label for="name">Machine Name</label>
                                             <input type="text" id="name" name="name" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
 
@@ -69,7 +69,7 @@
                                         <div class="form-group">
                                             <label for="purchased_date">Machine Purchased Date</label>
                                             <input type="date" id="purchased_date" name="purchased_date"
-                                                class="form-control" required>
+                                                class="form-control" >
                                         </div>
                                     </div>
 
@@ -77,7 +77,7 @@
                                         <div class="form-group">
                                             <label for="model_date">Machine Model Date</label>
                                             <input type="date" id="model_date" name="model_date" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
 
@@ -85,7 +85,7 @@
                                         <div class="form-group">
                                             <label for="capacity">Machine Capacity (units)</label>
                                             <input type="number" id="capacity" name="capacity" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
 
@@ -93,7 +93,7 @@
                                         <div class="form-group">
                                             <label for="production_speed">Machine Production Speed</label>
                                             <input type="number" step="0.01" id="production_speed"
-                                                name="production_speed" class="form-control" required>
+                                                name="production_speed" class="form-control" >
                                         </div>
                                     </div>
 
@@ -101,7 +101,7 @@
                                         <div class="form-group">
                                             <label for="price">Machine Purchase Price</label>
                                             <input type="number" step="0.01" id="price" name="price"
-                                                class="form-control" required>
+                                                class="form-control" >
                                         </div>
                                     </div>
 
@@ -109,7 +109,7 @@
                                         <div class="form-group">
                                             <label for="warranty_expiry">Machine Warranty Expiry</label>
                                             <input type="date" id="warranty_expiry" name="warranty" class="form-control"
-                                                required>
+                                                >
                                         </div>
                                     </div>
 
@@ -117,7 +117,7 @@
                                         <div class="form-group">
                                             <label for="attachments">Machine Attachments</label>
                                             <input type="file" id="attachments" name="attachments" class="form-control"
-                                                multiple>
+                                                >
                                         </div>
                                     </div>
 

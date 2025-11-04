@@ -21,20 +21,21 @@ class UpdateMachineRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules()
-    {
-        return [
-            'department_id' => 'required|exists:departments,id', // Assuming department is selected from a dropdown linked to a departments table
-            'code' => 'required|string|max:255',
-            'manufacturer_id' => 'required|exists:manufacturers,id', // Assuming manufacturer is selected from a dropdown linked to a manufacturers table
-            'name' => 'required|string|max:255',
-            'purchased_date' => 'required|date_format:Y-m-d', // Assuming date format is Y-m-d
-            'model_date' => 'required|date_format:Y-m-d', // Assuming date format is Y-m-d
-            'capacity' => 'required|integer|min:1', // Assuming capacity is an integer
-            'production_speed' => 'required|numeric|min:0', // Assuming speed is a numeric value
-            'price' => 'required|numeric|min:0', // Assuming price is a numeric value
-            'warranty' => 'required', // Warranty expiry should be a valid date after purchase date
-            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Adjust mime types and max size as needed 
-            'remarks' => 'nullable|string|max:1000', // Assuming notes/remarks are optional and have a longer text limit
-        ];    
-    }
+{
+    return [
+        'department_id' => 'nullable|exists:departments,id',
+        'code' => 'required|string|max:255',
+        'manufacturer_id' => 'nullable|exists:manufacturers,id',
+        'name' => 'nullable|string|max:255',
+        'purchased_date' => 'nullable|date_format:Y-m-d',
+        'model_date' => 'nullable|date_format:Y-m-d',
+        'capacity' => 'nullable|integer|min:1',
+        'production_speed' => 'nullable|numeric|min:0',
+        'price' => 'nullable|numeric|min:0',
+        'warranty' => 'nullable',
+        'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        'remarks' => 'nullable|string|max:1000',
+    ];
+}
+
 }
