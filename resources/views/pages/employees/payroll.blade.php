@@ -97,10 +97,11 @@
                                 @endphp
                                 <x-salary-details :employee="$result['employee']" :salary-month="$month" :early-cut-amount="$result['earlyOutCutAmount']" :early-minutes="$attendance['earlyCheckinMinutes']" :early-out-minutes="$attendance['earlyCheckoutMinutes']"
                                     :month="$month" :holidays="$result['holidays']" :working-days="$result['workingDays']" :worked-days="$result['totalWorkedDays']"
-                                    :total-expected-working-days="$salary->expected_hours" :total-hours-worked="$result['totalHoursWorked']" :total-holiday-hours-worked="$result['holidayHours']" :salary-per-hour="$result['salaryPerHour']"
+                                    :total-expected-working-days="$result['totalExpectedWorkingHours']" :total-hours-worked="$result['totalHoursWorked']" :total-holiday-hours-worked="$result['holidayHours']" :salary-per-hour="$result['salaryPerHour']"
                                     :paid-holiday-amount="$result['normalHolidayPay']" :gazatte-pay-amount="$result['gazattePay']" :holiday-pay-amount="$result['holidayPay']" :holiday-ratio="$salary->holiday_pay_ratio"
                                     :over-time-ratio="$salary->overtime_pay_ratio" :total-over-time-hours-worked="$salary->overtime_hours" :total-over-time-minutes-worked="$result['totalOvertimeMinutes']" :total-overtime-pay="$result['totalOvertimePay']"
-                                    :late-minutes="array_sum($attendance['lateMinutes'])" :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary" :miss-deduct-days="$result['missDeductDays']"
+                                   :late-minutes="$result['totalLateMinutes']"
+ :actual-salary-earned="$result['actualSalaryEarned']" :salary="$salary" :miss-deduct-days="$result['missDeductDays']"
                                     :miss-amount="$result['missAmount']" :holidayOverMins="$result['holidayOverMins']" :sand-wich="$result['sandwichDeduct']" :over-minutes-auto="$result['overMinutesOfAutoShift']" />
 
                                 <div class="col-md-1 text-right">

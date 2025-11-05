@@ -131,9 +131,38 @@ class SalaryService
         
         $overMintuesWithoutHoliday = $this->shift->id == "12" ? array_sum($this->attendanceData['overMinutesOfAutoShift']) : $overMintuesWithoutHoliday;
 
-        $lateMinutes = array_sum($this->attendanceData['lateMinutes']);
-        // dd($lateMinutes);
-        $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
+        // $lateMinutes = array_sum($this->attendanceData['lateMinutes']);
+        // // dd($lateMinutes);
+        // $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
+        // âœ… Exclude holidays and gazetted holidays from late minutes
+$lateMinutes = 0;
+foreach ($this->attendanceData['lateMinutes'] as $date => $minutes) {
+    $dayName = Carbon::parse($date)->format('l');
+    $formattedDate = Carbon::parse($date)->format('Y-m-d');
+
+    // âœ… Only count if it's NOT a weekly holiday and NOT a gazatted holiday
+    if (!in_array($dayName, $this->holidays) && !in_array($formattedDate, $gazatteDates)) {
+        $lateMinutes += $minutes;
+    }
+}
+
+$lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
+
+// ðŸ§¾ (Optional) quick debug check
+//  dd([
+//      'lateMinutes_total' => $lateMinutes,
+//       'holiday_days' => $this->holidays,
+//       'gazatte_dates' => $gazatteDates,
+//       'late_raw' => $this->attendanceData['lateMinutes'],
+//         $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour,
+//  ]);
+
+
+// Optional debug (remove after confirming)
+//  dd($lateMinutes, $this->holidays, $gazatteDates);
+
+// $lateCutAmount = ($lateMinutes / 60) * $salaryPerHour;
+
 
         $holidayWorkedDays = 0;
         foreach ($this->attendanceData['dailyMinutes'] as $date => $value) {
@@ -144,6 +173,7 @@ class SalaryService
         // dd($this->attendanceData['holidayDays']);
         // dd($holidayWorkedDays);
         $normalHolidayPay = ($this->attendanceData['holidayDays']) * $salaryPerHour * $hoursPerDay;
+        // dd($this->holidays,$gazatteDates);
         // dd($normalHolidayPay);
 
         $gazatteDaysWithoutWorked = 0;
@@ -182,9 +212,28 @@ class SalaryService
 
         // $earlyOutCutAmount = $this->attendanceDate['earlyCheckoutMinutes'];
 
-        $earlyOutMins = array_sum($this->attendanceData['earlyCheckoutMinutes']);
-        // dd($lateMinutes);
-        $earlyOutCutAmount = ($earlyOutMins / 60) * $salaryPerHour;
+        // $earlyOutMins = array_sum($this->attendanceData['earlyCheckoutMinutes']);
+        // // dd($lateMinutes);
+        // $earlyOutCutAmount = ($earlyOutMins / 60) * $salaryPerHour;
+         
+         
+         // Exclude holidays and gazatted days from early checkout minutes
+$earlyOutMins = 0;
+foreach ($this->attendanceData['earlyCheckoutMinutes'] as $date => $minutes) {
+    $dayName = Carbon::parse($date)->format('l');
+    $formattedDate = Carbon::parse($date)->format('Y-m-d');
+
+    if (!in_array($dayName, $this->holidays) && !in_array($formattedDate, $gazatteDates)) {
+        $earlyOutMins += $minutes;
+    }
+}
+
+$earlyOutCutAmount = ($earlyOutMins / 60) * $salaryPerHour;
+
+
+
+
+
 
         if (!$this->employee->type->adjust_hours) {
             $actualSalary += $overtimePay;
@@ -269,8 +318,9 @@ class SalaryService
             'totalHolidayDays' => $this->attendanceData['holidayDays'],
 
             'earlyOutCutAmount' => $earlyOutCutAmount,
-            'lateCutAmount' => $lateCutAmount,
+            'lateCutAmount' =>  $lateCutAmount,
             'totalLateMinutes' => number_format($lateMinutes, 2),
+            'totalEarlyOutMinutes' => number_format($earlyOutMins, 2),
             'totalLateDays' => count($this->attendanceData['lateMinutes']),
             'missDeductDays' => $missDeductDays,
             'missAmount' => $missAmount,

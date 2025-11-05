@@ -76,7 +76,7 @@
                     {{ number_format($salary->advance_deducted, 0) }}</td>
                 <td class="hide-on-print"><strong>Miss Scan Days Counted</strong><br>
                     {{ $missDeductDays }}</td>
-                <td class="hide-on-print"><strong>Miss Scan Deduct Amount</strong><br>PKR
+                <td class="hide-on-print"><strong>Miss Scan  Amount</strong><br>PKR
                     {{ number_format($missAmount, 0) }}</td>
                 <td><strong>Loan Deduction</strong><br>PKR
                     {{ number_format($salary->loan_deducted, 0) }}</td>
