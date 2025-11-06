@@ -28,7 +28,7 @@ class DailyProduction extends Model
 
     public function shift()
     {
-        return $this->belongsTo(Shift::class);
+        return $this->belongsTo(ProductionShift::class);
     }
 
     public function machine()

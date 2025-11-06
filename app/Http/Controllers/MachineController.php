@@ -32,12 +32,12 @@ class MachineController extends Controller
              $data = Machine::latest()->get();
              return DataTables::of($data)
                 ->addColumn('department', function($row){
-                    $department = $row->department->name;
+                    $department = $row->department->name ?? '-';
 
                     return $department;
                 })
                 ->addColumn('manufacturer', function($row){
-                    $manufacturer = $row->manufacturer->name;
+                    $manufacturer = $row->manufacturer->name ?? '-';
 
                     return $manufacturer;
                 })

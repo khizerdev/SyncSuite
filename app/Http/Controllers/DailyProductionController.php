@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DailyProduction;
 use App\Models\DailyProductionItem;
 use App\Models\Machine;
-use App\Models\Shift;
+use App\Models\ProductionShift;
 use Illuminate\Http\Request;
 use DataTables;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +40,7 @@ class DailyProductionController extends Controller
 
     public function create()
     {
-        $shifts = Shift::all();
+        $shifts = ProductionShift::all();
         $machines = Machine::all();
         return view('pages.daily-productions.create', compact('shifts', 'machines'));
     }
@@ -110,7 +110,7 @@ class DailyProductionController extends Controller
             ->findOrFail($id);
             
         // Load related data
-        $shifts = \App\Models\Shift::all();
+        $shifts = \App\Models\ProductionShift::all();
         $machines = \App\Models\Machine::all();
         
         // Format sale orders with items for JavaScript

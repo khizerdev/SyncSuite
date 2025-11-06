@@ -21,7 +21,6 @@
                                                 <option value="">Select Shift</option>
                                                 @foreach ($shifts as $shift)
                                                     <option value="{{ $shift->id }}">{{ $shift->name }}
-                                                        ({{ $shift->start_time }} - {{ $shift->end_time }})
                                                     </option>
                                                 @endforeach
                                             </select>
